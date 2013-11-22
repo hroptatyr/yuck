@@ -1,0 +1,15 @@
+Usage: yuck COMMAND [OPTION...]
+
+Generate command line option parsers for umbrella commands.
+
+COMMAND may be one of:
+  gen   Generate.
+
+
+## Usages of the single commands
+Usage: yuck gen [FILE...]
+
+  -x, --extra=SYM       Be extra generative.
+  -h                    And helpful.
+                        Also works with other commands.
+      --version         Show version number.

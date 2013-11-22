@@ -7,7 +7,7 @@ LANG = C
 LC_ALL = C
 
 AM_CFLAGS = $(EXTRA_CFLAGS)
-AM_CPPFLAGS = -D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=700 -D_BSD_SOURCE
+AM_CPPFLAGS = -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -D_BSD_SOURCE
 
 bin_PROGRAMS =
 noinst_PROGRAMS =
@@ -22,6 +22,11 @@ EXTRA_DIST += version.c.in
 
 noinst_LIBRARIES += libyuck.a
 libyuck_a_SOURCES = version.c version.h
+
+
+noinst_PROGRAMS += yuck
+yuck_CPPFLAGS = $(AM_CPPFLAGS)
+yuck_CPPFLAGS += -DBOOTSTRAP
 
 
 ## generate version.c from .c.in
