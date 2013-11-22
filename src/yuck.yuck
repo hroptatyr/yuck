@@ -5,6 +5,7 @@ Generate command line option parsers for umbrella commands.
 COMMAND may be one of:
   gen   Generate.
 
+  --help    Generate a nice help screen like this.
 
 ## Usages of the single commands
 Usage: yuck gen [FILE...]

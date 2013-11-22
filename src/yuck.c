@@ -40,6 +40,7 @@
 #include <unistd.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -125,17 +126,30 @@ get_fn(int argc, char *argv[])
 }
 
 
+static void yield_usg(const struct usg_s *arg);
+static void yield_opt(const struct opt_s *arg);
+
 static int
-usagep(struct usg_s *restrict tgt, const char *line, size_t llen)
+usagep(const char *line, size_t llen)
 {
 #define STREQLITP(x, lit)      (!strncasecmp((x), lit, sizeof(lit) - 1))
 	static struct usg_s cur_usg;
+	static bool cur_usg_ylddp;
 	const char *sp;
 	const char *up;
 	const char *cp;
 	const char *const ep = line + llen;
 
+	if (UNLIKELY(line == NULL)) {
+		goto yield;
+	}
+
 	if (!STREQLITP(line, "usage:")) {
+	yield:
+		if (!cur_usg_ylddp) {
+			yield_usg(&cur_usg);
+			cur_usg_ylddp = true;
+		}
 		return 0;
 	}
 	/* overread whitespace then */
@@ -169,55 +183,34 @@ usagep(struct usg_s *restrict tgt, const char *line, size_t llen)
 		}
 		cur_usg.cmd = strndup(cp, sp - cp);
 	}
-
-	*tgt = cur_usg;
+	cur_usg_ylddp = false;
 	return 1;
 }
 
 static int
-optionp(struct opt_s *restrict tgt, const char *line, size_t llen)
+optionp(const char *line, size_t llen)
 {
 	static struct opt_s cur_opt;
 	static size_t ndesc;
 	static size_t zdesc;
-	const char *sp;
+	const char *sp = line;
 	const char *const ep = line + llen;
 
+	if (UNLIKELY(line == NULL)) {
+		goto yield;
+	}
 	/* overread whitespace */
-	for (sp = line; sp < ep && isspace(*sp); sp++);
-	if (sp - line < 2) {
-		/* reset res */
-		return 0;
-	} else if (sp - line >= 8) {
+	for (; sp < ep && isspace(*sp); sp++);
+	if (sp - line >= 8) {
+		/* we dont expect option specs that far out */
 		goto desc;
 	}
-	/* otherwise *sp was '-'
-	 * should be an option then, innit? */
-	if (*++sp >= '0') {
-		char sopt = *sp++;
 
-		/* eat a comma as well */
-		if (ispunct(*sp)) {
-			sp++;
-		}
-		if (!isspace(*sp++)) {
-			/* dont know -x.SOMETHING? */
-			return 0;
-		}
-		cur_opt.sopt = sopt;
-		if (*sp++ == '-') {
-			/* must be a --long now, maybe */
-			;
-		}
-	} else if (*sp == '-') {
-		/* --option */
-		cur_opt.sopt = '\0';
-	} else {
-		/* dont know what this is */
-		return 0;
+yield:
+	/* must yield the old current option before it's too late */
+	if (cur_opt.sopt || cur_opt.lopt) {
+		yield_opt(&cur_opt);
 	}
-
-	/* --option */
 	if (cur_opt.lopt != NULL) {
 		/* free the old guy */
 		free(cur_opt.lopt);
@@ -229,6 +222,41 @@ optionp(struct opt_s *restrict tgt, const char *line, size_t llen)
 			cur_opt.larg = NULL;
 		}
 	}
+	cur_opt.sopt = '\0';
+	if (sp - line < 2) {
+		/* can't be an option, can it? */
+		return 0;
+	}
+
+	/* no yield pressure anymore, try parsing the line */
+	sp++;
+	if (*sp >= '0') {
+		char sopt = *sp++;
+
+		/* eat a comma as well */
+		if (ispunct(*sp)) {
+			sp++;
+		}
+		if (!isspace(*sp)) {
+			/* dont know -x.SOMETHING? */
+			return 0;
+		}
+		/* start over with the new option */
+		sp++;
+		cur_opt.sopt = sopt;
+		if (*sp++ == '-') {
+			/* must be a --long now, maybe */
+			;
+		}
+	} else if (*sp == '-') {
+		/* --option */
+		;
+	} else {
+		/* dont know what this is */
+		return 0;
+	}
+
+	/* --option */
 	if (*sp++ == '-') {
 		const char *op;
 
@@ -258,26 +286,59 @@ desc:
 		ndesc += zp;
 		cur_opt.desc[ndesc] = '\0';
 	}
-	*tgt = cur_opt;
 	return 1;
 }
 
 
-static int
+static void
+yield_usg(const struct usg_s *arg)
+{
+	printf("set_umb(%s, %s)\n", arg->umb, arg->cmd);
+	return;
+}
+
+static void
+yield_opt(const struct opt_s *arg)
+{
+	printf("set_opt(-%c, --%s%s, \"%s\")\n",
+	       arg->sopt ?: '?', arg->lopt, arg->larg, arg->desc);
+	return;
+}
+
+static enum {
+	UNKNOWN,
+	SET_UMBCMD,
+	SET_OPTION,
+}
 snarf_ln(char *line, size_t llen)
 {
-	struct usg_s usg[1U];
-	struct opt_s opt[1U];
+	static unsigned int st;
 
-	/* first keep looking for Usage: lines */
-	if (UNLIKELY(usagep(usg, line, llen))) {
-		/* new umbrella, or new command */
-		printf("set_umb(%s, %s)\n", usg->umb, usg->cmd);
-	} else if (optionp(opt, line, llen)) {
-		printf("set_opt(-%c, --%s%s, \"%s\")\n",
-		       opt->sopt ?: '?', opt->lopt, opt->larg, opt->desc);
+start_over:
+	switch (st) {
+	case UNKNOWN:
+	case SET_UMBCMD:
+		/* first keep looking for Usage: lines */
+		if (usagep(line, llen)) {
+			st = SET_UMBCMD;
+		} else if (st == SET_UMBCMD) {
+			/* finally, a yield! */
+			st = UNKNOWN;
+			goto start_over;
+		}
+	case SET_OPTION:
+		/* check them option things */
+		if (optionp(line, llen)) {
+			st = SET_OPTION;
+		} else if (st == SET_OPTION) {
+			/* yield */
+			st = UNKNOWN;
+			goto start_over;
+		}
+	default:
+		break;
 	}
-	return 0;
+	return UNKNOWN;
 }
 
 static int
@@ -293,6 +354,8 @@ snarf_f(FILE *f)
 		}
 		snarf_ln(line, nrd);
 	}
+	/* drain */
+	snarf_ln(NULL, 0U);
 
 	free(line);
 	return 0;
