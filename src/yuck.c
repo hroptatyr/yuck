@@ -65,7 +65,7 @@
 #if !defined with
 # define with(args...)							\
 	for (args, *paste(__ep, __LINE__) = (void*)1;			\
-	     paste(__ep, __LINE__); paste(__ep, __LINE__)= 0)
+	     paste(__ep, __LINE__); paste(__ep, __LINE__) = 0)
 #endif	/* !with */
 
 struct usg_s {
@@ -77,12 +77,12 @@ struct usg_s {
 struct opt_s {
 	char sopt;
 	char *lopt;
+	char *arg;
 	char *desc;
 };
 
 
-static void
-__attribute__((format(printf, 1, 2)))
+static __attribute__((format(printf, 1, 2))) void
 error(const char *fmt, ...)
 {
 	va_list vap;
@@ -98,7 +98,7 @@ error(const char *fmt, ...)
 	return;
 }
 
-static __inline void*
+static inline __attribute__((unused)) void*
 deconst(const void *cp)
 {
 	union {
@@ -129,6 +129,7 @@ static int
 usagep(struct usg_s *restrict tgt, const char *line, size_t llen)
 {
 #define STREQLITP(x, lit)      (!strncasecmp((x), lit, sizeof(lit) - 1))
+	static struct usg_s cur_usg;
 	const char *sp;
 	const char *up;
 	const char *const ep = line + llen;
@@ -140,32 +141,36 @@ usagep(struct usg_s *restrict tgt, const char *line, size_t llen)
 	for (sp = line + sizeof("usage:") - 1; sp < ep && isspace(*sp); sp++);
 	/* first thing should name the umbrella, find its end */
 	for (up = sp; sp < ep && !isspace(*sp); sp++);
-	if (tgt->umb != NULL) {
+	if (cur_usg.umb) {
 		/* free the old guy */
-		free(tgt->umb);
+		free(cur_usg.umb);
 	}
-	tgt->umb = strndup(up, sp - up);
+	cur_usg.umb = strndup(up, sp - up);
+	*tgt = cur_usg;
 	return 1;
 }
 
 static int
 optionp(struct opt_s *restrict tgt, const char *line, size_t llen)
 {
+	static struct opt_s cur_opt;
+	static size_t ndesc;
+	static size_t zdesc;
 	const char *sp;
 	const char *const ep = line + llen;
+	const char *op;
 
 	/* overread whitespace */
 	for (sp = line; sp < ep && isspace(*sp); sp++);
 	if (sp - line < 2) {
 		/* reset res */
 		return 0;
-	} else if (sp - line >= 8 || *sp++ != '-') {
-		tgt->desc = deconst(sp);
-		return tgt->sopt || tgt->lopt;
+	} else if (sp - line >= 8) {
+		goto desc;
 	}
 	/* otherwise *sp was '-'
 	 * should be an option then, innit? */
-	if (*sp >= '0') {
+	if (*++sp >= '0') {
 		char sopt = *sp++;
 
 		/* eat a comma as well */
@@ -176,40 +181,51 @@ optionp(struct opt_s *restrict tgt, const char *line, size_t llen)
 			/* dont know -x.SOMETHING? */
 			return 0;
 		}
-		if (tgt->lopt != NULL) {
+		if (cur_opt.lopt != NULL) {
 			/* free the old guy */
-			free(tgt->lopt);
-			tgt->lopt = NULL;
+			free(cur_opt.lopt);
+			cur_opt.lopt = NULL;
 		}
-		tgt->sopt = sopt;
-		if (*sp++ == '-' && *sp++ == '-') {
-			/* must be a --long now */
-			const char *op;
-			for (op = sp; sp < ep && !isspace(*sp); sp++);
-			tgt->lopt = strndup(op, sp - op);
+		cur_opt.sopt = sopt;
+		if (*sp++ == '-') {
+			/* must be a --long now, maybe */
+			;
 		}
 	} else if (*sp == '-') {
 		/* --option */
-		const char *op;
-
-		tgt->sopt = '\0';
-		if (tgt->lopt != NULL) {
-			/* free the old guy */
-			free(tgt->lopt);
-			tgt->lopt = NULL;
-		}
-
-		for (op = sp; sp < ep && !isspace(*sp); sp++);
-		tgt->lopt = strndup(op, sp - op);
+		cur_opt.sopt = '\0';
 	} else {
 		/* dont know what this is */
 		return 0;
+	}
+
+	/* --option */
+	if (cur_opt.lopt != NULL) {
+		/* free the old guy */
+		free(cur_opt.lopt);
+		cur_opt.lopt = NULL;
+	}
+	if (*sp++ == '-') {
+		for (op = sp; sp < ep && !isspace(*sp); sp++);
+		cur_opt.lopt = strndup(op, sp - op);
 	}
 	/* require at least one more space? */
 	;
 	/* space eater */
 	for (; sp < ep && isspace(*sp); sp++);
-	tgt->desc = deconst(sp);
+	/* dont free but reset the old guy */
+	ndesc = 0U;
+desc:
+	with (size_t zp = llen - (sp - line)) {
+		if (ndesc + zp > zdesc) {
+			zdesc = ((ndesc + zp) / 256U + 1U) * 256U;
+			cur_opt.desc = realloc(cur_opt.desc, zdesc);
+		}
+		memcpy(cur_opt.desc + ndesc, sp, zp);
+		ndesc += zp;
+		cur_opt.desc[ndesc] = '\0';
+	}
+	*tgt = cur_opt;
 	return 1;
 }
 
@@ -217,17 +233,16 @@ optionp(struct opt_s *restrict tgt, const char *line, size_t llen)
 static int
 snarf_ln(char *line, size_t llen)
 {
-	static struct usg_s cur_usg[1U];
-	static struct opt_s cur_opt[1U];
+	struct usg_s usg[1U];
+	struct opt_s opt[1U];
 
 	/* first keep looking for Usage: lines */
-	if (UNLIKELY(usagep(cur_usg, line, llen))) {
+	if (UNLIKELY(usagep(usg, line, llen))) {
 		/* new umbrella, or new command */
-		printf("set_umb(\"%s\")\n", cur_usg->umb);
-	} else if (optionp(cur_opt, line, llen)) {
-		printf("set_opt[\"%s\", \"%s\"](-%c, --%s)\n",
-		       cur_usg->umb, cur_usg->cmd,
-		       cur_opt->sopt ?: '?', cur_opt->lopt);
+		printf("set_umb(\"%s\")\n", usg->umb);
+	} else if (optionp(opt, line, llen)) {
+		printf("set_opt(-%c, --%s, \"%s\")\n",
+		       opt->sopt ?: '?', opt->lopt, opt->desc);
 	}
 	return 0;
 }
