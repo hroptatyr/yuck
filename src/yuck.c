@@ -52,6 +52,9 @@
 #if !defined UNLIKELY
 # define UNLIKELY(_x)	__builtin_expect((_x), 0)
 #endif	/* UNLIKELY */
+#if !defined UNUSED
+# define UNUSED(_x)	_x __attribute__((unused))
+#endif	/* !UNUSED */
 
 #if !defined countof
 # define countof(x)	(sizeof(x) / sizeof(*x))
@@ -64,6 +67,18 @@
 	for (args, *paste(__ep, __LINE__) = (void*)1;			\
 	     paste(__ep, __LINE__); paste(__ep, __LINE__)= 0)
 #endif	/* !with */
+
+struct usg_s {
+	char *umb;
+	char *cmd;
+	char *desc;
+};
+
+struct opt_s {
+	char sopt;
+	char *lopt;
+	char *desc;
+};
 
 
 static void
@@ -109,43 +124,129 @@ get_fn(int argc, char *argv[])
 	return res;
 }
 
-static char*
-streqp(const char *str, const char *cmp, size_t cmpz)
+
+static int
+usagep(struct usg_s *restrict tgt, const char *line, size_t llen)
 {
-	if (!strncasecmp(str, cmp, cmpz)) {
-		return deconst(str + cmpz);
+#define STREQLITP(x, lit)      (!strncasecmp((x), lit, sizeof(lit) - 1))
+	const char *sp;
+	const char *up;
+	const char *const ep = line + llen;
+
+	if (!STREQLITP(line, "usage:")) {
+		return 0;
 	}
-	return NULL;
+	/* overread whitespace then */
+	for (sp = line + sizeof("usage:") - 1; sp < ep && isspace(*sp); sp++);
+	/* first thing should name the umbrella, find its end */
+	for (up = sp; sp < ep && !isspace(*sp); sp++);
+	if (tgt->umb != NULL) {
+		/* free the old guy */
+		free(tgt->umb);
+	}
+	tgt->umb = strndup(up, sp - up);
+	return 1;
 }
 
 static int
-snarf(char *line, size_t llen)
+optionp(struct opt_s *restrict tgt, const char *line, size_t llen)
 {
-	static char cur_umb[64U];
-	static char cur_cmd[64U];
-	static char cur_opt[64U];
-	char *lp;
+	const char *sp;
+	const char *const ep = line + llen;
 
-#define STREQLITP(x, lit)	(streqp((x), lit, sizeof(lit) - 1))
+	/* overread whitespace */
+	for (sp = line; sp < ep && isspace(*sp); sp++);
+	if (sp - line < 2) {
+		/* reset res */
+		return 0;
+	} else if (sp - line >= 8 || *sp++ != '-') {
+		tgt->desc = deconst(sp);
+		return tgt->sopt || tgt->lopt;
+	}
+	/* otherwise *sp was '-'
+	 * should be an option then, innit? */
+	if (*sp >= '0') {
+		char sopt = *sp++;
+
+		/* eat a comma as well */
+		if (ispunct(*sp)) {
+			sp++;
+		}
+		if (!isspace(*sp++)) {
+			/* dont know -x.SOMETHING? */
+			return 0;
+		}
+		if (tgt->lopt != NULL) {
+			/* free the old guy */
+			free(tgt->lopt);
+			tgt->lopt = NULL;
+		}
+		tgt->sopt = sopt;
+		if (*sp++ == '-' && *sp++ == '-') {
+			/* must be a --long now */
+			const char *op;
+			for (op = sp; sp < ep && !isspace(*sp); sp++);
+			tgt->lopt = strndup(op, sp - op);
+		}
+	} else if (*sp == '-') {
+		/* --option */
+		const char *op;
+
+		tgt->sopt = '\0';
+		if (tgt->lopt != NULL) {
+			/* free the old guy */
+			free(tgt->lopt);
+			tgt->lopt = NULL;
+		}
+
+		for (op = sp; sp < ep && !isspace(*sp); sp++);
+		tgt->lopt = strndup(op, sp - op);
+	} else {
+		/* dont know what this is */
+		return 0;
+	}
+	/* require at least one more space? */
+	;
+	/* space eater */
+	for (; sp < ep && isspace(*sp); sp++);
+	tgt->desc = deconst(sp);
+	return 1;
+}
+
+
+static int
+snarf_ln(char *line, size_t llen)
+{
+	static struct usg_s cur_usg[1U];
+	static struct opt_s cur_opt[1U];
 
 	/* first keep looking for Usage: lines */
-	if (UNLIKELY((lp = STREQLITP(line, "usage:")) != NULL)) {
+	if (UNLIKELY(usagep(cur_usg, line, llen))) {
 		/* new umbrella, or new command */
-		char *sp;
-		char *ep;
-		const char *const eolp = line + llen;
+		printf("set_umb(\"%s\")\n", cur_usg->umb);
+	} else if (optionp(cur_opt, line, llen)) {
+		printf("set_opt[\"%s\", \"%s\"](-%c, --%s)\n",
+		       cur_usg->umb, cur_usg->cmd,
+		       cur_opt->sopt ?: '?', cur_opt->lopt);
+	}
+	return 0;
+}
 
-		/* skip whitespace */
-		for (sp = lp; sp < eolp && isspace(*sp); sp++);
-		/* find end-of-command */
-		for (ep = sp; ep < eolp && !isspace(*ep); ep++);
+static int
+snarf_f(FILE *f)
+{
+	char *line = NULL;
+	size_t llen = 0U;
+	ssize_t nrd;
 
-		*ep = '\0';
-		memcpy(cur_umb, sp, ep - sp + 1U);
-		printf("set_umb(\"%s\")\n", cur_umb);
+	while ((nrd = getline(&line, &llen, f)) > 0) {
+		if (*line == '#') {
+			continue;
+		}
+		snarf_ln(line, nrd);
 	}
 
-#undef STREQLITP
+	free(line);
 	return 0;
 }
 
@@ -157,29 +258,15 @@ main(int argc, char *argv[])
 	FILE *yf;
 
 	if (UNLIKELY((yf = get_fn(argc, argv)) == NULL)) {
-		rc = 1;
-		goto out;
+		rc = -1;
+	} else {
+		/* let the snarfing begin */
+		rc = snarf_f(yf);
+		/* clean up */
+		fclose(yf);
 	}
 
-	{
-		char *line = NULL;
-		size_t llen = 0U;
-		ssize_t nrd;
-
-		while ((nrd = getline(&line, &llen, yf)) > 0) {
-			if (*line == '#') {
-				continue;
-			}
-			snarf(line, nrd);
-		}
-
-		free(line);
-	}
-
-	/* clean up */
-	fclose(yf);
-out:
-	return rc;
+	return -rc;
 }
 
 /* yuck.c ends here */
