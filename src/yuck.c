@@ -290,18 +290,48 @@ desc:
 }
 
 
+static struct usg_s *usgs;
+static size_t nusgs;
+static struct ou_s {
+	const struct usg_s *usg;
+	struct opt_s opt;
+} *opts;
+static size_t nopts;
+
+static const struct usg_s*
+get_usg(void)
+{
+/* return the current usg */
+	if (nusgs) {
+		return usgs + nusgs - 1U;
+	}
+	return NULL;
+}
+
 static void
 yield_usg(const struct usg_s *arg)
 {
-	printf("set_umb(%s, %s)\n", arg->umb, arg->cmd);
+	size_t idx = nusgs++;
+
+	if (!(idx % 64U)) {
+		usgs = realloc(usgs, (idx + 64U) * sizeof(*usgs));
+	}
+	/* clone usg */
+	usgs[idx] = *arg;
 	return;
 }
 
 static void
 yield_opt(const struct opt_s *arg)
 {
-	printf("set_opt(-%c, --%s%s, \"%s\")\n",
-	       arg->sopt ?: '?', arg->lopt, arg->larg, arg->desc);
+	size_t idx = nopts++;
+
+	if (!(idx % 64U)) {
+		opts = realloc(opts, (idx + 64U) * sizeof(*opts));
+	}
+	/* clone opt */
+	opts[idx].opt = *arg;
+	opts[idx].usg = get_usg();
 	return;
 }
 
@@ -373,6 +403,13 @@ main(int argc, char *argv[])
 	} else {
 		/* let the snarfing begin */
 		rc = snarf_f(yf);
+
+		for (const struct ou_s *o = opts; o < opts + nopts; o++) {
+			printf("set_umb(%s, %s)\n", o->usg->umb, o->usg->cmd);
+			printf("set_opt(-%c, --%s%s, \"%s\")\n",
+			       o->opt.sopt ?: '?', o->opt.lopt, o->opt.larg, o->opt.desc);
+		}
+
 		/* clean up */
 		fclose(yf);
 	}
