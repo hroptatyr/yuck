@@ -9,6 +9,7 @@ COMMAND may be one of:
 ## Usages of the single commands
 Usage: yuck gen [FILE...]
 
-  -x, --extra    Be extra generative.
-  -h             And helpful.
-      --version  Show version number.
+  -x, --extra=SYM       Be extra generative.
+  -h                    And helpful.
+                        Also works with other commands.
+      --version         Show version number.
