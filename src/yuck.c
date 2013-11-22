@@ -132,6 +132,7 @@ usagep(struct usg_s *restrict tgt, const char *line, size_t llen)
 	static struct usg_s cur_usg;
 	const char *sp;
 	const char *up;
+	const char *cp;
 	const char *const ep = line + llen;
 
 	if (!STREQLITP(line, "usage:")) {
@@ -141,11 +142,34 @@ usagep(struct usg_s *restrict tgt, const char *line, size_t llen)
 	for (sp = line + sizeof("usage:") - 1; sp < ep && isspace(*sp); sp++);
 	/* first thing should name the umbrella, find its end */
 	for (up = sp; sp < ep && !isspace(*sp); sp++);
-	if (cur_usg.umb) {
-		/* free the old guy */
-		free(cur_usg.umb);
+
+	if (cur_usg.umb && !strncasecmp(cur_usg.umb, up, sp - up)) {
+		/* nothing new and fresh */
+		;
+	} else {
+		if (cur_usg.umb) {
+			/* free the old guy */
+			free(cur_usg.umb);
+		}
+		cur_usg.umb = strndup(up, sp - up);
 	}
-	cur_usg.umb = strndup(up, sp - up);
+
+	/* overread more whitespace then */
+	for (; sp < ep && isspace(*sp); sp++);
+	/* time for the command innit */
+	for (cp = sp; sp < ep && !isspace(*sp); sp++);
+
+	if (cur_usg.cmd && !strncasecmp(cur_usg.cmd, cp, sp - cp)) {
+		/* nothing new and fresh */
+		;
+	} else {
+		if (cur_usg.cmd) {
+			/* free the old guy */
+			free(cur_usg.cmd);
+		}
+		cur_usg.cmd = strndup(cp, sp - cp);
+	}
+
 	*tgt = cur_usg;
 	return 1;
 }
@@ -248,7 +272,7 @@ snarf_ln(char *line, size_t llen)
 	/* first keep looking for Usage: lines */
 	if (UNLIKELY(usagep(usg, line, llen))) {
 		/* new umbrella, or new command */
-		printf("set_umb(\"%s\")\n", usg->umb);
+		printf("set_umb(%s, %s)\n", usg->umb, usg->cmd);
 	} else if (optionp(opt, line, llen)) {
 		printf("set_opt(-%c, --%s%s, \"%s\")\n",
 		       opt->sopt ?: '?', opt->lopt, opt->larg, opt->desc);
