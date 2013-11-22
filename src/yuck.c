@@ -77,7 +77,7 @@ struct usg_s {
 struct opt_s {
 	char sopt;
 	char *lopt;
-	char *arg;
+	char *larg;
 	char *desc;
 };
 
@@ -158,7 +158,6 @@ optionp(struct opt_s *restrict tgt, const char *line, size_t llen)
 	static size_t zdesc;
 	const char *sp;
 	const char *const ep = line + llen;
-	const char *op;
 
 	/* overread whitespace */
 	for (sp = line; sp < ep && isspace(*sp); sp++);
@@ -181,11 +180,6 @@ optionp(struct opt_s *restrict tgt, const char *line, size_t llen)
 			/* dont know -x.SOMETHING? */
 			return 0;
 		}
-		if (cur_opt.lopt != NULL) {
-			/* free the old guy */
-			free(cur_opt.lopt);
-			cur_opt.lopt = NULL;
-		}
 		cur_opt.sopt = sopt;
 		if (*sp++ == '-') {
 			/* must be a --long now, maybe */
@@ -204,10 +198,25 @@ optionp(struct opt_s *restrict tgt, const char *line, size_t llen)
 		/* free the old guy */
 		free(cur_opt.lopt);
 		cur_opt.lopt = NULL;
+
+		if (cur_opt.larg != NULL) {
+			/* free the old guy */
+			free(cur_opt.larg);
+			cur_opt.larg = NULL;
+		}
 	}
 	if (*sp++ == '-') {
-		for (op = sp; sp < ep && !isspace(*sp); sp++);
+		const char *op;
+
+		for (op = sp; sp < ep && !isspace(*sp) && *sp != '='; sp++);
 		cur_opt.lopt = strndup(op, sp - op);
+
+		if (*sp++ == '=') {
+			/* has got an arg */
+			const char *ap;
+			for (ap = sp; sp < ep && !isspace(*sp); sp++);
+			cur_opt.larg = strndup(ap, sp - ap);
+		}
 	}
 	/* require at least one more space? */
 	;
@@ -241,8 +250,8 @@ snarf_ln(char *line, size_t llen)
 		/* new umbrella, or new command */
 		printf("set_umb(\"%s\")\n", usg->umb);
 	} else if (optionp(opt, line, llen)) {
-		printf("set_opt(-%c, --%s, \"%s\")\n",
-		       opt->sopt ?: '?', opt->lopt, opt->desc);
+		printf("set_opt(-%c, --%s%s, \"%s\")\n",
+		       opt->sopt ?: '?', opt->lopt, opt->larg, opt->desc);
 	}
 	return 0;
 }
