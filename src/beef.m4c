@@ -19,7 +19,7 @@ static int parse_cmd_long(struct yuck_s *restrict tgt, const char *opt)
 		if (0) {
 			;
 		}foreachq([__lopt__], __cmd__[_LONG], [ else if (streqp(opt, "__lopt__")) {
-			puts("got __lopt__");
+			YUCK_SET([tgt], __cmd__.__lopt__);
 		}])
 		break;
 	])
@@ -34,7 +34,7 @@ static int parse_none_long(struct yuck_s *restrict tgt, const char *opt)
 	if (0) {
 		;
 	}foreachq([__lopt__], [YUCK_NONE_LONG], [ else if (streqp(opt, "__lopt__")) {
-		puts("got __lopt__");
+		YUCK_SET([tgt], __lopt__);
 	}])
 	return 0;
 }
@@ -44,7 +44,8 @@ static int parse_cmd_short(struct yuck_s *restrict tgt, const char arg)
 	switch (tgt->cmd) {
 	foreachq([__cmd__], [YUCK_CMDS], [case __cmd__:
 		switch (arg) {
-		foreachq([sopt], __cmd__[_SHORT], [case 'sopt':
+		foreachq([__sopt__], __cmd__[_SHORT], [case '__sopt__':
+			YUCK_SET([tgt], __cmd__.__sopt__);
 			break;
 		])
 		default:
@@ -61,7 +62,8 @@ static int parse_cmd_short(struct yuck_s *restrict tgt, const char arg)
 static int parse_none_short(struct yuck_s *restrict tgt, const char arg)
 {
 	switch (arg) {
-	foreachq([sopt], [YUCK_NONE_SHORT], [case 'sopt':
+	foreachq([__sopt__], [YUCK_NONE_SHORT], [case '__sopt__':
+		YUCK_SET([tgt], __sopt__);
 		break;
 	])
 	default:

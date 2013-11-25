@@ -12,14 +12,29 @@ divert[]dnl
 
 define([YUCK_CMDS], [yuck_gen])
 
-define([YUCK_CMDSTR_MAP], [defn(format([[array[%s]]], [$1]))])
-define([YUCK_CMDSTR_MAP_set], [define(format([[array[%s]]], [$1]), [$2])])
+define([YUCK_CMDSTR_MAP], [defn(format([[YUCK_CMDSTR_MAP[%s]]], [$1]))])
+define([YUCK_CMDSTR_MAP_set], [define(format([[YUCK_CMDSTR_MAP[%s]]], [$1]), [$2])])
 
 YUCK_CMDSTR_MAP_set([yuck_gen], ["gen"])
 YUCK_CMDSTR_MAP_set([none_tst], ["tst"])
 
 define([YUCK_NONE_SHORT], [\0])
-define([YUCK_NONE_LONG], [--help])
+define([YUCK_NONE_LONG], [help])
 
 define([yuck_gen_SHORT], [x,h])
 define([yuck_gen_LONG], [extra,version])
+
+define([YUCK_SLOT_MAP], [defn(format([[YUCK_SLOT_MAP[%s]]], [$1]))])
+define([YUCK_SLOT_MAP_set], [define(format([[YUCK_SLOT_MAP[%s]]], [$1]), [$2])])
+
+YUCK_SLOT_MAP_set([yuck_gen.x], [gen.extra_arg])
+YUCK_SLOT_MAP_set([yuck_gen.extra], [gen.extra_arg])
+YUCK_SLOT_MAP_set([yuck_gen.version], [gen.version_given])
+YUCK_SLOT_MAP_set([yuck_gen.h], [gen.dashh_given])
+YUCK_SLOT_MAP_set([help], [help_given])
+
+define([YUCK_SET], [dnl
+pushdef([slot], [YUCK_SLOT_MAP([$2])])dnl
+ifelse(slot, [], [/* no slot defined for `$2' */], [$1->slot++])dnl
+popdef([slot])dnl
+])
