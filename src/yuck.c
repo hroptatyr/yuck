@@ -125,6 +125,18 @@ get_fn(int argc, char *argv[])
 	return res;
 }
 
+static inline __attribute__((always_inline)) unsigned int
+fls(unsigned int x)
+{
+	return x ? sizeof(x) * 8U - __builtin_clz(x) : 0U;
+}
+
+static inline __attribute__((always_inline)) size_t
+max_zu(size_t x, size_t y)
+{
+	return x > y ? x : y;
+}
+
 static size_t
 xstrncpy(char *restrict dst, const char *src, size_t ssz)
 {
@@ -142,23 +154,34 @@ xstrdup(const char *str)
 	return strdup(str);
 }
 
-/**
- * fls - find last (most-significant) bit set
- * @x: the word to search
- *
- * This is defined the same way as ffs.
- * Note fls(0) = 0, fls(1) = 1, fls(0x80000000) = 32.
- */
-static inline __attribute__((always_inline)) unsigned int
-fls(unsigned int x)
+static __attribute__((unused)) bool
+xstreqp(const char *s1, const char *s2)
 {
-	return x ? sizeof(x) * 8U - __builtin_clz(x) : 0U;
+	if (s1 == NULL && s2 == NULL) {
+		return true;
+	} else if (s1 == NULL || s2 == NULL) {
+		/* one of them isn't NULL */
+		return false;
+	}
+	/* resort to normal strcmp */
+	return !strcasecmp(s1, s2);
 }
 
-static inline __attribute__((always_inline)) size_t
-max_zu(size_t x, size_t y)
+static void
+xlcase_(char *restrict buf)
 {
-	return x > y ? x : y;
+	if (buf == NULL) {
+		/* nothing to do */
+		return;
+	}
+	for (char *restrict bp = buf; *bp; bp++) {
+		if (ispunct(*bp)) {
+			*bp = '_';
+		} else if (isupper(*bp)) {
+			*bp = (char)tolower(*bp);
+		}
+	}
+	return;
 }
 
 
@@ -247,6 +270,10 @@ usagep(const char *line, size_t llen)
 	if (cur_usg.cmd && !strncasecmp(cur_usg.cmd, cp, sp - cp)) {
 		/* nothing new and fresh */
 		;
+	} else if ((*cp != '<' || cp[--sp - cp++] == '>') &&
+		   !strncasecmp(cp, "command", sp - cp)) {
+		/* special command COMMAND or <command> */
+		cur_usg.cmd = NULL;
 	} else {
 		cur_usg.cmd = bbuf_cpy(cmd, cp, sp - cp);
 	}
@@ -385,6 +412,91 @@ yield_opt(const struct opt_s *arg)
 	return;
 }
 
+static void
+pr_opt(const struct opt_s *o)
+{
+	const char *lopt;
+
+	if ((lopt = o->lopt) == NULL) {
+		static char buf[8U] = "dash";
+		buf[4U] = o->sopt;
+		lopt = buf;
+	}
+	if (o->larg == NULL) {
+		printf("\tunsigned int %s_given;\n", lopt);
+	} else {
+		printf("\tchar *const %s_arg;\n", lopt);
+	}
+	return;
+}
+
+static void
+pr_struct_none(const struct usg_s *u)
+{
+	for (const struct ou_s *o = opts; o < opts + nopts; o++) {
+		if (u - usgs != o->usg) {
+			continue;
+		}
+		pr_opt(&o->opt);
+	}
+	return;
+}
+
+static void
+pr_struct(const struct usg_s *u)
+{
+	printf("\t\tstruct %s_%s_s {\n", u->umb, u->cmd);
+	for (const struct ou_s *o = opts; o < opts + nopts; o++) {
+		if (u - usgs != o->usg) {
+			continue;
+		}
+		putchar('\t');
+		putchar('\t');
+		pr_opt(&o->opt);
+	}
+	printf("\t\t} %s;\n", u->cmd);
+	return;
+}
+
+static void
+pr_hdr(void)
+{
+	puts("\
+#if !defined INCLUDED_yuck_h_\n\
+#define INCLUDED_yuck_h_\n");
+
+	puts("enum yuck_cmds_e {");
+	for (const struct usg_s *u = usgs; u < usgs + nusgs; u++) {
+		xlcase_(u->umb);
+		xlcase_(u->cmd);
+
+		printf("\t%s_%s,\n", u->umb, u->cmd ?: "NONE");
+	}
+	puts("};\n");
+
+	for (const struct ou_s *o = opts; o < opts + nopts; o++) {
+		xlcase_(o->opt.lopt);
+	}
+
+	puts("struct yuck_s {");
+	puts("\tenum yuck_cmds_e cmd;");
+	/* first cmd lists all the common options, innit? */
+	pr_struct_none(usgs);
+	puts("\tunion {");
+	for (const struct usg_s *u = usgs + 1U; u < usgs + nusgs; u++) {
+		pr_struct(u);
+	}
+	puts("\t};");
+	puts("\tsize_t nargs;");
+	puts("\tchar *const *args;");
+	puts("};\n");
+
+	puts("\
+#endif  /* INCLUDED_yuck_h_ */");
+	return;
+}
+
+
 static enum {
 	UNKNOWN,
 	SET_UMBCMD,
@@ -454,14 +566,7 @@ main(int argc, char *argv[])
 		/* let the snarfing begin */
 		rc = snarf_f(yf);
 
-		for (const struct ou_s *o = opts; o < opts + nopts; o++) {
-			const struct usg_s *usg = usgs + o->usg;
-			const struct opt_s *opt = &o->opt;
-
-			printf("set_umb(%s, %s)\n", usg->umb, usg->cmd);
-			printf("set_opt(-%c, --%s%s, \"%s\")\n",
-			       opt->sopt ?: '?', opt->lopt, opt->larg, opt->desc);
-		}
+		pr_hdr();
 
 		/* clean up */
 		fclose(yf);
