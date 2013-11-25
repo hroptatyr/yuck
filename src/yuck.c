@@ -293,20 +293,10 @@ desc:
 static struct usg_s *usgs;
 static size_t nusgs;
 static struct ou_s {
-	const struct usg_s *usg;
+	size_t usg;
 	struct opt_s opt;
 } *opts;
 static size_t nopts;
-
-static const struct usg_s*
-get_usg(void)
-{
-/* return the current usg */
-	if (nusgs) {
-		return usgs + nusgs - 1U;
-	}
-	return NULL;
-}
 
 static void
 yield_usg(const struct usg_s *arg)
@@ -331,7 +321,7 @@ yield_opt(const struct opt_s *arg)
 	}
 	/* clone opt */
 	opts[idx].opt = *arg;
-	opts[idx].usg = get_usg();
+	opts[idx].usg = nusgs - 1U;
 	return;
 }
 
@@ -405,9 +395,12 @@ main(int argc, char *argv[])
 		rc = snarf_f(yf);
 
 		for (const struct ou_s *o = opts; o < opts + nopts; o++) {
-			printf("set_umb(%s, %s)\n", o->usg->umb, o->usg->cmd);
+			const struct usg_s *usg = usgs + o->usg;
+			const struct opt_s *opt = &o->opt;
+
+			printf("set_umb(%s, %s)\n", usg->umb, usg->cmd);
 			printf("set_opt(-%c, --%s%s, \"%s\")\n",
-			       o->opt.sopt ?: '?', o->opt.lopt, o->opt.larg, o->opt.desc);
+			       opt->sopt ?: '?', opt->lopt, opt->larg, opt->desc);
 		}
 
 		/* clean up */
