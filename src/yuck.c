@@ -133,6 +133,15 @@ xstrncpy(char *restrict dst, const char *src, size_t ssz)
 	return ssz;
 }
 
+static char*
+xstrdup(const char *str)
+{
+	if (str == NULL) {
+		return NULL;
+	}
+	return strdup(str);
+}
+
 /**
  * fls - find last (most-significant) bit set
  * @x: the word to search
@@ -353,7 +362,9 @@ yield_usg(const struct usg_s *arg)
 		usgs = realloc(usgs, (idx + 64U) * sizeof(*usgs));
 	}
 	/* clone usg */
-	usgs[idx] = *arg;
+	usgs[idx].umb = xstrdup(arg->umb);
+	usgs[idx].cmd = xstrdup(arg->cmd);
+	usgs[idx].desc = xstrdup(arg->desc);
 	return;
 }
 
@@ -366,8 +377,11 @@ yield_opt(const struct opt_s *arg)
 		opts = realloc(opts, (idx + 64U) * sizeof(*opts));
 	}
 	/* clone opt */
-	opts[idx].opt = *arg;
 	opts[idx].usg = nusgs - 1U;
+	opts[idx].opt.sopt = arg->sopt;
+	opts[idx].opt.lopt = xstrdup(arg->lopt);
+	opts[idx].opt.larg = xstrdup(arg->larg);
+	opts[idx].opt.desc = xstrdup(arg->desc);
 	return;
 }
 
