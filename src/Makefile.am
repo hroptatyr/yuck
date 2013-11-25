@@ -28,6 +28,12 @@ noinst_PROGRAMS += yuck
 yuck_CPPFLAGS = $(AM_CPPFLAGS)
 yuck_CPPFLAGS += -DBOOTSTRAP
 
+noinst_PROGRAMS += test
+EXTRA_test_SOURCES = beef.c yuck.yuck
+BUILT_SOURCES += yuck.h
+
+yuck.h: yuck.yuck $(builddir)/yuck
+	$(builddir)/yuck $< > $@ || rm -f -- $@
 
 ## generate version.c from .c.in
 version.c: version.c.in $(top_builddir)/version.mk
