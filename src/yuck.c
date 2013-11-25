@@ -125,6 +125,70 @@ get_fn(int argc, char *argv[])
 	return res;
 }
 
+static size_t
+xstrncpy(char *restrict dst, const char *src, size_t ssz)
+{
+	memcpy(dst, src, ssz);
+	dst[ssz] = '\0';
+	return ssz;
+}
+
+/**
+ * fls - find last (most-significant) bit set
+ * @x: the word to search
+ *
+ * This is defined the same way as ffs.
+ * Note fls(0) = 0, fls(1) = 1, fls(0x80000000) = 32.
+ */
+static inline __attribute__((always_inline)) unsigned int
+fls(unsigned int x)
+{
+	return x ? sizeof(x) * 8U - __builtin_clz(x) : 0U;
+}
+
+static inline __attribute__((always_inline)) size_t
+max_zu(size_t x, size_t y)
+{
+	return x > y ? x : y;
+}
+
+
+/* bang buffers */
+typedef struct {
+	/* the actual buffer (resizable) */
+	char *s;
+	/* current size */
+	size_t z;
+}  bbuf_t;
+
+static char*
+bbuf_cpy(bbuf_t b[static 1U], const char *str, size_t ssz)
+{
+	size_t nu = max_zu(fls(ssz + 1U) + 1U, 6U);
+	size_t ol = b->z ? max_zu(fls(b->z) + 1U, 6U) : 0U;
+
+	if (UNLIKELY(nu > ol)) {
+		b->s = realloc(b->s, (1U << nu) * sizeof(*b->s));
+	}
+	xstrncpy(b->s, str, ssz);
+	b->z += ssz;
+	return b->s;
+}
+
+static char*
+bbuf_cat(bbuf_t b[static 1U], const char *str, size_t ssz)
+{
+	size_t nu = max_zu(fls(b->z + ssz + 1U) + 1U, 6U);
+	size_t ol = b->z ? max_zu(fls(b->z) + 1U, 6U) : 0U;
+
+	if (UNLIKELY(nu > ol)) {
+		b->s = realloc(b->s, (1U << nu) * sizeof(*b->s));
+	}
+	xstrncpy(b->s + b->z, str, ssz);
+	b->z += ssz;
+	return b->s;
+}
+
 
 static void yield_usg(const struct usg_s *arg);
 static void yield_opt(const struct opt_s *arg);
@@ -134,6 +198,8 @@ usagep(const char *line, size_t llen)
 {
 #define STREQLITP(x, lit)      (!strncasecmp((x), lit, sizeof(lit) - 1))
 	static struct usg_s cur_usg;
+	static bbuf_t umb[1U];
+	static bbuf_t cmd[1U];
 	static bool cur_usg_ylddp;
 	const char *sp;
 	const char *up;
@@ -161,11 +227,7 @@ usagep(const char *line, size_t llen)
 		/* nothing new and fresh */
 		;
 	} else {
-		if (cur_usg.umb) {
-			/* free the old guy */
-			free(cur_usg.umb);
-		}
-		cur_usg.umb = strndup(up, sp - up);
+		cur_usg.umb = bbuf_cpy(umb, up, sp - up);
 	}
 
 	/* overread more whitespace then */
@@ -177,11 +239,7 @@ usagep(const char *line, size_t llen)
 		/* nothing new and fresh */
 		;
 	} else {
-		if (cur_usg.cmd) {
-			/* free the old guy */
-			free(cur_usg.cmd);
-		}
-		cur_usg.cmd = strndup(cp, sp - cp);
+		cur_usg.cmd = bbuf_cpy(cmd, cp, sp - cp);
 	}
 	cur_usg_ylddp = false;
 	return 1;
@@ -191,8 +249,9 @@ static int
 optionp(const char *line, size_t llen)
 {
 	static struct opt_s cur_opt;
-	static size_t ndesc;
-	static size_t zdesc;
+	static bbuf_t desc[1U];
+	static bbuf_t lopt[1U];
+	static bbuf_t larg[1U];
 	const char *sp = line;
 	const char *const ep = line + llen;
 
@@ -212,15 +271,8 @@ yield:
 		yield_opt(&cur_opt);
 	}
 	if (cur_opt.lopt != NULL) {
-		/* free the old guy */
-		free(cur_opt.lopt);
 		cur_opt.lopt = NULL;
-
-		if (cur_opt.larg != NULL) {
-			/* free the old guy */
-			free(cur_opt.larg);
-			cur_opt.larg = NULL;
-		}
+		cur_opt.larg = NULL;
 	}
 	cur_opt.sopt = '\0';
 	if (sp - line < 2) {
@@ -261,13 +313,13 @@ yield:
 		const char *op;
 
 		for (op = sp; sp < ep && !isspace(*sp) && *sp != '='; sp++);
-		cur_opt.lopt = strndup(op, sp - op);
+		cur_opt.lopt = bbuf_cpy(lopt, op, sp - op);
 
 		if (*sp++ == '=') {
 			/* has got an arg */
 			const char *ap;
 			for (ap = sp; sp < ep && !isspace(*sp); sp++);
-			cur_opt.larg = strndup(ap, sp - ap);
+			cur_opt.larg = bbuf_cpy(larg, ap, sp - ap);
 		}
 	}
 	/* require at least one more space? */
@@ -275,16 +327,10 @@ yield:
 	/* space eater */
 	for (; sp < ep && isspace(*sp); sp++);
 	/* dont free but reset the old guy */
-	ndesc = 0U;
+	desc->z = 0U;
 desc:
-	with (size_t zp = llen - (sp - line)) {
-		if (ndesc + zp > zdesc) {
-			zdesc = ((ndesc + zp) / 256U + 1U) * 256U;
-			cur_opt.desc = realloc(cur_opt.desc, zdesc);
-		}
-		memcpy(cur_opt.desc + ndesc, sp, zp);
-		ndesc += zp;
-		cur_opt.desc[ndesc] = '\0';
+	with (size_t sz = llen - (sp - line)) {
+		cur_opt.desc = bbuf_cat(desc, sp, sz);
 	}
 	return 1;
 }
