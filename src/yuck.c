@@ -492,6 +492,11 @@ pr_hdr(void)
 	puts("};\n");
 
 	puts("\
+\n\
+extern int yuck_parse(struct yuck_s *restrict, int argc, char *const argv[]);\n\
+extern void yuck_free(struct yuck_s *restrict);\n");
+
+	puts("\
 #endif  /* INCLUDED_yuck_h_ */");
 	return;
 }
