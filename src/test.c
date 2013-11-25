@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "beef.c"
+#include "yuck.x"
 
 int
 main(int argc, char *argv[])
