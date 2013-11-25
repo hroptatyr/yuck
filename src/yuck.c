@@ -473,6 +473,9 @@ pr_hdr(void)
 
 		printf("\t%s_%s,\n", u->umb, u->cmd ?: "NONE");
 	}
+	with (const struct usg_s *lu = usgs + nusgs - 1U) {
+		printf("\tyuck_NCMDS = %s_%s\n", lu->umb, lu->cmd ?: "NONE");
+	}
 	puts("};\n");
 
 	for (const struct ou_s *o = opts; o < opts + nopts; o++) {
