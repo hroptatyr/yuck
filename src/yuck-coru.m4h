@@ -1,0 +1,31 @@
+/* -*- c -*- */
+#if !defined INCLUDED_yuck_h_
+#define INCLUDED_yuck_h_
+
+#include <stddef.h>
+
+enum yuck_cmds_e {dnl
+	foreachq([cmd], [NONE,YUCK_CMD], [define([last], YUCK_UMB[_]cmd)
+	last,])
+	YUCK_NCMDS = last
+};
+
+struct yuck_s {
+	enum yuck_cmds_e cmd;
+
+	foreachq([slot], defn([YUCK..SLOT]), [slot;
+	])
+	union {foreachq([cmd], [YUCK_CMD], [
+		struct {foreachq([slot], defn([YUCK.]cmd[.SLOT]), [
+			slot;])
+		} cmd;])
+	};
+	size_t nargs;
+	char *const *args;
+};
+
+
+extern int yuck_parse(struct yuck_s *restrict, int argc, char *const argv[[]]);
+extern void yuck_free(struct yuck_s *restrict);
+
+#endif	/* INCLUDED_yuck_h_ */

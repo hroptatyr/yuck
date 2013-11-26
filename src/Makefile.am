@@ -32,11 +32,11 @@ noinst_PROGRAMS += test
 EXTRA_test_SOURCES = beef.m4i beef.m4c yuck.yuck
 BUILT_SOURCES += yuck.x yuck.h
 
-yuck.h: yuck.yuck $(builddir)/yuck
-	$(builddir)/yuck $< > $@ || rm -f -- $@
+yuck.h: yuck.m4 yuck-coru.m4h
+	m4 $+ > $@ || rm -f -- $@
 
-yuck.x: beef.m4i beef-co.m4c
-	m4 $^ > $@ || rm -f -- $@
+yuck.x: yuck.m4 yuck-coru.m4c
+	m4 $+ > $@ || rm -f -- $@
 
 ## generate version.c from .c.in
 version.c: version.c.in $(top_builddir)/version.mk
