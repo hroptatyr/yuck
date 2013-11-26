@@ -35,7 +35,7 @@ BUILT_SOURCES += yuck.x yuck.h
 yuck.h: yuck.yuck $(builddir)/yuck
 	$(builddir)/yuck $< > $@ || rm -f -- $@
 
-yuck.x: beef.m4i beef.m4c
+yuck.x: beef.m4i beef-co.m4c
 	m4 $^ > $@ || rm -f -- $@
 
 ## generate version.c from .c.in

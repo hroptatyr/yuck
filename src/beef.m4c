@@ -86,62 +86,98 @@ static int parse_cmd(struct yuck_s *restrict tgt, const char *cmd)
 
 int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 {
-	bool dashdash_seen_p = false;
 	char **args;
 	size_t nargs;
+	int i;
 
 	/* we'll have at most this many args */
 	args = calloc(argc, sizeof(*args));
 	tgt->cmd = (enum yuck_cmds_e)0U;
-	for (int i = 1U; i < argc; i++) {
-		switch (*argv[[i]]) {
-		case '-':
+	/* initial loop, no dashdash seen yet, no command seen yet */
+	for (i = 1; i < argc; i++) {
+		if (*argv[[i]] == '-') {
 			/* could be an option */
-			if (!dashdash_seen_p) {
-				const char *op = argv[[i]] + 1U;
+			const char *op = argv[[i]] + 1U;
 
-				switch (*op) {
-				case '-':
-					if (*++op == '\0') {
-						dashdash_seen_p = true;
-						continue;
-					}
-					/* long opt,
-					 * try command specific options first */
-					if (yuck_NCMDS && tgt->cmd) {
-						parse_cmd_long(tgt, op);
-					}
-					/* and now common options */
-					parse_none_long(tgt, op);
-					continue;
-				default:
-					/* try command specific opts */
-					if (yuck_NCMDS && tgt->cmd) {
-						parse_cmd_short(tgt, *op);
-					}
-					/* and common opts now */
-					parse_none_short(tgt, *op);
-
-					/* could be glued into one */
-					for (; *op; op++) {
-						/* try command specific opts */
-						;
-
-						/* and common opts now */
-						;
-					}
-					continue;
+			switch (*op) {
+			case '-':
+				if (*++op == '\0') {
+					goto dashdash;
 				}
+				/* long opt, parse common options only */
+				parse_none_long(tgt, op);
+				break;
+			default:
+				/* parse short common options */
+				parse_none_short(tgt, *op);
+
+				/* could be glued into one */
+				for (; *op; op++) {
+					/* try command specific opts */
+					;
+
+					/* and common opts now */
+					;
+				}
+				break;
 			}
-			/* otherwise fallthrough */
-		default:
-			if (yuck_NCMDS && !tgt->cmd) {
-				parse_cmd(tgt, argv[[i]]);
-			} else {
-				args[[nargs++]] = argv[[i]];
-			}
-			break;
+		} else if (yuck_NCMDS) {
+			/* finally, the moment we've been waiting for */
+			parse_cmd(tgt, argv[[i]]);
+			goto command;
+		} else {
+			/* just collect things in tgt->args */
+			args[[nargs++]] = argv[[i]];
 		}
+	}
+
+command:
+	/* command-seen loop, parse command specific options also,
+	 * we either got here by goto or if i >= argc, so in this loop
+	 * it is safe to assume that the CMD is set */
+	for (i++; i < argc; i++) {
+		if (*argv[[i]] == '-') {
+			/* could be an option */
+			const char *op = argv[[i]] + 1U;
+
+			switch (*op) {
+			case '-':
+				if (*++op == '\0') {
+					goto dashdash;
+				}
+				/* long opt,
+				 * try command specific options first */
+				parse_cmd_long(tgt, op);
+				/* and now common options */
+				parse_none_long(tgt, op);
+				break;
+			default:
+				/* try command specific opts */
+				parse_cmd_short(tgt, *op);
+				/* and common opts now */
+				parse_none_short(tgt, *op);
+
+				/* could be glued into one */
+				for (; *op; op++) {
+					/* try command specific opts */
+					;
+
+					/* and common opts now */
+					;
+				}
+				break;
+			}
+		} else {
+			args[[nargs++]] = argv[[i]];
+		}
+	}
+
+dashdash:
+	/* dashdash loop, pile everything on tgt->args
+	 * don't check for subcommands either, this is in accordance to
+	 * the git tool which won't accept commands after -- */
+	for (i++; i < argc; i++) {
+		args[[nargs++]] = argv[[i]];
 	}
 
 	tgt->nargs = nargs;
