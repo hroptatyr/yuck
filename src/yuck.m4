@@ -23,13 +23,19 @@ define([first_nonnil], [dnl
 	ifelse([$#], [0], [], [$1], [], [first_nonnil(shift($@))], [], [], [$1])
 ])
 
+define([make_c_ident], [dnl
+translit([$1], [!"#$%&'()*+,-./:;<=>?@[\]^`{|}~],
+	[_________________________________])[]dnl
+])
+
 
 define([yuck_set_umbrella], [dnl
-	define([YUCK_UMB], [$1])
+	define([YUCK_UMB], make_c_ident([$1]))
+	define([YUCK_UMB_LIT], [$1])
 ])
 define([yuck_add_command], [dnl
-	pushdef([cmd], [$1])
-	pushdef([str], [ifelse([$#], [2], [$2], [$1])])
+	pushdef([cmd], make_c_ident([$1]))
+	pushdef([str], [ifelse([$2], [], [$1], cmd)])
 	append([YUCK_CMD], cmd, [,])
 	define([YUCK_STR.]cmd, str)
 	popdef([str])
@@ -41,9 +47,9 @@ define([yuck_add_option], [dnl
 	pushdef([short], [$1])
 	pushdef([long], [$2])
 	pushdef([type], [$3])
-	pushdef([cmd], [$4])
+	pushdef([cmd], make_c_ident([$4]))
 
-	pushdef([ident], ifelse(long, [], ifelse(short, [], [define([cnt], ifdef([cnt], [incr(cnt)], [0]))[s]cnt], [dash]short), long))
+	pushdef([ident], ifelse(long, [], ifelse(short, [], [define([cnt], ifdef([cnt], [incr(cnt)], [0]))[s]cnt], [dash]short), make_c_ident(long)))
 	pushdef([slot], ifelse(type, [], [ident], [ident[_]type]))
 
 	append_ne([YUCK.]cmd[.S], short, [,])
@@ -142,19 +148,6 @@ define([yuck_longs], [defn([YUCK.]$1[.L])])
 define([yuck_idents], [defn([YUCK.]$1[.I])])
 
 
-## test case
-yuck_set_umbrella([yuck])
-yuck_add_option([], [help], [flag])
-yuck_add_command([gen])
-yuck_add_option([x], [extra], [arg], [gen])
-yuck_add_option([h], [], [flag], [gen])
-yuck_add_option([], [version], [flag], [gen])
-yuck_add_command([tst])
-yuck_add_option([], [version], [flag], [tst])
-yuck_add_option([], [], [flag], [tst])
-yuck_add_option([], [], [flag], [tst])
-
-
 ## coroutine stuff
 define([yield], [goto $1; back_from_$1:])
 define([coroutine], [define([this_coru], [$1])$1:])
@@ -163,3 +156,4 @@ define([resume_at], [goto $1])
 define([quit], [goto out])
 
 divert[]dnl
+changequote

@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "yuck.x"
+#include "test.x"
 
 int
 main(int argc, char *argv[])
@@ -12,10 +12,10 @@ main(int argc, char *argv[])
 	}
 
 	switch (argi->cmd) {
-	case yuck_gen:
+	case test_gen:
 		puts("gen command");
 		break;
-	case yuck_NONE:
+	case test_NONE:
 		puts("no command");
 		break;
 	default:
@@ -29,7 +29,7 @@ main(int argc, char *argv[])
 	}
 
 	switch (argi->cmd) {
-	case yuck_gen:
+	case test_gen:
 		if (argi->gen.extra_arg) {
 			printf("gen extra=%s\n", argi->gen.extra_arg);
 		}
