@@ -137,7 +137,9 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 			foreachq([opt], yuck_shorts(C), [case 'opt':
 				yuck_iftype(opt, C, 
 					[flag], [tgt->yuck_slot(opt, C)++],
-					[arg], [tgt->yuck_slot(opt, C) = *arg ? arg : argv[[++i]]]);
+					[arg], [tgt->yuck_slot(opt, C) = *arg
+						? (op += strlen(arg), arg)
+						: argv[[++i]]]);
 				break;
 			])}
 			resume;
