@@ -130,10 +130,30 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 		{
 			switch (*op) {
 			default:
-				ifelse(C, [],
-				       [fprintf(stderr, "invalid option -%c\n", *op);],
-				       [resume_at(yuck_cmd()[_shortopt]);])
+				divert(1);
+				fprintf(stderr, "invalid option -%c\n", *op);
 				break;
+
+ifelse(translit(yuck_shorts, [0123456789]), yuck_shorts, [], [
+				/* [yuck_shorts()] has numerals as shortopts
+				 * don't allow literal treatment of numerals */divert(-1)])
+			case '0' ... '9':;
+				/* literal treatment of numeral */
+				const char *np;
+				for (np = op; *np >= '0' && *np <= '9' ||
+					     *np == '.'; np++);
+				if (*np == '\0') {
+					/* bingo */
+					resume_at(arg);
+				}
+				break;
+
+				divert(2);
+				resume_at(yuck_cmd()[_shortopt]);
+
+				divert(0);
+				ifelse(C, [], [select_divert(1)], [select_divert(2)])dnl
+
 			foreachq([opt], yuck_shorts(C), [case 'opt':
 				yuck_iftype(opt, C, 
 					[flag], [tgt->yuck_slot(opt, C)++],
