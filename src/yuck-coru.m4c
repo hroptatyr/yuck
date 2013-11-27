@@ -85,11 +85,9 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 		switch (tgt->cmd) {
 		common_longopt:
 		default:
-			printf("got common longopt `%s'\n", op);
 			yield(yuck_cmd()[_longopt]);
 			break;
 		foreachq([C], yuck_cmds(), [case yuck_cmd(C):
-			printf("got C longopt `%s'\n", op);
 			yield(yuck_cmd(C)[_longopt]);
 			break;
 		])}
@@ -116,11 +114,9 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 		switch (tgt->cmd) {
 		common_shortopt:
 		default:
-			printf("got common shortopt `%c'\n", *op);
 			yield(yuck_cmd()[_shortopt]);
 			break;
 		foreachq([C], yuck_cmds(), [case yuck_cmd(C):
-			printf("got C shortopt `%c'\n", *op);
 			yield(yuck_cmd(C)[_shortopt]);
 			break;
 		])}
