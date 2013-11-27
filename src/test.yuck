@@ -16,5 +16,5 @@ Usage: test gen [FILE...]
                         Also works with other commands.
       --version         Show version number.
 
-Usage: test tst [FILE...]
+Usage: test tst-ing [FILE...]
   -P. --proper-polish   Test an option with non-alphanum chars
