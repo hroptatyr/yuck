@@ -85,7 +85,6 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 		}
 
 		switch (tgt->cmd) {
-		common_longopt:
 		default:
 			yield(yuck_cmd()[_longopt]);
 			break;
@@ -103,6 +102,8 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 				yuck_iftype(opt, C, 
 					[flag], [tgt->yuck_slot(opt, C)++],
 					[arg], [tgt->yuck_slot(opt, C) = arg ?: argv[[++i]]]);
+			}]) ifelse(C, [], [], [else {
+				resume_at(yuck_cmd()[_longopt]);
 			}])
 			resume;
 		}
@@ -114,7 +115,6 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 		const char *arg = op + 1U;
 
 		switch (tgt->cmd) {
-		common_shortopt:
 		default:
 			yield(yuck_cmd()[_shortopt]);
 			break;
@@ -128,7 +128,7 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 		{
 			switch (*op) {
 			default:
-				/* error? */
+				ifelse(C, [], [/* error? */], [resume_at(yuck_cmd()[_shortopt])]);
 				break;
 			foreachq([opt], yuck_shorts(C), [case 'opt':
 				yuck_iftype(opt, C, 

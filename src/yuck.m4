@@ -159,6 +159,7 @@ yuck_add_option([], [], [flag], [tst])
 define([yield], [goto $1; back_from_$1:])
 define([coroutine], [define([this_coru], [$1])$1:])
 define([resume], [goto back_from_[]this_coru])
+define([resume_at], [goto $1])
 define([quit], [goto out])
 
 divert[]dnl
