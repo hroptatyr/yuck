@@ -28,6 +28,9 @@ translit([$1], [!"#$%&'()*+,-./:;<=>?@[\]^`{|}~],
 	[_________________________________])[]dnl
 ])
 
+## select a diversion, clearing all other diversions
+define([select_divert], [divert[]undivert($1)[]divert(-1)[]undivert[]divert(0)])
+
 
 define([yuck_set_umbrella], [dnl
 	define([YUCK_UMB], make_c_ident([$1]))
