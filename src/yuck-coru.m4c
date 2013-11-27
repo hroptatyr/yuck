@@ -40,6 +40,7 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 	int i;
 
 	/* we'll have at most this many args */
+	memset(tgt, 0, sizeof(*tgt));
 	tgt->args = args = calloc(argc, sizeof(*tgt->args));
 	tgt->nargs = 0U;
 	tgt->cmd = YUCK_NONE;
