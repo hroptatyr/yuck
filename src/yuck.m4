@@ -32,8 +32,8 @@ define([yuck_add_command], [dnl
 	pushdef([str], [ifelse([$#], [2], [$2], [$1])])
 	append([YUCK_CMD], cmd, [,])
 	define([YUCK_STR.]cmd, str)
-	popdef([cmd])
 	popdef([str])
+	popdef([cmd])
 ])
 
 ## yuck_add_option(short, long, type, [CMD])
@@ -57,11 +57,12 @@ define([yuck_add_option], [dnl
 	define([YUCK.]cmd[.]long[.type], type)
 	define([YUCK.]cmd[.]ident[.type], type)
 
+	popdef([ident])
 	popdef([slot])
 	popdef([cmd])
-	popdef([short])
-	popdef([long])
 	popdef([type])
+	popdef([long])
+	popdef([short])
 ])
 
 ## helpers for the m4c and m4h
@@ -80,6 +81,7 @@ pushdef([ctype],
 dnl
 ctype[]yuck_slot_identifier(opt, cmd)dnl
 dnl
+popdef([ctype])dnl
 popdef([type])dnl
 popdef([cmd])dnl
 popdef([opt])dnl
@@ -104,9 +106,9 @@ pushdef([idn], [yuck_slot_identifier(opt, cmd)])dnl
 dnl
 ifelse(cmd, [], idn, cmd.idn)dnl
 dnl
-popdef([opt])
-popdef([cmd])
 popdef([idn])
+popdef([cmd])
+popdef([opt])
 ])
 
 ## yuck_cmds()
@@ -119,22 +121,13 @@ define([yuck_cmd], [YUCK_UMB[_]ifelse([$1], [], [NONE], [$1])])
 define([yuck_cmd_string], [defn([YUCK_STR.]$1)])
 
 ## yuck_shorts([cmd])
-define([yuck_shorts], [dnl
-pushdef([cmd], [$1])dnl
-defn([YUCK.]cmd[.S])dnl
-])
+define([yuck_shorts], [defn([YUCK.]$1[.S])])
 
 ## yuck_longs([cmd])
-define([yuck_longs], [dnl
-pushdef([cmd], [$1])dnl
-defn([YUCK.]cmd[.L])dnl
-])
+define([yuck_longs], [defn([YUCK.]$1[.L])])
 
 ## yuck_idents([cmd])
-define([yuck_idents], [dnl
-pushdef([cmd], [$1])dnl
-defn([YUCK.]cmd[.I])dnl
-])
+define([yuck_idents], [defn([YUCK.]$1[.I])])
 
 ## test case
 yuck_set_umbrella([yuck])

@@ -23,8 +23,8 @@ static enum yuck_cmds_e parse_cmd(const char *cmd)
 {
 	if (0) {
 		;
-	}foreachq([__cmd__], yuck_cmds(), [ else if (streqp(cmd, "yuck_cmd_string(__cmd__)")) {
-		return yuck_cmd(__cmd__);
+	}foreachq([C], yuck_cmds(), [ else if (streqp(cmd, "yuck_cmd_string(C)")) {
+		return yuck_cmd(C);
 	}]) else {
 		/* error here? */
 		fprintf(stderr, "`%s' is not a valid command.  See --help.\n", cmd);
@@ -42,7 +42,7 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 	/* we'll have at most this many args */
 	tgt->args = args = calloc(argc, sizeof(*tgt->args));
 	tgt->nargs = 0U;
-	tgt->cmd = YUCK_NONE,
+	tgt->cmd = YUCK_NONE;
 	for (i = 1; i < argc; i++) {
 		op = argv[[i]];
 
@@ -88,19 +88,19 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 			printf("got common longopt `%s'\n", op);
 			yield(yuck_cmd()[_longopt]);
 			break;
-		foreachq([cmd], yuck_cmds(), [case yuck_cmd(cmd):
-			printf("got cmd longopt `%s'\n", op);
-			yield(yuck_cmd(cmd)[_longopt]);
+		foreachq([C], yuck_cmds(), [case yuck_cmd(C):
+			printf("got C longopt `%s'\n", op);
+			yield(yuck_cmd(C)[_longopt]);
 			break;
 		])}
 		resume;
 
-		foreachq([cmd], [,]yuck_cmds(), [coroutine(yuck_cmd(cmd)[_longopt])
+		foreachq([C], [,]yuck_cmds(), [coroutine(yuck_cmd(C)[_longopt])
 		{
 			if (0) {
 				;
-			}foreachq([opt], yuck_longs(cmd), [ else if (streqp(op, "opt")) {
-				//YUCK_SET([tgt], __cmd__[.]__lopt__, [arg ?: argv[[++i]]]);
+			}foreachq([opt], yuck_longs(C), [ else if (streqp(op, "opt")) {
+								    dnl //YUCK_SET([tgt], __cmd__[.]__lopt__, [arg ?: argv[[++i]]]);
 			}])
 			resume;
 		}
@@ -117,22 +117,21 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 			printf("got common shortopt `%c'\n", *op);
 			yield(yuck_cmd()[_shortopt]);
 			break;
-		foreachq([cmd], yuck_cmds(), [case yuck_cmd(cmd):
-			printf("got cmd shortopt `%c'\n", *op);
-			yield(yuck_cmd(cmd)[_shortopt]);
+		foreachq([C], yuck_cmds(), [case yuck_cmd(C):
+			printf("got C shortopt `%c'\n", *op);
+			yield(yuck_cmd(C)[_shortopt]);
 			break;
 		])}
 		resume;
 
-		foreachq([cmd], [,]yuck_cmds(), [coroutine(yuck_cmd(cmd)[_shortopt])
+		foreachq([C], [,]yuck_cmds(), [coroutine(yuck_cmd(C)[_shortopt])
 		{
 			switch (*op) {
 			default:
 				/* error? */
 				break;
-			foreachq([opt], yuck_shorts(cmd), [case 'opt':
-				//YUCK_SET([tgt], __cmd__[.]__sopt__, [dnl
-//*arg ? arg : argv[[++i]]]);
+			foreachq([opt], yuck_shorts(C), [case 'opt':
+							   dnl //YUCK_SET([tgt], __cmd__[.]__sopt__, [*arg ? arg : argv[[++i]]]);
 				break;
 			])}
 			resume;
