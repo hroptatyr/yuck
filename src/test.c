@@ -19,9 +19,27 @@ main(int argc, char *argv[])
 		puts("no command");
 		break;
 	default:
-		puts("cannot understand command");
+		printf("%u command\n", argi->cmd);
 		break;
 	}
+
+	/* go through common options */
+	if (argi->help_flag) {
+		printf("common help set\n");
+	}
+
+	switch (argi->cmd) {
+	case yuck_gen:
+		if (argi->gen.extra_arg) {
+			printf("gen extra=%s\n", argi->gen.extra_arg);
+		}
+		if (argi->gen.dashh_flag) {
+			printf("gen dashh set\n");
+		}
+		if (argi->gen.version_flag) {
+			printf("gen version set\n");
+		}
+	};
 
 	for (size_t i = 0U; i < argi->nargs; i++) {
 		printf("got `%s'\n", argi->args[i]);
