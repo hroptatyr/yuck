@@ -445,6 +445,7 @@ divert([-1])\n");
 	}
 
 	puts("\n\
+changecom([//])\n\
 divert[]dnl");
 	return;
 }
