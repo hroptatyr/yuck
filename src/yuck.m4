@@ -154,19 +154,8 @@ yuck_add_option([], [version], [flag], [tst])
 yuck_add_option([], [], [flag], [tst])
 yuck_add_option([], [], [flag], [tst])
 
-dnl define([YUCK_SET], [dnl
-dnl pushdef([slot], [YUCK_SLOT_MAP([slot], [$2])])dnl
-dnl pushdef([flav], [YUCK_SLOT_MAP([flav], [$2])])dnl
-dnl dnl
-dnl ifelse(slot, [], [/* no [slot] defined for `$2' */],
-dnl 	flav, [flag], [$1->slot[_given++]],
-dnl 	flav, [arg], [$1->slot[_arg = ]$3],
-dnl 	flav, [marg], [],
-dnl 	flav, [], [/* no [flavour] defined for `$2' */])dnl
-dnl popdef([slot])dnl
-dnl popdef([flav])dnl
-dnl ])
-
+
+## coroutine stuff
 define([yield], [goto $1; back_from_$1:])
 define([coroutine], [define([this_coru], [$1])$1:])
 define([resume], [goto back_from_[]this_coru])
