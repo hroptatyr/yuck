@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "yuck.x"
+#include "test.x"
 
 int
 main(int argc, char *argv[])

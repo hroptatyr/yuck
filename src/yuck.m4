@@ -150,3 +150,4 @@ define([resume_at], [goto $1])
 define([quit], [goto out])
 
 divert[]dnl
+changequote
