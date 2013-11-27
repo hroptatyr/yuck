@@ -1,0 +1,60 @@
+changequote([,])dnl
+divert([-1])
+
+# foreachq(x, [item_1, item_2, ..., item_n], stmt)
+#   quoted list, alternate improved version
+define([foreachq], [ifelse([$2], [], [],
+	[pushdef([$1])_$0([$1], [$3], [], $2)popdef([$1])])])
+define([_foreachq], [ifelse([$#], [3], [],
+	[define([$1], [$4])$2[]$0([$1], [$2],
+		shift(shift(shift($@))))])])
+
+define([YUCK_CMDS], [yuck_gen])
+
+define([yuck_NONE_SHORT], [\0])
+define([yuck_NONE_LONG], [help])
+
+define([yuck_gen_SHORT], [x,h])
+define([yuck_gen_LONG], [extra,version])
+
+define([YUCK_MAP], [defn(format([[YUCK_MAP[%s.%s]]], [$1], [$2]))])
+define([YUCK_MAP_set], [dnl
+	## YUCK_MAP_set([cmd], [struct-name], [cmdstr])
+	define(format([[YUCK_MAP[struct.%s]]], [$1]), [$2])
+	define(format([[YUCK_MAP[string.%s]]], [$1]), [$3])
+])
+
+YUCK_MAP_set([yuck_gen], [gen], ["gen"])
+
+define([YUCK_SLOT_MAP], [defn(format([[YUCK_SLOT_MAP[%s.%s]]], [$1], [$2]))])
+define([YUCK_SLOT_MAP_set], [dnl
+	## YUCK_SLOT_MAP_set([cmd.slot], [slot-name], [flavour])
+	define(format([[YUCK_SLOT_MAP[slot.%s]]], [$1]), [$2])
+	define(format([[YUCK_SLOT_MAP[flav.%s]]], [$1]), [$3])
+])
+
+YUCK_SLOT_MAP_set([yuck_gen.x], [gen.extra], [arg])
+YUCK_SLOT_MAP_set([yuck_gen.extra], [gen.extra], [arg])
+YUCK_SLOT_MAP_set([yuck_gen.version], [gen.version], [flag])
+YUCK_SLOT_MAP_set([yuck_gen.h], [gen.dashh], [flag])
+YUCK_SLOT_MAP_set([yuck_NONE.help], [help], [flag])
+
+define([YUCK_SET], [dnl
+pushdef([slot], [YUCK_SLOT_MAP([slot], [$2])])dnl
+pushdef([flav], [YUCK_SLOT_MAP([flav], [$2])])dnl
+dnl
+ifelse(slot, [], [/* no [slot] defined for `$2' */],
+	flav, [flag], [$1->slot[_given++]],
+	flav, [arg], [$1->slot[_arg = ]$3],
+	flav, [marg], [],
+	flav, [], [/* no [flavour] defined for `$2' */])dnl
+popdef([slot])dnl
+popdef([flav])dnl
+])
+
+define([yield], [goto $1; back_from_$1:])
+define([coroutine], [define([this_coru], [$1])$1:])
+define([resume], [goto back_from_[]this_coru])
+define([quit], [goto out])
+
+divert[]dnl

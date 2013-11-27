@@ -425,7 +425,7 @@ pr_opt(const struct opt_s *o)
 	if (o->larg == NULL) {
 		printf("\tunsigned int %s_given;\n", lopt);
 	} else {
-		printf("\tchar *const %s_arg;\n", lopt);
+		printf("\tchar *%s_arg;\n", lopt);
 	}
 	return;
 }
@@ -463,7 +463,8 @@ pr_hdr(void)
 {
 	puts("\
 #if !defined INCLUDED_yuck_h_\n\
-#define INCLUDED_yuck_h_\n");
+#define INCLUDED_yuck_h_\n\
+#include <stdlib.h>\n");
 
 	puts("enum yuck_cmds_e {");
 	for (const struct usg_s *u = usgs; u < usgs + nusgs; u++) {
@@ -471,6 +472,9 @@ pr_hdr(void)
 		xlcase_(u->cmd);
 
 		printf("\t%s_%s,\n", u->umb, u->cmd ?: "NONE");
+	}
+	with (const struct usg_s *lu = usgs + nusgs - 1U) {
+		printf("\tyuck_NCMDS = %s_%s\n", lu->umb, lu->cmd ?: "NONE");
 	}
 	puts("};\n");
 
