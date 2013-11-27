@@ -109,6 +109,33 @@ popdef([cmd])
 popdef([idn])
 ])
 
+## yuck_cmds()
+define([yuck_cmds], [[YUCK_CMD]])
+
+## yuck_cmd
+define([yuck_cmd], [YUCK_UMB[_]ifelse([$1], [], [NONE], [$1])])
+
+## yuck_cmd_string
+define([yuck_cmd_string], [defn([YUCK_STR.]$1)])
+
+## yuck_shorts([cmd])
+define([yuck_shorts], [dnl
+pushdef([cmd], [$1])dnl
+defn([YUCK.]cmd[.S])dnl
+])
+
+## yuck_longs([cmd])
+define([yuck_longs], [dnl
+pushdef([cmd], [$1])dnl
+defn([YUCK.]cmd[.L])dnl
+])
+
+## yuck_idents([cmd])
+define([yuck_idents], [dnl
+pushdef([cmd], [$1])dnl
+defn([YUCK.]cmd[.I])dnl
+])
+
 ## test case
 yuck_set_umbrella([yuck])
 yuck_add_option([], [help], [flag])

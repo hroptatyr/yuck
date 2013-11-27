@@ -23,8 +23,8 @@ static enum yuck_cmds_e parse_cmd(const char *cmd)
 {
 	if (0) {
 		;
-	}foreachq([__cmd__], [YUCK_CMD], [ else if (streqp(cmd, "defn([YUCK_STR.]__cmd__)")) {
-		return YUCK_UMB[_]__cmd__;
+	}foreachq([__cmd__], yuck_cmds(), [ else if (streqp(cmd, "yuck_cmd_string(__cmd__)")) {
+		return yuck_cmd(__cmd__);
 	}]) else {
 		/* error here? */
 		fprintf(stderr, "`%s' is not a valid command.  See --help.\n", cmd);
@@ -42,7 +42,7 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 	/* we'll have at most this many args */
 	tgt->args = args = calloc(argc, sizeof(*tgt->args));
 	tgt->nargs = 0U;
-	tgt->cmd = (enum yuck_cmds_e)0U;
+	tgt->cmd = YUCK_NONE,
 	for (i = 1; i < argc; i++) {
 		op = argv[[i]];
 
@@ -86,20 +86,20 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 		common_longopt:
 		default:
 			printf("got common longopt `%s'\n", op);
-			yield(YUCK_UMB[__longopt]);
+			yield(yuck_cmd()[_longopt]);
 			break;
-		foreachq([cmd], [YUCK_CMD], [case YUCK_UMB[_]cmd:
+		foreachq([cmd], yuck_cmds(), [case yuck_cmd(cmd):
 			printf("got cmd longopt `%s'\n", op);
-			yield(YUCK_UMB[_]cmd[_]longopt);
+			yield(yuck_cmd(cmd)[_longopt]);
 			break;
 		])}
 		resume;
 
-		foreachq([cmd], [,YUCK_CMD], [coroutine(YUCK_UMB[_]cmd[_]longopt)
+		foreachq([cmd], [,]yuck_cmds(), [coroutine(yuck_cmd(cmd)[_longopt])
 		{
 			if (0) {
 				;
-			}foreachq([opt], defn([YUCK.]cmd[.L]), [ else if (streqp(op, "opt")) {
+			}foreachq([opt], yuck_longs(cmd), [ else if (streqp(op, "opt")) {
 				//YUCK_SET([tgt], __cmd__[.]__lopt__, [arg ?: argv[[++i]]]);
 			}])
 			resume;
@@ -115,22 +115,22 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 		common_shortopt:
 		default:
 			printf("got common shortopt `%c'\n", *op);
-			yield(YUCK_UMB[__shortopt]);
+			yield(yuck_cmd()[_shortopt]);
 			break;
-		foreachq([cmd], [YUCK_CMD], [case YUCK_UMB[_]cmd:
+		foreachq([cmd], yuck_cmds(), [case yuck_cmd(cmd):
 			printf("got cmd shortopt `%c'\n", *op);
-			yield(YUCK_UMB[_]cmd[_shortopt]);
+			yield(yuck_cmd(cmd)[_shortopt]);
 			break;
 		])}
 		resume;
 
-		foreachq([cmd], [,YUCK_CMD], [coroutine(YUCK_UMB[_]cmd[_]shortopt)
+		foreachq([cmd], [,]yuck_cmds(), [coroutine(yuck_cmd(cmd)[_shortopt])
 		{
 			switch (*op) {
 			default:
 				/* error? */
 				break;
-			foreachq([opt], defn([YUCK.]cmd[.S]), [case 'opt':
+			foreachq([opt], yuck_shorts(cmd), [case 'opt':
 				//YUCK_SET([tgt], __cmd__[.]__sopt__, [dnl
 //*arg ? arg : argv[[++i]]]);
 				break;
