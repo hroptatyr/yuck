@@ -10,6 +10,7 @@
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:177)
+# pragma warning (disable:111)
 #endif	/* __INTEL_COMPILER */
 
 
@@ -176,4 +177,5 @@ void yuck_free(struct yuck_s *restrict tgt)
 
 #if defined __INTEL_COMPILER
 # pragma warning (default:177)
+# pragma warning (default:111)
 #endif	/* __INTEL_COMPILER */
