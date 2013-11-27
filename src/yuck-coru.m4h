@@ -4,24 +4,34 @@
 
 #include <stddef.h>
 
-enum yuck_cmds_e {dnl
-	foreachq([cmd], [NONE,YUCK_CMD], [define([last], YUCK_UMB[_]cmd)
-	last,])
+enum yuck_cmds_e {
+	define([first], yuck_cmd())[]first,
+
+	/* actual commands */
+	foreachq([cmd], yuck_cmds(), [define([last], yuck_cmd(cmd))[]last,
+	])
+	/* convenience identifiers */
+	YUCK_NONE = first,
 	YUCK_NCMDS = last
 };
 
 struct yuck_s {
 	enum yuck_cmds_e cmd;
 
-	foreachq([slot], defn([YUCK..SLOT]), [slot;
-	])
-	union {foreachq([cmd], [YUCK_CMD], [
-		struct {foreachq([slot], defn([YUCK.]cmd[.SLOT]), [
-			slot;])
-		} cmd;])
-	};
+	/* left-over arguments, the command string is never a part of this */
 	size_t nargs;
 	char *const *args;
+
+	foreachq([slot], yuck_idents(), [yuck_slot_decl(slot);
+	])
+	/* depending on CMD at most one of the following structs is filled in
+	 * if CMD is YUCK_NONE no slots of this union must be accessed */
+	union {foreachq([cmd], yuck_cmds(), [
+		/* for the cmd command */
+		struct {foreachq([slot], yuck_idents(cmd), [
+			yuck_slot_decl(slot, cmd);])
+		} cmd;
+	])};
 };
 
 

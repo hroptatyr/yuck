@@ -10,6 +10,7 @@
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:177)
+# pragma warning (disable:111)
 #endif	/* __INTEL_COMPILER */
 
 
@@ -23,8 +24,8 @@ static enum yuck_cmds_e parse_cmd(const char *cmd)
 {
 	if (0) {
 		;
-	}foreachq([__cmd__], [YUCK_CMD], [ else if (streqp(cmd, "defn([YUCK_STR.]__cmd__)")) {
-		return YUCK_UMB[_]__cmd__;
+	}foreachq([C], yuck_cmds(), [ else if (streqp(cmd, "yuck_cmd_string(C)")) {
+		return yuck_cmd(C);
 	}]) else {
 		/* error here? */
 		fprintf(stderr, "`%s' is not a valid command.  See --help.\n", cmd);
@@ -40,9 +41,10 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 	int i;
 
 	/* we'll have at most this many args */
+	memset(tgt, 0, sizeof(*tgt));
 	tgt->args = args = calloc(argc, sizeof(*tgt->args));
 	tgt->nargs = 0U;
-	tgt->cmd = (enum yuck_cmds_e)0U;
+	tgt->cmd = YUCK_NONE;
 	for (i = 1; i < argc; i++) {
 		op = argv[[i]];
 
@@ -83,25 +85,28 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 		}
 
 		switch (tgt->cmd) {
-		common_longopt:
 		default:
-			printf("got common longopt `%s'\n", op);
-			yield(YUCK_UMB[__longopt]);
+			yield(yuck_cmd()[_longopt]);
 			break;
-		foreachq([cmd], [YUCK_CMD], [case YUCK_UMB[_]cmd:
-			printf("got cmd longopt `%s'\n", op);
-			yield(YUCK_UMB[_]cmd[_]longopt);
+		foreachq([C], yuck_cmds(), [case yuck_cmd(C):
+			yield(yuck_cmd(C)[_longopt]);
 			break;
 		])}
 		resume;
 
-		foreachq([cmd], [,YUCK_CMD], [coroutine(YUCK_UMB[_]cmd[_]longopt)
+		foreachq([C], [,]yuck_cmds(), [coroutine(yuck_cmd(C)[_longopt])
 		{
 			if (0) {
 				;
-			}foreachq([opt], defn([YUCK.]cmd[.L]), [ else if (streqp(op, "opt")) {
-				//YUCK_SET([tgt], __cmd__[.]__lopt__, [arg ?: argv[[++i]]]);
-			}])
+			}foreachq([opt], yuck_longs(C), [ else if (streqp(op, "opt")) {
+				yuck_iftype(opt, C, 
+					[flag], [tgt->yuck_slot(opt, C)++],
+					[arg], [tgt->yuck_slot(opt, C) = arg ?: argv[[++i]]]);
+			}]) else {
+				ifelse(C, [],
+				       [fprintf(stderr, "unrecognized option `--%s'\n", op);],
+				       [resume_at(yuck_cmd()[_longopt]);])
+			}
 			resume;
 		}
 		])
@@ -112,27 +117,29 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 		const char *arg = op + 1U;
 
 		switch (tgt->cmd) {
-		common_shortopt:
 		default:
-			printf("got common shortopt `%c'\n", *op);
-			yield(YUCK_UMB[__shortopt]);
+			yield(yuck_cmd()[_shortopt]);
 			break;
-		foreachq([cmd], [YUCK_CMD], [case YUCK_UMB[_]cmd:
-			printf("got cmd shortopt `%c'\n", *op);
-			yield(YUCK_UMB[_]cmd[_shortopt]);
+		foreachq([C], yuck_cmds(), [case yuck_cmd(C):
+			yield(yuck_cmd(C)[_shortopt]);
 			break;
 		])}
 		resume;
 
-		foreachq([cmd], [,YUCK_CMD], [coroutine(YUCK_UMB[_]cmd[_]shortopt)
+		foreachq([C], [,]yuck_cmds(), [coroutine(yuck_cmd(C)[_shortopt])
 		{
 			switch (*op) {
 			default:
-				/* error? */
+				ifelse(C, [],
+				       [fprintf(stderr, "invalid option -%c\n", *op);],
+				       [resume_at(yuck_cmd()[_shortopt]);])
 				break;
-			foreachq([opt], defn([YUCK.]cmd[.S]), [case 'opt':
-				//YUCK_SET([tgt], __cmd__[.]__sopt__, [dnl
-//*arg ? arg : argv[[++i]]]);
+			foreachq([opt], yuck_shorts(C), [case 'opt':
+				yuck_iftype(opt, C, 
+					[flag], [tgt->yuck_slot(opt, C)++],
+					[arg], [tgt->yuck_slot(opt, C) = *arg
+						? (op += strlen(arg), arg)
+						: argv[[++i]]]);
 				break;
 			])}
 			resume;
@@ -176,4 +183,5 @@ void yuck_free(struct yuck_s *restrict tgt)
 
 #if defined __INTEL_COMPILER
 # pragma warning (default:177)
+# pragma warning (default:111)
 #endif	/* __INTEL_COMPILER */
