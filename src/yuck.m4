@@ -104,12 +104,24 @@ pushdef([opt], [$1])dnl
 pushdef([cmd], [$2])dnl
 pushdef([idn], [yuck_slot_identifier(opt, cmd)])dnl
 dnl
-ifelse(cmd, [], idn, cmd.idn)dnl
+ifelse(cmd, [], [idn], [cmd.idn])[]dnl
 dnl
-popdef([idn])
-popdef([cmd])
-popdef([opt])
+popdef([idn])dnl
+popdef([cmd])dnl
+popdef([opt])dnl
 ])
+
+## yuck_iftype([opt], [cmd], [type], [body], [[type], [body]]...)
+define([yuck_iftype], [dnl
+pushdef([opt], [$1])dnl
+pushdef([cmd], [$2])dnl
+pushdef([type], defn([YUCK.]cmd[.]opt[.type]))dnl
+popdef([cmd])dnl
+popdef([opt])dnl
+[]ifelse(_splice(type, shift(shift($@))))[]dnl
+popdef([type])dnl
+])
+define([_splice], [ifelse([$#], [3], [[$1], [$2], [$3]], [[$1], [$2], [$3], _splice([$1], shift(shift(shift($@))))])])
 
 ## yuck_cmds()
 define([yuck_cmds], [[YUCK_CMD]])
@@ -129,6 +141,7 @@ define([yuck_longs], [defn([YUCK.]$1[.L])])
 ## yuck_idents([cmd])
 define([yuck_idents], [defn([YUCK.]$1[.I])])
 
+
 ## test case
 yuck_set_umbrella([yuck])
 yuck_add_option([], [help], [flag])
