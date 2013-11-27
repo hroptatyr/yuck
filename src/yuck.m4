@@ -35,12 +35,13 @@ define([yuck_add_command], [dnl
 	popdef([cmd])
 	popdef([str])
 ])
+
+## yuck_add_option(short, long, type, [CMD])
 define([yuck_add_option], [dnl
-	## yuck_add_option([CMD], short, long, type)
-	pushdef([cmd], [$1])
-	pushdef([short], [$2])
-	pushdef([long], [$3])
-	pushdef([type], [$4])
+	pushdef([short], [$1])
+	pushdef([long], [$2])
+	pushdef([type], [$3])
+	pushdef([cmd], [$4])
 
 	pushdef([ident], ifelse(long, [], ifelse(short, [], [define([cnt], ifdef([cnt], [incr(cnt)], [0]))[s]cnt], [dash]short), long))
 	pushdef([slot], ifelse(type, [], [ident], [ident[_]type]))
@@ -110,15 +111,15 @@ popdef([idn])
 
 ## test case
 yuck_set_umbrella([yuck])
-yuck_add_option([], [], [help], [flag])
+yuck_add_option([], [help], [flag])
 yuck_add_command([gen])
-yuck_add_option([gen], [x], [extra], [arg])
-yuck_add_option([gen], [h], [], [flag])
-yuck_add_option([gen], [], [version], [flag])
+yuck_add_option([x], [extra], [arg], [gen])
+yuck_add_option([h], [], [flag], [gen])
+yuck_add_option([], [version], [flag], [gen])
 yuck_add_command([tst])
-yuck_add_option([tst], [], [version], [flag])
-yuck_add_option([tst], [], [], [flag])
-yuck_add_option([tst], [], [], [flag])
+yuck_add_option([], [version], [flag], [tst])
+yuck_add_option([], [], [flag], [tst])
+yuck_add_option([], [], [flag], [tst])
 
 dnl define([YUCK_SET], [dnl
 dnl pushdef([slot], [YUCK_SLOT_MAP([slot], [$2])])dnl
