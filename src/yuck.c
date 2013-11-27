@@ -167,23 +167,6 @@ xstreqp(const char *s1, const char *s2)
 	return !strcasecmp(s1, s2);
 }
 
-static void
-xlcase_(char *restrict buf)
-{
-	if (buf == NULL) {
-		/* nothing to do */
-		return;
-	}
-	for (char *restrict bp = buf; *bp; bp++) {
-		if (ispunct(*bp)) {
-			*bp = '_';
-		} else if (isupper(*bp)) {
-			*bp = (char)tolower(*bp);
-		}
-	}
-	return;
-}
-
 
 /* bang buffers */
 typedef struct {
@@ -412,96 +395,57 @@ yield_opt(const struct opt_s *arg)
 	return;
 }
 
-static void
-pr_opt(const struct opt_s *o)
+
+/* serialise to dsl */
+static int
+xlcase_(char *restrict buf)
 {
-	const char *lopt;
-
-	if ((lopt = o->lopt) == NULL) {
-		static char buf[8U] = "dash";
-		buf[4U] = o->sopt;
-		lopt = buf;
+	int res = 0;
+	if (buf == NULL) {
+		/* nothing to do */
+		return 0;
 	}
-	if (o->larg == NULL) {
-		printf("\tunsigned int %s_given;\n", lopt);
-	} else {
-		printf("\tchar *%s_arg;\n", lopt);
-	}
-	return;
-}
-
-static void
-pr_struct_none(const struct usg_s *u)
-{
-	for (const struct ou_s *o = opts; o < opts + nopts; o++) {
-		if (u - usgs != o->usg) {
-			continue;
+	for (char *restrict bp = buf; *bp; bp++) {
+		if (ispunct(*bp)) {
+			*bp = '_';
+			res++;
+		} else if (isupper(*bp)) {
+			*bp = (char)tolower(*bp);
+			res++;
 		}
-		pr_opt(&o->opt);
 	}
-	return;
+	return res;
 }
 
 static void
-pr_struct(const struct usg_s *u)
-{
-	printf("\t\tstruct %s_%s_s {\n", u->umb, u->cmd);
-	for (const struct ou_s *o = opts; o < opts + nopts; o++) {
-		if (u - usgs != o->usg) {
-			continue;
-		}
-		putchar('\t');
-		putchar('\t');
-		pr_opt(&o->opt);
-	}
-	printf("\t\t} %s;\n", u->cmd);
-	return;
-}
-
-static void
-pr_hdr(void)
+pr_yuck(void)
 {
 	puts("\
-#if !defined INCLUDED_yuck_h_\n\
-#define INCLUDED_yuck_h_\n\
-#include <stdlib.h>\n");
+changequote([,])dnl\n\
+divert([-1])\n");
 
-	puts("enum yuck_cmds_e {");
 	for (const struct usg_s *u = usgs; u < usgs + nusgs; u++) {
-		xlcase_(u->umb);
-		xlcase_(u->cmd);
-
-		printf("\t%s_%s,\n", u->umb, u->cmd ?: "NONE");
+		if (u->cmd != NULL) {
+			printf("yuck_add_command([%s])\n", u->cmd);
+		} else {
+			printf("yuck_set_umbrella([%s])\n", u->umb);
+		}
 	}
-	with (const struct usg_s *lu = usgs + nusgs - 1U) {
-		printf("\tyuck_NCMDS = %s_%s\n", lu->umb, lu->cmd ?: "NONE");
-	}
-	puts("};\n");
 
 	for (const struct ou_s *o = opts; o < opts + nopts; o++) {
-		xlcase_(o->opt.lopt);
+		static const char nul_opt[] = "";
+		static const char *type[] = {"flag", "arg"};
+		char sopt[2U] = {o->opt.sopt, '\0'};
+		const char *opt = o->opt.lopt ?: nul_opt;
+		const char *typ = type[o->opt.larg != NULL];
+		const char *cmd = usgs[o->usg].cmd ?: nul_opt;
+
+		printf("yuck_add_option([%s], [%s], [%s], [%s]);\n",
+		       sopt, opt, typ, cmd);
 	}
 
-	puts("struct yuck_s {");
-	puts("\tenum yuck_cmds_e cmd;");
-	/* first cmd lists all the common options, innit? */
-	pr_struct_none(usgs);
-	puts("\tunion {");
-	for (const struct usg_s *u = usgs + 1U; u < usgs + nusgs; u++) {
-		pr_struct(u);
-	}
-	puts("\t};");
-	puts("\tsize_t nargs;");
-	puts("\tchar *const *args;");
-	puts("};\n");
-
-	puts("\
-\n\
-extern int yuck_parse(struct yuck_s *restrict, int argc, char *const argv[]);\n\
-extern void yuck_free(struct yuck_s *restrict);\n");
-
-	puts("\
-#endif  /* INCLUDED_yuck_h_ */");
+	puts("\n\
+divert[]dnl");
 	return;
 }
 
@@ -575,7 +519,7 @@ main(int argc, char *argv[])
 		/* let the snarfing begin */
 		rc = snarf_f(yf);
 
-		pr_hdr();
+		pr_yuck();
 
 		/* clean up */
 		fclose(yf);
