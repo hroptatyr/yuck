@@ -13,13 +13,14 @@ enum yuck_cmds_e {dnl
 struct yuck_s {
 	enum yuck_cmds_e cmd;
 
-	foreachq([slot], defn([YUCK..SLOT]), [slot;
+	foreachq([slot], defn([YUCK..I]), [yuck_slot_decl(slot);
 	])
 	union {foreachq([cmd], [YUCK_CMD], [
-		struct {foreachq([slot], defn([YUCK.]cmd[.SLOT]), [
-			slot;])
+		struct {foreachq([slot], defn([YUCK.]cmd[.I]), [
+			yuck_slot_decl(slot, cmd);])
 		} cmd;])
 	};
+
 	size_t nargs;
 	char *const *args;
 };

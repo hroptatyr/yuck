@@ -19,6 +19,11 @@ define([append_ne], [dnl
 	ifelse([$2], [], [], [append([$1], [$2], [$3])])
 ])
 
+define([first_nonnil], [dnl
+	ifelse([$#], [0], [], [$1], [], [first_nonnil(shift($@))], [], [], [$1])
+])
+
+
 define([yuck_set_umbrella], [dnl
 	define([YUCK_UMB], [$1])
 ])
@@ -37,20 +42,19 @@ define([yuck_add_option], [dnl
 	pushdef([long], [$3])
 	pushdef([type], [$4])
 
-	pushdef([slotname], ifelse(long, [], ifelse(short, [], [define([cnt], ifdef([cnt], [incr(cnt)], [0]))[s]cnt], [dash]short), long)[_]type)
-	pushdef([slot], ifelse(type, [], [void slotname],
-		type, [flag], [unsigned int slotname],
-		type, [arg], [const char *slotname],
-		type, [marg], [const char **slotname]))
+	pushdef([ident], ifelse(long, [], ifelse(short, [], [define([cnt], ifdef([cnt], [incr(cnt)], [0]))[s]cnt], [dash]short), long))
+	pushdef([slot], ifelse(type, [], [ident], [ident[_]type]))
 
 	append_ne([YUCK.]cmd[.S], short, [,])
 	append_ne([YUCK.]cmd[.L], long, [,])
-	append_ne([YUCK.]cmd[.SLOT], slot, [,])
+	append_ne([YUCK.]cmd[.I], ident, [,])
 
-	define([YUCK.]cmd[.]short[.slot], ifelse(cmd, [], slotname, cmd.slotname))
-	define([YUCK.]cmd[.]long[.slot], ifelse(cmd, [], slotname, cmd.slotname))
+	define([YUCK.]cmd[.]short[.slot], slot)
+	define([YUCK.]cmd[.]long[.slot], slot)
+	define([YUCK.]cmd[.]ident[.slot], slot)
 	define([YUCK.]cmd[.]short[.type], type)
 	define([YUCK.]cmd[.]long[.type], type)
+	define([YUCK.]cmd[.]ident[.type], type)
 
 	popdef([slot])
 	popdef([cmd])
@@ -59,6 +63,50 @@ define([yuck_add_option], [dnl
 	popdef([type])
 ])
 
+## helpers for the m4c and m4h
+
+## yuck_slot_decl([option], [[cmd]])
+define([yuck_slot_decl], [dnl
+pushdef([opt], [$1])dnl
+pushdef([cmd], [$2])dnl
+pushdef([type], defn([YUCK.]cmd[.]opt[.type]))dnl
+dnl
+pushdef([ctype],
+	ifelse(type, [], [void ],
+		type, [flag], [unsigned int ],
+		type, [arg], [const char *],
+		type, [marg], [const char **]))dnl
+dnl
+ctype[]yuck_slot_identifier(opt, cmd)dnl
+dnl
+popdef([type])dnl
+popdef([cmd])dnl
+popdef([opt])dnl
+])
+
+## yuck_slot_identifier([option], [[cmd]])
+define([yuck_slot_identifier], [dnl
+pushdef([opt], [$1])dnl
+pushdef([cmd], [$2])dnl
+dnl
+defn([YUCK.]cmd[.]opt[.slot])dnl
+dnl
+popdef([cmd])dnl
+popdef([opt])dnl
+])
+
+## yuck_slot([option], [[cmd]])
+define([yuck_slot], [dnl
+pushdef([opt], [$1])dnl
+pushdef([cmd], [$2])dnl
+pushdef([idn], [yuck_slot_identifier(opt, cmd)])dnl
+dnl
+ifelse(cmd, [], idn, cmd.idn)dnl
+dnl
+popdef([opt])
+popdef([cmd])
+popdef([idn])
+])
 
 ## test case
 yuck_set_umbrella([yuck])
