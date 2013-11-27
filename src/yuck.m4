@@ -142,19 +142,6 @@ define([yuck_longs], [defn([YUCK.]$1[.L])])
 define([yuck_idents], [defn([YUCK.]$1[.I])])
 
 
-## test case
-yuck_set_umbrella([yuck])
-yuck_add_option([], [help], [flag])
-yuck_add_command([gen])
-yuck_add_option([x], [extra], [arg], [gen])
-yuck_add_option([h], [], [flag], [gen])
-yuck_add_option([], [version], [flag], [gen])
-yuck_add_command([tst])
-yuck_add_option([], [version], [flag], [tst])
-yuck_add_option([], [], [flag], [tst])
-yuck_add_option([], [], [flag], [tst])
-
-
 ## coroutine stuff
 define([yield], [goto $1; back_from_$1:])
 define([coroutine], [define([this_coru], [$1])$1:])
