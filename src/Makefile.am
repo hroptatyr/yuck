@@ -39,7 +39,7 @@ test.h: yuck.m4 test.m4i yuck-coru.m4h
 	m4 $+ > $@ || rm -f -- $@
 
 test.x: yuck.m4 test.m4i yuck-coru.m4c
-	m4 -DYUCK_HEADER=test.h $+ > $@ || rm -f -- $@
+	m4 -DYUCK_HEADER=test.h -s $+ > $@ || rm -f -- $@
 
 ## generate version.c from .c.in
 version.c: version.c.in $(top_builddir)/version.mk
