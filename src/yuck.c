@@ -397,26 +397,6 @@ yield_opt(const struct opt_s *arg)
 
 
 /* serialise to dsl */
-static int
-xlcase_(char *restrict buf)
-{
-	int res = 0;
-	if (buf == NULL) {
-		/* nothing to do */
-		return 0;
-	}
-	for (char *restrict bp = buf; *bp; bp++) {
-		if (ispunct(*bp)) {
-			*bp = '_';
-			res++;
-		} else if (isupper(*bp)) {
-			*bp = (char)tolower(*bp);
-			res++;
-		}
-	}
-	return res;
-}
-
 static void
 pr_yuck(void)
 {
