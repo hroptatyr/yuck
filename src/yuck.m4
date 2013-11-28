@@ -33,8 +33,8 @@ define([select_divert], [divert[]undivert($1)[]divert(-1)[]undivert[]divert(0)])
 
 
 define([yuck_set_umbrella], [dnl
-	define([YUCK_UMB], make_c_ident([$1]))
-	define([YUCK_UMB_LIT], [$1])
+	define([YUCK_UMB], [$1])
+	define([YUCK_UMC], make_c_ident([$1]))
 ])
 define([yuck_add_command], [dnl
 	pushdef([cmd], make_c_ident([$1]))
@@ -136,7 +136,7 @@ define([_splice], [ifelse([$#], [3], [[$1], [$2], [$3]], [[$1], [$2], [$3], _spl
 define([yuck_cmds], [[YUCK_CMD]])
 
 ## yuck_cmd
-define([yuck_cmd], [YUCK_UMB[_]ifelse([$1], [], [NONE], [$1])])
+define([yuck_cmd], [YUCK_UMC[_]ifelse([$1], [], [NONE], [$1])])
 
 ## yuck_cmd_string
 define([yuck_cmd_string], [defn([YUCK_STR.]$1)])
