@@ -28,7 +28,7 @@ static enum yuck_cmds_e parse_cmd(const char *cmd)
 		return yuck_cmd(C);
 	}]) else {
 		/* error here? */
-		fprintf(stderr, "`%s' is not a valid command.  See --help.\n", cmd);
+		fprintf(stderr, "YUCK_UMB: `%s' is not a valid command.  See --help.\n", cmd);
 	}
 	return (enum yuck_cmds_e)-1;
 }
@@ -104,7 +104,7 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 					[arg], [tgt->yuck_slot(opt, C) = arg ?: argv[[++i]]]);
 			}]) else {
 				ifelse(C, [],
-				       [fprintf(stderr, "unrecognized option `--%s'\n", op);],
+				       [fprintf(stderr, "YUCK_UMB: unrecognized option `--%s'\n", op);],
 				       [resume_at(yuck_cmd()[_longopt]);])
 			}
 			resume;
@@ -131,7 +131,7 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 			switch (*op) {
 			default:
 				divert(1);
-				fprintf(stderr, "invalid option -%c\n", *op);
+				fprintf(stderr, "YUCK_UMB: invalid option -%c\n", *op);
 				break;
 
 ifelse(translit(yuck_shorts, [0123456789]), yuck_shorts, [], [
