@@ -136,10 +136,12 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 					[arg], [tgt->yuck_slot(opt, C) = arg ?: argv[[++i]]],
 					[auto], [/* invoke auto action and exit */
 				yuck_auto_[]yuck_canon(opt, C)[](yuck_cmd(C));
-				exit(EXIT_SUCCESS)]);
+				resume_at(success)]);
 			}]) else {
 				ifelse(C, [],
-				       [fprintf(stderr, "YUCK_UMB: unrecognized option `--%s'\n", op);],
+				       [/* grml */
+				fprintf(stderr, "YUCK_UMB: unrecognized option `--%s'\n", op);
+				resume_at(failure);],
 				       [resume_at(yuck_cmd()[_longopt]);])
 			}
 			resume;
@@ -167,7 +169,7 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 			default:
 				divert(1);
 				fprintf(stderr, "YUCK_UMB: invalid option -%c\n", *op);
-				break;
+				resume_at(failure);
 
 ifelse(translit(quote(yuck_shorts), [0123465789]), quote(yuck_shorts), [], [
 				/* [yuck_shorts()] has numerals as shortopts
@@ -190,7 +192,7 @@ ifelse(translit(quote(yuck_shorts), [0123465789]), quote(yuck_shorts), [], [
 						: argv[[++i]]],
 					[auto], [/* invoke auto action and exit */
 				yuck_auto_[]yuck_canon(opt, C)[](yuck_cmd(C));
-				exit(EXIT_SUCCESS)]);
+				resume_at(success)]);
 				break;
 			])}
 			resume;
@@ -220,6 +222,16 @@ ifelse(translit(quote(yuck_shorts), [0123465789]), quote(yuck_shorts), [], [
 			args[[tgt->nargs++]] = argv[[i]];
 		}
 		return 0;
+	}
+
+	coroutine(failure)
+	{
+		exit(EXIT_FAILURE);
+	}
+
+	coroutine(success)
+	{
+		exit(EXIT_SUCCESS);
 	}
 }
 
