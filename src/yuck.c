@@ -346,7 +346,7 @@ desc:
 }
 
 
-static const char *curr_umb;
+static const char *UNUSED(curr_umb);
 static const char *curr_cmd;
 
 static void
