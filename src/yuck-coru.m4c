@@ -57,17 +57,33 @@ foreachq([C], yuck_cmds, [
 static void yuck_auto_help(enum yuck_cmds_e cmd)
 {
 	yuck_auto_usage(cmd);
-	puts("");
+
 	/* some description innit? */
 
+	if (YUCK_NCMDS && cmd == YUCK_NONE) {
+		/* also output a list of commands */
+		puts("\nCOMMAND may be one of:\n\
+foreachq([C], yuck_cmds, [  yuck_cmd_string(C)\n\
+])");
+	}
+
 	switch (cmd) {
-	default:
-	YUCK_NONE:
-		if (YUCK_NCMDS) {
-			puts("COMMAND may be one of:");
-			foreachq([C], yuck_cmds, [puts("  yuck_cmd_string(C)");])
-		}
+	default:foreachq([C], [,]yuck_cmds, [
+	case yuck_cmd(C):
+		puts("\n\
+foreachq([I], yuck_idents(C), [dnl
+pushdef([s], yuck_short(C, I))dnl
+pushdef([l], yuck_long(C, I))dnl
+pushdef([ds], ifelse(s, [], [  ], [-]s))dnl
+pushdef([dl], ifelse(l, [], [  ], [--]l))dnl
+  ds[]ifelse(s, [], [  ], [ifelse(l, [], [], [, ])])dl[]dnl
+yuck_iftype(I, C, [arg], ifelse(l, [], [ ARG], [=ARG]))\n\
+popdef([ds])dnl
+popdef([s])dnl
+popdef([l])dnl
+])");
 		break;
+])
 	}
 	return;
 }
