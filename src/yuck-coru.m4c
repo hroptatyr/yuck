@@ -134,7 +134,7 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 				fprintf(stderr, "YUCK_UMB: invalid option -%c\n", *op);
 				break;
 
-ifelse(translit(yuck_shorts, [0123456789]), yuck_shorts, [], [
+ifelse(translit(quote(yuck_shorts), [0123465789]), quote(yuck_shorts), [], [
 				/* [yuck_shorts()] has numerals as shortopts
 				 * don't allow literal treatment of numerals */divert(-1)])
 			case '0' ... '9':;
