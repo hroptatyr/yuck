@@ -355,7 +355,7 @@ yield_help(void)
 {
 	const char *cmd = curr_cmd ?: nul_str;
 
-	printf("yuck_add_option([h], [help], [flag], [%s])\n", cmd);
+	printf("yuck_add_option([h], [help], [auto], [%s])\n", cmd);
 	printf("yuck_add_option_desc([help], [%s], [dnl\n\
 display this help and exit\n\
 ])\n", cmd);
@@ -367,7 +367,7 @@ yield_version(void)
 {
 	const char *cmd = curr_cmd ?: nul_str;
 
-	printf("yuck_add_option([V], [version], [flag], [%s])\n", cmd);
+	printf("yuck_add_option([V], [version], [auto], [%s])\n", cmd);
 	printf("yuck_add_option_desc([version], [%s], [dnl\n\
 output version information and exit\n\
 ])\n", cmd);
