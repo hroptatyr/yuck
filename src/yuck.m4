@@ -60,15 +60,14 @@ define([yuck_add_option], [dnl
 	pushdef([cmd], make_c_ident([$4]))
 
 	pushdef([ident], ifelse(long, [], ifelse(short, [], [define([cnt], ifdef([cnt], [incr(cnt)], [0]))[s]cnt], [dash]short), make_c_ident(long)))
-	pushdef([slot], ifelse(type, [], [ident], [ident[_]type]))
 
 	append_nene([YUCK.]cmd[.S], short, [,])
 	append_nene([YUCK.]cmd[.L], long, [,])
 	append_nene([YUCK.]cmd[.I], ident, [,])
 
-	define([YUCK.]cmd[.]short[.slot], slot)
-	define([YUCK.]cmd[.]long[.slot], slot)
-	define([YUCK.]cmd[.]ident[.slot], slot)
+	define([YUCK.]cmd[.]short[.canon], ident)
+	define([YUCK.]cmd[.]long[.canon], ident)
+	define([YUCK.]cmd[.]ident[.canon], ident)
 	define([YUCK.]cmd[.]short[.type], type)
 	define([YUCK.]cmd[.]long[.type], type)
 	define([YUCK.]cmd[.]ident[.type], type)
@@ -82,6 +81,15 @@ define([yuck_add_option], [dnl
 ])
 
 ## helpers for the m4c and m4h
+
+## yuck_canon([opt], [[cmd]])
+define([yuck_canon], [dnl
+pushdef([opt], [$1])dnl
+pushdef([cmd], [$2])dnl
+defn([YUCK.]cmd[.]opt[.canon])dnl
+popdef([cmd])dnl
+popdef([opt])dnl
+])
 
 ## yuck_slot_decl([option], [[cmd]])
 define([yuck_slot_decl], [dnl
@@ -107,9 +115,13 @@ popdef([opt])dnl
 define([yuck_slot_identifier], [dnl
 pushdef([opt], [$1])dnl
 pushdef([cmd], [$2])dnl
+pushdef([canon], defn([YUCK.]cmd[.]opt[.canon]))dnl
+pushdef([type], defn([YUCK.]cmd[.]opt[.type]))dnl
 dnl
-defn([YUCK.]cmd[.]opt[.slot])dnl
+canon[_]type[]dnl
 dnl
+popdef([canon])dnl
+popdef([type])dnl
 popdef([cmd])dnl
 popdef([opt])dnl
 ])
