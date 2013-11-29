@@ -33,6 +33,30 @@ static enum yuck_cmds_e yuck_parse_cmd(const char *cmd)
 	return (enum yuck_cmds_e)-1;
 }
 
+static void yuck_auto_help(enum yuck_cmds_e cmd)
+{
+	switch (cmd) {
+	default:
+		if (!YUCK_NCMDS) {
+			puts("Usage: YUCK_UMB [OPTION]...");
+		} else {
+			puts("Usage: YUCK_UMB [OPTION]... COMMAND");
+		}
+		break;
+	}
+	return;
+}
+
+static void yuck_auto_version(enum yuck_cmds_e cmd)
+{
+	switch (cmd) {
+	default:
+		puts("YUCK_UMB YUCK_VER");
+		break;
+	}
+	return;
+}
+
 
 int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 {
@@ -101,7 +125,8 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 			}foreachq([opt], yuck_longs(C), [ else if (yuck_streqp(op, "opt")) {
 				yuck_iftype(opt, C, 
 					[flag], [tgt->yuck_slot(opt, C)++],
-					[arg], [tgt->yuck_slot(opt, C) = arg ?: argv[[++i]]]);
+					[arg], [tgt->yuck_slot(opt, C) = arg ?: argv[[++i]]],
+					[auto], [yuck_auto_[]yuck_canon(opt, C)[](yuck_cmd(C))]);
 			}]) else {
 				ifelse(C, [],
 				       [fprintf(stderr, "YUCK_UMB: unrecognized option `--%s'\n", op);],
@@ -152,7 +177,8 @@ ifelse(translit(quote(yuck_shorts), [0123465789]), quote(yuck_shorts), [], [
 					[flag], [tgt->yuck_slot(opt, C)++],
 					[arg], [tgt->yuck_slot(opt, C) = *arg
 						? (op += strlen(arg), arg)
-						: argv[[++i]]]);
+						: argv[[++i]]],
+					[auto], [yuck_auto_[]yuck_canon(opt, C)[](yuck_cmd(C))]);
 				break;
 			])}
 			resume;
