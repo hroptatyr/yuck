@@ -11,17 +11,12 @@ define([_foreachq], [ifelse([$#], [3], [],
 	[define([$1], [$4])$2[]$0([$1], [$2],
 		shift(shift(shift($@))))])])
 
-define([append], [dnl
-	define([$1], ifdef([$1], [defn([$1])[$3]])[$2])
-])
-define([append_ne], [dnl
-	## like append, but append only non-empty arguments
-	ifelse([$2], [], [], [append([$1], [$2], [$3])])
-])
-define([append_nene], [dnl
-	## like append_ne, but append only non-existing arguments
-	ifelse(index([$3]defn([$1])[$3], [$3$2$3]), [-1], [append_ne([$1], [$2], [$3])])
-])
+define([append], [define([$1], ifdef([$1], [defn([$1])[$3]])[$2])])
+## like append, but append only non-empty arguments
+define([append_ne], [ifelse([$2], [], [], [append([$1], [$2], [$3])])])
+## like append_ne, but append only non-existing arguments
+define([append_nene], [ifelse(index([$3]defn([$1])[$3], [$3$2$3]), [-1],
+	[append_ne([$1], [$2], [$3])])])
 
 define([first_nonnil], [dnl
 	ifelse([$#], [0], [], [$1], [], [first_nonnil(shift($@))], [], [], [$1])
