@@ -24,22 +24,26 @@ noinst_LIBRARIES += libyuck.a
 libyuck_a_SOURCES = version.c version.h
 
 
-noinst_PROGRAMS += yuck
-yuck_CPPFLAGS = $(AM_CPPFLAGS)
-yuck_CPPFLAGS += -DBOOTSTRAP
+noinst_PROGRAMS += yuck-bootstrap
+yuck_bootstrap_SOURCES = yuck.c
+yuck_bootstrap_CPPFLAGS = $(AM_CPPFLAGS)
+yuck_bootstrap_CPPFLAGS += -DBOOTSTRAP
 
-noinst_PROGRAMS += test
-EXTRA_test_SOURCES = test.yuck
-BUILT_SOURCES += test.x test.h
+bin_PROGRAMS += yuck
+yuck_SOURCES = yuck.c yuck.yuck
+BUILT_SOURCES += yuck.yc yuck.yh
 
-test.m4i: test.yuck $(builddir)/yuck
-	$(builddir)/yuck $< > $@
 
-test.h: yuck.m4 test.m4i yuck-coru.m4h
+## bootstrapping rules
+yuck.m4i: yuck.yuck $(builddir)/yuck-bootstrap
+	$(builddir)/yuck-bootstrap $< > $@
+
+yuck.yh: yuck.m4 yuck.m4i yuck-coru.m4h
 	m4 $+ > $@ || rm -f -- $@
 
-test.x: yuck.m4 test.m4i yuck-coru.m4c
-	m4 -DYUCK_HEADER=test.h $+ > $@ || rm -f -- $@
+yuck.yc: yuck.m4 yuck.m4i yuck-coru.m4c
+	m4 -DYUCK_HEADER=yuck.yh $+ > $@ || rm -f -- $@
+
 
 ## generate version.c from .c.in
 version.c: version.c.in $(top_builddir)/version.mk
