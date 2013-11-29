@@ -98,13 +98,18 @@ pushdef([cmd], [$2])dnl
 pushdef([type], defn([YUCK.]cmd[.]opt[.type]))dnl
 dnl
 pushdef([ctype],
-	ifelse(type, [], [void ],
+	ifelse(
 		type, [flag], [unsigned int ],
 		type, [arg], [const char *],
-		type, [marg], [const char **]))dnl
+		type, [marg], [const char **],
+		type, [auto], [unsigned int ],
+		[], [], [void ]))dnl
+pushdef([cpost],
+	ifelse(type, [auto], [[[[0U]]]]))dnl
 dnl
-ctype[]yuck_slot_identifier(opt, cmd)dnl
+ctype[]yuck_slot_identifier(opt, cmd)[]cpost[]dnl
 dnl
+popdef([cpost])dnl
 popdef([ctype])dnl
 popdef([type])dnl
 popdef([cmd])dnl
