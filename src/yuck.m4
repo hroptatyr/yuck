@@ -61,16 +61,19 @@ define([yuck_add_option], [dnl
 
 	pushdef([ident], ifelse(long, [], ifelse(short, [], [define([cnt], ifdef([cnt], [incr(cnt)], [0]))[s]cnt], [dash]short), make_c_ident(long)))
 
-	append_nene([YUCK.]cmd[.S], short, [,])
-	append_nene([YUCK.]cmd[.L], long, [,])
-	append_nene([YUCK.]cmd[.I], ident, [,])
+	ifdef([YUCK.]cmd[.]ident[.canon], [], [dnl
+		## process only if new
+		append_ne([YUCK.]cmd[.S], short, [,])
+		append_ne([YUCK.]cmd[.L], long, [,])
+		append_ne([YUCK.]cmd[.I], ident, [,])
 
-	define([YUCK.]cmd[.]short[.canon], ident)
-	define([YUCK.]cmd[.]long[.canon], ident)
-	define([YUCK.]cmd[.]ident[.canon], ident)
-	define([YUCK.]cmd[.]short[.type], type)
-	define([YUCK.]cmd[.]long[.type], type)
-	define([YUCK.]cmd[.]ident[.type], type)
+		define([YUCK.]cmd[.]short[.canon], ident)
+		define([YUCK.]cmd[.]long[.canon], ident)
+		define([YUCK.]cmd[.]ident[.canon], ident)
+		define([YUCK.]cmd[.]short[.type], type)
+		define([YUCK.]cmd[.]long[.type], type)
+		define([YUCK.]cmd[.]ident[.type], type)
+	])
 
 	popdef([ident])
 	popdef([slot])
