@@ -353,11 +353,19 @@ static void
 yield_usg(const struct usg_s *arg)
 {
 	if (arg->cmd != NULL) {
-		printf("yuck_add_command([%s])\n", arg->cmd);
 		curr_cmd = arg->cmd;
+		printf("yuck_add_command([%s])\n", arg->cmd);
+		if (arg->desc != NULL) {
+			printf("yuck_set_command_desc([%s], [dnl\n%s])\n",
+			       arg->cmd, arg->desc);
+		}
 	} else {
-		printf("yuck_set_umbrella([%s])\n", arg->umb);
 		curr_umb = arg->umb;
+		printf("yuck_set_umbrella([%s])\n", arg->umb);
+		if (arg->desc != NULL) {
+			printf("yuck_set_umbrella_desc([%s], [dnl\n%s])\n",
+			       arg->umb, arg->desc);
+		}
 	}
 	return;
 }
@@ -374,6 +382,10 @@ yield_opt(const struct opt_s *arg)
 
 	printf("yuck_add_option([%s], [%s], [%s], [%s]);\n",
 	       sopt, opt, typ, cmd);
+	if (arg->desc != NULL) {
+		printf("yuck_set_option_desc([%s], [%s], [dnl\n%s])\n",
+		       opt, cmd, arg->desc);
+	}
 	return;
 }
 
