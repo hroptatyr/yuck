@@ -40,6 +40,9 @@ define([yuck_set_umbrella], [dnl
 	define([YUCK_UMB], [$1])
 	define([YUCK_UMC], make_c_ident([$1]))
 ])
+define([yuck_set_version], [dnl
+	define([YUCK_VER], [$1])
+])
 define([yuck_add_command], [dnl
 	pushdef([cmd], make_c_ident([$1]))
 	pushdef([str], [ifelse([$2], [], [$1], cmd)])
