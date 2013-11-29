@@ -43,7 +43,7 @@ define([yuck_set_umbrella], [dnl
 define([yuck_add_command], [dnl
 	pushdef([cmd], make_c_ident([$1]))
 	pushdef([str], [ifelse([$2], [], [$1], cmd)])
-	append([YUCK_CMD], cmd, [,])
+	append_nene([YUCK_CMD], cmd, [,])
 	define([YUCK_STR.]cmd, str)
 	popdef([str])
 	popdef([cmd])
