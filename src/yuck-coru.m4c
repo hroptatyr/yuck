@@ -160,7 +160,7 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 					[flag], [tgt->yuck_slot(opt, C)++],
 					[arg], [tgt->yuck_slot(opt, C) = arg ?: argv[[++i]]],
 					[auto], [/* invoke auto action and exit */
-				yuck_auto_[]yuck_canon(opt, C)[](yuck_cmd(C));
+				yuck_auto_[]yuck_canon(opt, C)(tgt->cmd);
 				resume_at(success)]);
 			}]) else {
 				ifelse(C, [],
@@ -216,7 +216,7 @@ ifelse(translit(quote(yuck_shorts), [0123465789]), quote(yuck_shorts), [], [
 						? (op += strlen(arg), arg)
 						: argv[[++i]]],
 					[auto], [/* invoke auto action and exit */
-				yuck_auto_[]yuck_canon(opt, C)[](yuck_cmd(C));
+				yuck_auto_[]yuck_canon(opt, C)(tgt->cmd);
 				resume_at(success)]);
 				break;
 			])}
