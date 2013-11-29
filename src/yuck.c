@@ -348,6 +348,31 @@ desc:
 
 static const char *UNUSED(curr_umb);
 static const char *curr_cmd;
+static const char nul_str[] = "";
+
+static void
+yield_help(void)
+{
+	const char *cmd = curr_cmd ?: nul_str;
+
+	printf("yuck_add_option([h], [help], [flag], [%s])\n", cmd);
+	printf("yuck_add_option_desc([help], [%s], [dnl\n\
+display this help and exit\n\
+])\n", cmd);
+	return;
+}
+
+static void
+yield_version(void)
+{
+	const char *cmd = curr_cmd ?: nul_str;
+
+	printf("yuck_add_option([V], [version], [flag], [%s])\n", cmd);
+	printf("yuck_add_option_desc([version], [%s], [dnl\n\
+output version information and exit\n\
+])\n", cmd);
+	return;
+}
 
 static void
 yield_usg(const struct usg_s *arg)
@@ -366,6 +391,9 @@ yield_usg(const struct usg_s *arg)
 			printf("yuck_set_umbrella_desc([%s], [dnl\n%s])\n",
 			       arg->umb, arg->desc);
 		}
+		/* insert auto-help and auto-version */
+		yield_help();
+		yield_version();
 	}
 	return;
 }
@@ -373,12 +401,11 @@ yield_usg(const struct usg_s *arg)
 static void
 yield_opt(const struct opt_s *arg)
 {
-	static const char nul_opt[] = "";
 	static const char *type[] = {"flag", "arg"};
 	char sopt[2U] = {arg->sopt, '\0'};
-	const char *opt = arg->lopt ?: nul_opt;
+	const char *opt = arg->lopt ?: nul_str;
 	const char *typ = type[arg->larg != NULL];
-	const char *cmd = curr_cmd ?: nul_opt;
+	const char *cmd = curr_cmd ?: nul_str;
 
 	printf("yuck_add_option([%s], [%s], [%s], [%s]);\n",
 	       sopt, opt, typ, cmd);

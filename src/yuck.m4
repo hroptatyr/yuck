@@ -15,8 +15,12 @@ define([append], [dnl
 	define([$1], ifdef([$1], [defn([$1])[$3]])[$2])
 ])
 define([append_ne], [dnl
-	## like append, but don't append empty arguments
+	## like append, but append only non-empty arguments
 	ifelse([$2], [], [], [append([$1], [$2], [$3])])
+])
+define([append_nene], [dnl
+	## like append_ne, but append only non-existing arguments
+	ifelse(index([$3]defn([$1])[$3], [$3$2$3]), [-1], [append_ne([$1], [$2], [$3])])
 ])
 
 define([first_nonnil], [dnl
@@ -39,7 +43,7 @@ define([yuck_set_umbrella], [dnl
 define([yuck_add_command], [dnl
 	pushdef([cmd], make_c_ident([$1]))
 	pushdef([str], [ifelse([$2], [], [$1], cmd)])
-	append([YUCK_CMD], cmd, [,])
+	append_nene([YUCK_CMD], cmd, [,])
 	define([YUCK_STR.]cmd, str)
 	popdef([str])
 	popdef([cmd])
@@ -55,9 +59,9 @@ define([yuck_add_option], [dnl
 	pushdef([ident], ifelse(long, [], ifelse(short, [], [define([cnt], ifdef([cnt], [incr(cnt)], [0]))[s]cnt], [dash]short), make_c_ident(long)))
 	pushdef([slot], ifelse(type, [], [ident], [ident[_]type]))
 
-	append_ne([YUCK.]cmd[.S], short, [,])
-	append_ne([YUCK.]cmd[.L], long, [,])
-	append_ne([YUCK.]cmd[.I], ident, [,])
+	append_nene([YUCK.]cmd[.S], short, [,])
+	append_nene([YUCK.]cmd[.L], long, [,])
+	append_nene([YUCK.]cmd[.I], ident, [,])
 
 	define([YUCK.]cmd[.]short[.slot], slot)
 	define([YUCK.]cmd[.]long[.slot], slot)
@@ -133,7 +137,7 @@ popdef([type])dnl
 define([_splice], [ifelse([$#], [3], [[$1], [$2], [$3]], [[$1], [$2], [$3], _splice([$1], shift(shift(shift($@))))])])
 
 ## yuck_cmds()
-define([yuck_cmds], [[YUCK_CMD]])
+define([yuck_cmds], [defn([YUCK_CMD])])
 
 ## yuck_cmd
 define([yuck_cmd], [YUCK_UMC[_]ifelse([$1], [], [NONE], [$1])])
