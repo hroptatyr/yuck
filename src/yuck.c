@@ -145,15 +145,6 @@ xstrncpy(char *restrict dst, const char *src, size_t ssz)
 	return ssz;
 }
 
-static char*
-xstrdup(const char *str)
-{
-	if (str == NULL) {
-		return NULL;
-	}
-	return strdup(str);
-}
-
 static __attribute__((unused)) bool
 xstreqp(const char *s1, const char *s2)
 {
@@ -355,78 +346,46 @@ desc:
 }
 
 
-static struct usg_s *usgs;
-static size_t nusgs;
-static struct ou_s {
-	size_t usg;
-	struct opt_s opt;
-} *opts;
-static size_t nopts;
+static const char *UNUSED(curr_umb);
+static const char *curr_cmd;
 
 static void
 yield_usg(const struct usg_s *arg)
 {
-	size_t idx = nusgs++;
-
-	if (!(idx % 64U)) {
-		usgs = realloc(usgs, (idx + 64U) * sizeof(*usgs));
+	if (arg->cmd != NULL) {
+		curr_cmd = arg->cmd;
+		printf("yuck_add_command([%s])\n", arg->cmd);
+		if (arg->desc != NULL) {
+			printf("yuck_set_command_desc([%s], [dnl\n%s])\n",
+			       arg->cmd, arg->desc);
+		}
+	} else {
+		curr_umb = arg->umb;
+		printf("yuck_set_umbrella([%s])\n", arg->umb);
+		if (arg->desc != NULL) {
+			printf("yuck_set_umbrella_desc([%s], [dnl\n%s])\n",
+			       arg->umb, arg->desc);
+		}
 	}
-	/* clone usg */
-	usgs[idx].umb = xstrdup(arg->umb);
-	usgs[idx].cmd = xstrdup(arg->cmd);
-	usgs[idx].desc = xstrdup(arg->desc);
 	return;
 }
 
 static void
 yield_opt(const struct opt_s *arg)
 {
-	size_t idx = nopts++;
+	static const char nul_opt[] = "";
+	static const char *type[] = {"flag", "arg"};
+	char sopt[2U] = {arg->sopt, '\0'};
+	const char *opt = arg->lopt ?: nul_opt;
+	const char *typ = type[arg->larg != NULL];
+	const char *cmd = curr_cmd ?: nul_opt;
 
-	if (!(idx % 64U)) {
-		opts = realloc(opts, (idx + 64U) * sizeof(*opts));
+	printf("yuck_add_option([%s], [%s], [%s], [%s]);\n",
+	       sopt, opt, typ, cmd);
+	if (arg->desc != NULL) {
+		printf("yuck_set_option_desc([%s], [%s], [dnl\n%s])\n",
+		       opt, cmd, arg->desc);
 	}
-	/* clone opt */
-	opts[idx].usg = nusgs - 1U;
-	opts[idx].opt.sopt = arg->sopt;
-	opts[idx].opt.lopt = xstrdup(arg->lopt);
-	opts[idx].opt.larg = xstrdup(arg->larg);
-	opts[idx].opt.desc = xstrdup(arg->desc);
-	return;
-}
-
-
-/* serialise to dsl */
-static void
-pr_yuck(void)
-{
-	puts("\
-changequote([,])dnl\n\
-divert([-1])\n");
-
-	for (const struct usg_s *u = usgs; u < usgs + nusgs; u++) {
-		if (u->cmd != NULL) {
-			printf("yuck_add_command([%s])\n", u->cmd);
-		} else {
-			printf("yuck_set_umbrella([%s])\n", u->umb);
-		}
-	}
-
-	for (const struct ou_s *o = opts; o < opts + nopts; o++) {
-		static const char nul_opt[] = "";
-		static const char *type[] = {"flag", "arg"};
-		char sopt[2U] = {o->opt.sopt, '\0'};
-		const char *opt = o->opt.lopt ?: nul_opt;
-		const char *typ = type[o->opt.larg != NULL];
-		const char *cmd = usgs[o->usg].cmd ?: nul_opt;
-
-		printf("yuck_add_option([%s], [%s], [%s], [%s]);\n",
-		       sopt, opt, typ, cmd);
-	}
-
-	puts("\n\
-changecom([//])\n\
-divert[]dnl");
 	return;
 }
 
@@ -474,6 +433,10 @@ snarf_f(FILE *f)
 	size_t llen = 0U;
 	ssize_t nrd;
 
+	puts("\
+changequote([,])dnl\n\
+divert([-1])\n");
+
 	while ((nrd = getline(&line, &llen, f)) > 0) {
 		if (*line == '#') {
 			continue;
@@ -482,6 +445,10 @@ snarf_f(FILE *f)
 	}
 	/* drain */
 	snarf_ln(NULL, 0U);
+
+	puts("\n\
+changecom([//])\n\
+divert[]dnl");
 
 	free(line);
 	return 0;
@@ -499,8 +466,6 @@ main(int argc, char *argv[])
 	} else {
 		/* let the snarfing begin */
 		rc = snarf_f(yf);
-
-		pr_yuck();
 
 		/* clean up */
 		fclose(yf);
