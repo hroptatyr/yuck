@@ -137,7 +137,7 @@ popdef([type])dnl
 define([_splice], [ifelse([$#], [3], [[$1], [$2], [$3]], [[$1], [$2], [$3], _splice([$1], shift(shift(shift($@))))])])
 
 ## yuck_cmds()
-define([yuck_cmds], [[YUCK_CMD]])
+define([yuck_cmds], [defn([YUCK_CMD])])
 
 ## yuck_cmd
 define([yuck_cmd], [YUCK_UMC[_]ifelse([$1], [], [NONE], [$1])])
