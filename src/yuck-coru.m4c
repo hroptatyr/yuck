@@ -134,7 +134,9 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 				yuck_iftype(opt, C, 
 					[flag], [tgt->yuck_slot(opt, C)++],
 					[arg], [tgt->yuck_slot(opt, C) = arg ?: argv[[++i]]],
-					[auto], [yuck_auto_[]yuck_canon(opt, C)[](yuck_cmd(C))]);
+					[auto], [/* invoke auto action and exit */
+				yuck_auto_[]yuck_canon(opt, C)[](yuck_cmd(C));
+				exit(EXIT_SUCCESS)]);
 			}]) else {
 				ifelse(C, [],
 				       [fprintf(stderr, "YUCK_UMB: unrecognized option `--%s'\n", op);],
@@ -186,7 +188,9 @@ ifelse(translit(quote(yuck_shorts), [0123465789]), quote(yuck_shorts), [], [
 					[arg], [tgt->yuck_slot(opt, C) = *arg
 						? (op += strlen(arg), arg)
 						: argv[[++i]]],
-					[auto], [yuck_auto_[]yuck_canon(opt, C)[](yuck_cmd(C))]);
+					[auto], [/* invoke auto action and exit */
+				yuck_auto_[]yuck_canon(opt, C)[](yuck_cmd(C));
+				exit(EXIT_SUCCESS)]);
 				break;
 			])}
 			resume;
