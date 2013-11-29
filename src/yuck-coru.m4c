@@ -15,22 +15,95 @@
 
 
 static inline bool
-streqp(const char *s1, const char *s2)
+yuck_streqp(const char *s1, const char *s2)
 {
 	return !strcmp(s1, s2);
 }
 
-static enum yuck_cmds_e parse_cmd(const char *cmd)
+static enum yuck_cmds_e yuck_parse_cmd(const char *cmd)
 {
 	if (0) {
 		;
-	}foreachq([C], yuck_cmds(), [ else if (streqp(cmd, "yuck_cmd_string(C)")) {
+	}foreachq([C], yuck_cmds(), [ else if (yuck_streqp(cmd, "yuck_cmd_string(C)")) {
 		return yuck_cmd(C);
 	}]) else {
 		/* error here? */
-		fprintf(stderr, "YUCK_UMB: `%s' is not a valid command.  See --help.\n", cmd);
+		fprintf(stderr, "YUCK_UMB: invalid command `%s'\n\
+Try `--help' for a list of commands.\n", cmd);
 	}
 	return (enum yuck_cmds_e)-1;
+}
+
+static void yuck_auto_usage(enum yuck_cmds_e cmd)
+{
+	switch (cmd) {
+	default:
+	YUCK_NONE:
+		if (!YUCK_NCMDS) {
+			puts("Usage: YUCK_UMB [OPTION]...");
+		} else {
+			puts("Usage: YUCK_UMB [OPTION]... COMMAND");
+		}
+		break;
+foreachq([C], yuck_cmds, [
+	case yuck_cmd(C):
+		puts("Usage: YUCK_UMB [OPTION]... yuck_cmd_string(C)");
+		break;
+])
+	}
+	return;
+}
+
+static void yuck_auto_help(enum yuck_cmds_e cmd)
+{
+	yuck_auto_usage(cmd);
+
+	/* some description innit? */
+
+	if (YUCK_NCMDS && cmd == YUCK_NONE) {
+		/* also output a list of commands */
+		puts("\nCOMMAND may be one of:\n\
+foreachq([C], yuck_cmds, [  yuck_cmd_string(C)\n\
+])");
+	}
+
+	switch (cmd) {
+	default:foreachq([C], [,]yuck_cmds, [
+	case yuck_cmd(C):
+		puts("\n\
+foreachq([I], yuck_idents(C), [dnl
+pushdef([s], yuck_short(C, I))dnl
+pushdef([l], yuck_long(C, I))dnl
+pushdef([ds], ifelse(s, [], [  ], [-]s))dnl
+pushdef([dl], ifelse(l, [], [  ], [--]l))dnl
+  ds[]ifelse(s, [], [  ], [ifelse(l, [], [], [, ])])dl[]dnl
+yuck_iftype(I, C, [arg], ifelse(l, [], [ ARG], [=ARG]))\n\
+popdef([ds])dnl
+popdef([s])dnl
+popdef([l])dnl
+])");
+		break;
+])
+	}
+	return;
+}
+
+static void yuck_auto_version(enum yuck_cmds_e cmd)
+{
+	switch (cmd) {
+	default:
+ifdef([YUCK_VER], [dnl
+		puts("YUCK_UMB YUCK_VER");
+], [dnl
+#if defined PACKAGE_VERSION
+		puts(PACKAGE_VERSION);
+#else
+		puts("YUCK_UMB unknown version");
+#endif	/* PACKAGE_VERSION */
+])dnl
+		break;
+	}
+	return;
 }
 
 
@@ -98,13 +171,18 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 		{
 			if (0) {
 				;
-			}foreachq([opt], yuck_longs(C), [ else if (streqp(op, "opt")) {
+			}foreachq([opt], yuck_longs(C), [ else if (yuck_streqp(op, "opt")) {
 				yuck_iftype(opt, C, 
 					[flag], [tgt->yuck_slot(opt, C)++],
-					[arg], [tgt->yuck_slot(opt, C) = arg ?: argv[[++i]]]);
+					[arg], [tgt->yuck_slot(opt, C) = arg ?: argv[[++i]]],
+					[auto], [/* invoke auto action and exit */
+				yuck_auto_[]yuck_canon(opt, C)(tgt->cmd);
+				resume_at(success)]);
 			}]) else {
 				ifelse(C, [],
-				       [fprintf(stderr, "YUCK_UMB: unrecognized option `--%s'\n", op);],
+				       [/* grml */
+				fprintf(stderr, "YUCK_UMB: unrecognized option `--%s'\n", op);
+				resume_at(failure);],
 				       [resume_at(yuck_cmd()[_longopt]);])
 			}
 			resume;
@@ -132,7 +210,7 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 			default:
 				divert(1);
 				fprintf(stderr, "YUCK_UMB: invalid option -%c\n", *op);
-				break;
+				resume_at(failure);
 
 ifelse(translit(quote(yuck_shorts), [0123465789]), quote(yuck_shorts), [], [
 				/* [yuck_shorts()] has numerals as shortopts
@@ -152,7 +230,10 @@ ifelse(translit(quote(yuck_shorts), [0123465789]), quote(yuck_shorts), [], [
 					[flag], [tgt->yuck_slot(opt, C)++],
 					[arg], [tgt->yuck_slot(opt, C) = *arg
 						? (op += strlen(arg), arg)
-						: argv[[++i]]]);
+						: argv[[++i]]],
+					[auto], [/* invoke auto action and exit */
+				yuck_auto_[]yuck_canon(opt, C)(tgt->cmd);
+				resume_at(success)]);
 				break;
 			])}
 			resume;
@@ -166,7 +247,7 @@ ifelse(translit(quote(yuck_shorts), [0123465789]), quote(yuck_shorts), [], [
 			args[[tgt->nargs++]] = argv[[i]];
 		} else {
 			/* ah, might be an arg then */
-			if ((tgt->cmd = parse_cmd(op)) > YUCK_NCMDS) {
+			if ((tgt->cmd = yuck_parse_cmd(op)) > YUCK_NCMDS) {
 				return -1;
 			}
 		}
@@ -182,6 +263,16 @@ ifelse(translit(quote(yuck_shorts), [0123465789]), quote(yuck_shorts), [], [
 			args[[tgt->nargs++]] = argv[[i]];
 		}
 		return 0;
+	}
+
+	coroutine(failure)
+	{
+		exit(EXIT_FAILURE);
+	}
+
+	coroutine(success)
+	{
+		exit(EXIT_SUCCESS);
 	}
 }
 

@@ -24,7 +24,7 @@ main(int argc, char *argv[])
 	}
 
 	/* go through common options */
-	if (argi->help_flag) {
+	if (argi->help_auto) {
 		printf("common help set\n");
 	}
 

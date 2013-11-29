@@ -11,24 +11,19 @@ define([_foreachq], [ifelse([$#], [3], [],
 	[define([$1], [$4])$2[]$0([$1], [$2],
 		shift(shift(shift($@))))])])
 
-define([append], [dnl
-	define([$1], ifdef([$1], [defn([$1])[$3]])[$2])
-])
-define([append_ne], [dnl
-	## like append, but append only non-empty arguments
-	ifelse([$2], [], [], [append([$1], [$2], [$3])])
-])
-define([append_nene], [dnl
-	## like append_ne, but append only non-existing arguments
-	ifelse(index([$3]defn([$1])[$3], [$3$2$3]), [-1], [append_ne([$1], [$2], [$3])])
-])
+define([append], [define([$1], ifdef([$1], [defn([$1])[$3]])[$2])])
+## like append, but append only non-empty arguments
+define([append_ne], [ifelse([$2], [], [], [append([$1], [$2], [$3])])])
+## like append_ne, but append only non-existing arguments
+define([append_nene], [ifelse(index([$3]defn([$1])[$3], [$3$2$3]), [-1],
+	[append_ne([$1], [$2], [$3])])])
 
 define([first_nonnil], [dnl
 	ifelse([$#], [0], [], [$1], [], [first_nonnil(shift($@))], [], [], [$1])
 ])
 
 define([make_c_ident], [dnl
-translit([$1], [!"#$%&'()*+,-./:;<=>?@[\]^`{|}~],
+translit([$1], [!"#$%&'()*+,-./:;<=>?@[\]^`{|}~],dnl "
 	[_________________________________])[]dnl
 ])
 
@@ -39,6 +34,9 @@ define([select_divert], [divert[]undivert($1)[]divert(-1)[]undivert[]divert(0)])
 define([yuck_set_umbrella], [dnl
 	define([YUCK_UMB], [$1])
 	define([YUCK_UMC], make_c_ident([$1]))
+])
+define([yuck_set_version], [dnl
+	define([YUCK_VER], [$1])
 ])
 define([yuck_add_command], [dnl
 	pushdef([cmd], make_c_ident([$1]))
@@ -57,18 +55,24 @@ define([yuck_add_option], [dnl
 	pushdef([cmd], make_c_ident([$4]))
 
 	pushdef([ident], ifelse(long, [], ifelse(short, [], [define([cnt], ifdef([cnt], [incr(cnt)], [0]))[s]cnt], [dash]short), make_c_ident(long)))
-	pushdef([slot], ifelse(type, [], [ident], [ident[_]type]))
 
-	append_nene([YUCK.]cmd[.S], short, [,])
-	append_nene([YUCK.]cmd[.L], long, [,])
-	append_nene([YUCK.]cmd[.I], ident, [,])
+	ifdef([YUCK.]cmd[.]ident[.canon], [], [dnl
+		## process only if new
+		append_ne([YUCK.]cmd[.S], short, [,])
+		append_ne([YUCK.]cmd[.L], long, [,])
+		append_ne([YUCK.]cmd[.I], ident, [,])
 
-	define([YUCK.]cmd[.]short[.slot], slot)
-	define([YUCK.]cmd[.]long[.slot], slot)
-	define([YUCK.]cmd[.]ident[.slot], slot)
-	define([YUCK.]cmd[.]short[.type], type)
-	define([YUCK.]cmd[.]long[.type], type)
-	define([YUCK.]cmd[.]ident[.type], type)
+		define([YUCK.]cmd[.]short[.canon], ident)
+		define([YUCK.]cmd[.]long[.canon], ident)
+		define([YUCK.]cmd[.]ident[.canon], ident)
+		define([YUCK.]cmd[.]short[.type], type)
+		define([YUCK.]cmd[.]long[.type], type)
+		define([YUCK.]cmd[.]ident[.type], type)
+
+		## reverse maps
+		define([YUCK.]cmd[.]ident[.short], short)
+		define([YUCK.]cmd[.]ident[.long], long)
+	])
 
 	popdef([ident])
 	popdef([slot])
@@ -80,6 +84,15 @@ define([yuck_add_option], [dnl
 
 ## helpers for the m4c and m4h
 
+## yuck_canon([opt], [[cmd]])
+define([yuck_canon], [dnl
+pushdef([opt], [$1])dnl
+pushdef([cmd], [$2])dnl
+defn([YUCK.]cmd[.]opt[.canon])dnl
+popdef([cmd])dnl
+popdef([opt])dnl
+])
+
 ## yuck_slot_decl([option], [[cmd]])
 define([yuck_slot_decl], [dnl
 pushdef([opt], [$1])dnl
@@ -87,13 +100,18 @@ pushdef([cmd], [$2])dnl
 pushdef([type], defn([YUCK.]cmd[.]opt[.type]))dnl
 dnl
 pushdef([ctype],
-	ifelse(type, [], [void ],
+	ifelse(
 		type, [flag], [unsigned int ],
 		type, [arg], [const char *],
-		type, [marg], [const char **]))dnl
+		type, [marg], [const char **],
+		type, [auto], [unsigned int ],
+		[], [], [void ]))dnl
+pushdef([cpost],
+	ifelse(type, [auto], [[[[0U]]]]))dnl
 dnl
-ctype[]yuck_slot_identifier(opt, cmd)dnl
+ctype[]yuck_slot_identifier(opt, cmd)[]cpost[]dnl
 dnl
+popdef([cpost])dnl
 popdef([ctype])dnl
 popdef([type])dnl
 popdef([cmd])dnl
@@ -104,9 +122,13 @@ popdef([opt])dnl
 define([yuck_slot_identifier], [dnl
 pushdef([opt], [$1])dnl
 pushdef([cmd], [$2])dnl
+pushdef([canon], defn([YUCK.]cmd[.]opt[.canon]))dnl
+pushdef([type], defn([YUCK.]cmd[.]opt[.type]))dnl
 dnl
-defn([YUCK.]cmd[.]opt[.slot])dnl
+canon[_]type[]dnl
 dnl
+popdef([canon])dnl
+popdef([type])dnl
 popdef([cmd])dnl
 popdef([opt])dnl
 ])
@@ -153,6 +175,12 @@ define([yuck_longs], [defn([YUCK.]$1[.L])])
 
 ## yuck_idents([cmd])
 define([yuck_idents], [defn([YUCK.]$1[.I])])
+
+## yuck_short([cmd], [ident])
+define([yuck_short], [defn([YUCK.]$1[.]$2[.short])])
+
+## yuck_long([cmd], [ident])
+define([yuck_long], [defn([YUCK.]$1[.]$2[.long])])
 
 
 ## coroutine stuff
