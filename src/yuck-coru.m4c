@@ -28,7 +28,8 @@ static enum yuck_cmds_e yuck_parse_cmd(const char *cmd)
 		return yuck_cmd(C);
 	}]) else {
 		/* error here? */
-		fprintf(stderr, "YUCK_UMB: `%s' is not a valid command.  See --help.\n", cmd);
+		fprintf(stderr, "YUCK_UMB: invalid command `%s'\n\
+Try `--help' for a list of commands.\n", cmd);
 	}
 	return (enum yuck_cmds_e)-1;
 }
