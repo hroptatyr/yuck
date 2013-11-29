@@ -73,6 +73,10 @@ define([yuck_add_option], [dnl
 		define([YUCK.]cmd[.]short[.type], type)
 		define([YUCK.]cmd[.]long[.type], type)
 		define([YUCK.]cmd[.]ident[.type], type)
+
+		## reverse maps
+		define([YUCK.]cmd[.]ident[.short], short)
+		define([YUCK.]cmd[.]ident[.long], long)
 	])
 
 	popdef([ident])
@@ -176,6 +180,12 @@ define([yuck_longs], [defn([YUCK.]$1[.L])])
 
 ## yuck_idents([cmd])
 define([yuck_idents], [defn([YUCK.]$1[.I])])
+
+## yuck_short([cmd], [ident])
+define([yuck_short], [defn([YUCK.]$1[.]$2[.short])])
+
+## yuck_long([cmd], [ident])
+define([yuck_long], [defn([YUCK.]$1[.]$2[.long])])
 
 
 ## coroutine stuff
