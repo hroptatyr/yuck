@@ -109,22 +109,6 @@ deconst(const void *cp)
 	return tmp.p;
 }
 
-static FILE*
-get_fn(int argc, char *argv[])
-{
-	FILE *res;
-
-	if (argc > 1) {
-		const char *fn = argv[1];
-		if (UNLIKELY((res = fopen(fn, "r")) == NULL)) {
-			error("cannot open file `%s'", fn);
-		}
-	} else {
-		res = stdin;
-	}
-	return res;
-}
-
 static inline __attribute__((always_inline)) unsigned int
 fls(unsigned int x)
 {
@@ -483,6 +467,22 @@ divert[]dnl");
 
 
 #if defined BOOTSTRAP
+static FILE*
+get_fn(int argc, char *argv[])
+{
+	FILE *res;
+
+	if (argc > 1) {
+		const char *fn = argv[1];
+		if (UNLIKELY((res = fopen(fn, "r")) == NULL)) {
+			error("cannot open file `%s'", fn);
+		}
+	} else {
+		res = stdin;
+	}
+	return res;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -517,6 +517,40 @@ main(int argc, char *argv[])
 	if (yuck_parse(argi, argc, argv) < 0) {
 		rc = 1;
 		goto out;
+	}
+
+	switch (argi->cmd) {
+	default:
+		fputs("\
+No valid command specified.\n\
+See --help to obtain a list of available commands.\n", stderr);
+		rc = 1;
+		goto out;
+	case yuck_gen:
+		if (argi->nargs == 0U) {
+			if (snarf_f(stdin) < 0) {
+				error("gen command failed on stdin");
+				rc = 1;
+			}
+		}
+		for (unsigned int i = 0U; i < argi->nargs; i++) {
+			const char *fn = argi->args[i];
+			FILE *yf;
+
+			if (UNLIKELY((yf = fopen(fn, "r")) == NULL)) {
+				error("cannot open file `%s'", fn);
+				rc = 1;
+				break;
+			} else if (snarf_f(yf) < 0) {
+				error("gen command failed on `%s'", fn);
+				rc = 1;
+				break;
+			}
+
+			/* clean up */
+			fclose(yf);
+		}
+		break;
 	}
 
 out:
