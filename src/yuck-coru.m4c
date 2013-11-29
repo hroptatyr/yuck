@@ -15,16 +15,16 @@
 
 
 static inline bool
-streqp(const char *s1, const char *s2)
+yuck_streqp(const char *s1, const char *s2)
 {
 	return !strcmp(s1, s2);
 }
 
-static enum yuck_cmds_e parse_cmd(const char *cmd)
+static enum yuck_cmds_e yuck_parse_cmd(const char *cmd)
 {
 	if (0) {
 		;
-	}foreachq([C], yuck_cmds(), [ else if (streqp(cmd, "yuck_cmd_string(C)")) {
+	}foreachq([C], yuck_cmds(), [ else if (yuck_streqp(cmd, "yuck_cmd_string(C)")) {
 		return yuck_cmd(C);
 	}]) else {
 		/* error here? */
@@ -98,7 +98,7 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 		{
 			if (0) {
 				;
-			}foreachq([opt], yuck_longs(C), [ else if (streqp(op, "opt")) {
+			}foreachq([opt], yuck_longs(C), [ else if (yuck_streqp(op, "opt")) {
 				yuck_iftype(opt, C, 
 					[flag], [tgt->yuck_slot(opt, C)++],
 					[arg], [tgt->yuck_slot(opt, C) = arg ?: argv[[++i]]]);
@@ -166,7 +166,7 @@ ifelse(translit(quote(yuck_shorts), [0123465789]), quote(yuck_shorts), [], [
 			args[[tgt->nargs++]] = argv[[i]];
 		} else {
 			/* ah, might be an arg then */
-			if ((tgt->cmd = parse_cmd(op)) > YUCK_NCMDS) {
+			if ((tgt->cmd = yuck_parse_cmd(op)) > YUCK_NCMDS) {
 				return -1;
 			}
 		}
