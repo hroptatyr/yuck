@@ -25,6 +25,9 @@ define([_first], [$1])
 define([second], _second($*))
 define([_second], [$2])
 
+define([quote], [ifelse([$#], [0], [], [[$*]])])
+define([dquote], [[$@]])
+
 define([_splice], [ifelse([$#], [3], [[$1], [$2], [$3]], [[$1], [$2], [$3], _splice([$1], shift(shift(shift($@))))])])
 
 define([make_c_ident], [dnl
