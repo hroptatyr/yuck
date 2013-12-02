@@ -77,7 +77,7 @@ pushdef([l], yuck_long(C, I))dnl
 pushdef([an], [yuck_arg_name(I, C)])dnl
 pushdef([ds], ifelse(s, [], [  ], [-]s[]ifelse(an, [], [], l, [], [ ]an)))dnl
 pushdef([dl], ifelse(l, [], [], [--]l[]ifelse(an, [], [], [=]an)))dnl
-  ds[]ifelse(s, [], [  ], l, [], [], [, ])dl[]\n\
+  ds[]ifelse(s, [], [  ], l, [], [], [[, ]])dl[]\n\
 popdef([an])dnl
 popdef([dl])dnl
 popdef([ds])dnl
