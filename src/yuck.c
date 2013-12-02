@@ -264,10 +264,9 @@ yield:
 	if (cur_opt.sopt || cur_opt.lopt) {
 		yield_opt(&cur_opt);
 	}
-	if (cur_opt.lopt != NULL) {
-		cur_opt.lopt = NULL;
-		cur_opt.larg = NULL;
-	}
+	/* complete reset */
+	cur_opt.lopt = NULL;
+	cur_opt.larg = NULL;
 	cur_opt.sopt = '\0';
 	if (sp - line < 2) {
 		/* can't be an option, can it? */
@@ -280,7 +279,7 @@ yield:
 		char sopt = *sp++;
 
 		/* eat a comma as well */
-		if (ispunct(*sp)) {
+		if (*sp == ',') {
 			sp++;
 		}
 		if (!isspace(*sp)) {
@@ -290,9 +289,16 @@ yield:
 		/* start over with the new option */
 		sp++;
 		cur_opt.sopt = sopt;
-		if (*sp++ == '-') {
+		if (isspace(*sp)) {
+			/* no arg name, no longopt */
+		} else if (*sp == '-') {
 			/* must be a --long now, maybe */
-			;
+			sp++;
+		} else {
+			/* just an arg name */
+			const char *ap;
+			for (ap = sp; sp < ep && !isspace(*sp); sp++);
+			cur_opt.larg = bbuf_cpy(larg, ap, sp - ap);
 		}
 	} else if (*sp == '-') {
 		/* --option */
@@ -385,14 +391,17 @@ yield_usg(const struct usg_s *arg)
 static void
 yield_opt(const struct opt_s *arg)
 {
-	static const char *type[] = {"flag", "arg"};
 	char sopt[2U] = {arg->sopt, '\0'};
 	const char *opt = arg->lopt ?: nul_str;
-	const char *typ = type[arg->larg != NULL];
 	const char *cmd = curr_cmd ?: nul_str;
 
-	printf("yuck_add_option([%s], [%s], [%s], [%s]);\n",
-	       sopt, opt, typ, cmd);
+	if (arg->larg == NULL) {
+		printf("yuck_add_option([%s], [%s], [flag], [%s]);\n",
+		       sopt, opt, cmd);
+	} else {
+		printf("yuck_add_option([%s], [%s], [arg, %s], [%s]);\n",
+		       sopt, opt, arg->larg, cmd);
+	}
 	if (arg->desc != NULL) {
 		printf("yuck_set_option_desc([%s], [%s], [dnl\n%s])\n",
 		       opt, cmd, arg->desc);
