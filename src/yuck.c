@@ -385,14 +385,17 @@ yield_usg(const struct usg_s *arg)
 static void
 yield_opt(const struct opt_s *arg)
 {
-	static const char *type[] = {"flag", "arg"};
 	char sopt[2U] = {arg->sopt, '\0'};
 	const char *opt = arg->lopt ?: nul_str;
-	const char *typ = type[arg->larg != NULL];
 	const char *cmd = curr_cmd ?: nul_str;
 
-	printf("yuck_add_option([%s], [%s], [%s], [%s]);\n",
-	       sopt, opt, typ, cmd);
+	if (arg->larg == NULL) {
+		printf("yuck_add_option([%s], [%s], [flag], [%s]);\n",
+		       sopt, opt, cmd);
+	} else {
+		printf("yuck_add_option([%s], [%s], [arg, %s], [%s]);\n",
+		       sopt, opt, arg->larg, cmd);
+	}
 	if (arg->desc != NULL) {
 		printf("yuck_set_option_desc([%s], [%s], [dnl\n%s])\n",
 		       opt, cmd, arg->desc);
