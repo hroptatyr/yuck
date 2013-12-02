@@ -346,9 +346,8 @@ yield_help(void)
 	const char *cmd = curr_cmd ?: nul_str;
 
 	printf("yuck_add_option([h], [help], [auto], [%s])\n", cmd);
-	printf("yuck_add_option_desc([help], [%s], [dnl\n\
-display this help and exit\n\
-])\n", cmd);
+	printf("yuck_set_option_desc([h], [help], [%s], [\
+display this help and exit])\n", cmd);
 	return;
 }
 
@@ -358,9 +357,8 @@ yield_version(void)
 	const char *cmd = curr_cmd ?: nul_str;
 
 	printf("yuck_add_option([V], [version], [auto], [%s])\n", cmd);
-	printf("yuck_add_option_desc([version], [%s], [dnl\n\
-output version information and exit\n\
-])\n", cmd);
+	printf("yuck_set_option_desc([V], [version], [%s], [\
+output version information and exit])\n", cmd);
 	return;
 }
 
@@ -371,14 +369,14 @@ yield_usg(const struct usg_s *arg)
 		curr_cmd = arg->cmd;
 		printf("yuck_add_command([%s])\n", arg->cmd);
 		if (arg->desc != NULL) {
-			printf("yuck_set_command_desc([%s], [dnl\n%s])\n",
+			printf("yuck_set_command_desc([%s], [%s])\n",
 			       arg->cmd, arg->desc);
 		}
 	} else {
 		curr_umb = arg->umb;
 		printf("yuck_set_umbrella([%s])\n", arg->umb);
 		if (arg->desc != NULL) {
-			printf("yuck_set_umbrella_desc([%s], [dnl\n%s])\n",
+			printf("yuck_set_umbrella_desc([%s], [%s])\n",
 			       arg->umb, arg->desc);
 		}
 		/* insert auto-help and auto-version */
@@ -403,8 +401,13 @@ yield_opt(const struct opt_s *arg)
 		       sopt, opt, arg->larg, cmd);
 	}
 	if (arg->desc != NULL) {
-		printf("yuck_set_option_desc([%s], [%s], [dnl\n%s])\n",
-		       opt, cmd, arg->desc);
+		/* kick last newline */
+		size_t z = strlen(arg->desc);
+		if (arg->desc[z - 1U] == '\n') {
+			arg->desc[z - 1U] = '\0';
+		}
+		printf("yuck_set_option_desc([%s], [%s], [%s], [%s])\n",
+		       sopt, opt, cmd, arg->desc);
 	}
 	return;
 }

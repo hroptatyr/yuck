@@ -25,6 +25,9 @@ define([_first], [$1])
 define([second], _second($*))
 define([_second], [$2])
 
+define([quote], [ifelse([$#], [0], [], [[$*]])])
+define([dquote], [[$@]])
+
 define([_splice], [ifelse([$#], [3], [[$1], [$2], [$3]], [[$1], [$2], [$3], _splice([$1], shift(shift(shift($@))))])])
 
 define([make_c_ident], [dnl
@@ -87,6 +90,23 @@ define([yuck_add_option], [dnl
 	popdef([short])
 ])
 
+define([yuck_set_option_desc], [dnl
+	pushdef([short], [$1])
+	pushdef([long], [$2])
+	pushdef([cmd], make_c_ident([$3]))
+	pushdef([desc], [$4])
+
+	pushdef([ident], ifelse(long, [], ifelse(short, [], [define([dcnt], ifdef([dcnt], [incr(dcnt)], [0]))[s]cnt], [dash]short), make_c_ident(long)))
+
+	define([YUCK.]cmd[.]ident[.desc], defn([desc]))
+
+	popdef([short])
+	popdef([long])
+	popdef([cmd])
+	popdef([desc])
+])
+
+
 ## helpers for the m4c and m4h
 
 ## yuck_canon([opt], [[cmd]])
@@ -204,6 +224,9 @@ define([yuck_short], [defn([YUCK.]$1[.]$2[.short])])
 ## yuck_long([cmd], [ident])
 define([yuck_long], [defn([YUCK.]$1[.]$2[.long])])
 
+## yuck_option_desc([cmd], [ident])
+define([yuck_option_desc], [defn([YUCK.]$1[.]$2[.desc])])
+
 
 ## coroutine stuff
 define([yield], [goto $1; back_from_$1:])
@@ -213,4 +236,4 @@ define([resume_at], [goto $1])
 define([quit], [goto out])
 
 divert[]dnl
-changequote
+changequote`'dnl

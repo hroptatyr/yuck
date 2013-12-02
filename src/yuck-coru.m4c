@@ -77,7 +77,9 @@ pushdef([l], yuck_long(C, I))dnl
 pushdef([an], [yuck_arg_name(I, C)])dnl
 pushdef([ds], ifelse(s, [], [  ], [-]s[]ifelse(an, [], [], l, [], [ ]an)))dnl
 pushdef([dl], ifelse(l, [], [], [--]l[]ifelse(an, [], [], [=]an)))dnl
-  ds[]ifelse(s, [], [  ], l, [], [], [, ])dl[]\n\
+pushdef([lhs], [  ]ds[]ifelse(s, [], [  ], l, [], [], [[, ]])dl[])dnl
+format([%-20s  %s], defn([lhs]), patsubst(yuck_option_desc(C, I), [$], [\\n\\]))
+popdef([lhs])dnl
 popdef([an])dnl
 popdef([dl])dnl
 popdef([ds])dnl
@@ -214,8 +216,9 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 				fprintf(stderr, "YUCK_UMB: invalid option -%c\n", *op);
 				resume_at(failure);
 
-ifelse(translit(quote(yuck_shorts), [0123465789]), quote(yuck_shorts), [], [
-				/* [yuck_shorts()] has numerals as shortopts
+ifelse(quote(translit(yuck_shorts, [0123465789])), quote(yuck_shorts), [], [
+				/* [yuck_shorts()] (= yuck_shorts())
+				 * has numerals as shortopts
 				 * don't allow literal treatment of numerals */divert(-1)])
 			case '0' ... '9':;
 				/* literal treatment of numeral */
