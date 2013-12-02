@@ -77,7 +77,7 @@ pushdef([l], yuck_long(C, I))dnl
 pushdef([ds], ifelse(s, [], [  ], [-]s))dnl
 pushdef([dl], ifelse(l, [], [  ], [--]l))dnl
   ds[]ifelse(s, [], [  ], [ifelse(l, [], [], [, ])])dl[]dnl
-yuck_iftype(I, C, [arg], ifelse(l, [], [ ARG], [=ARG]))\n\
+yuck_iftype(I, C, [arg], [=yuck_arg_name(I, C)])\n\
 popdef([ds])dnl
 popdef([s])dnl
 popdef([l])dnl
