@@ -74,10 +74,12 @@ foreachq([C], yuck_cmds, [  yuck_cmd_string(C)\n\
 foreachq([I], yuck_idents(C), [dnl
 pushdef([s], yuck_short(C, I))dnl
 pushdef([l], yuck_long(C, I))dnl
-pushdef([ds], ifelse(s, [], [  ], [-]s))dnl
-pushdef([dl], ifelse(l, [], [  ], [--]l))dnl
-  ds[]ifelse(s, [], [  ], [ifelse(l, [], [], [, ])])dl[]dnl
-yuck_iftype(I, C, [arg], [=yuck_arg_name(I, C)])\n\
+pushdef([an], [yuck_arg_name(I, C)])dnl
+pushdef([ds], ifelse(s, [], [  ], [-]s[]ifelse(an, [], [], l, [], [ ]an)))dnl
+pushdef([dl], ifelse(l, [], [], [--]l[]ifelse(an, [], [], [=]an)))dnl
+  ds[]ifelse(s, [], [  ], l, [], [], [, ])dl[]\n\
+popdef([an])dnl
+popdef([dl])dnl
 popdef([ds])dnl
 popdef([s])dnl
 popdef([l])dnl
