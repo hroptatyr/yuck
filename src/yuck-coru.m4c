@@ -78,7 +78,11 @@ pushdef([an], [yuck_arg_name(I, C)])dnl
 pushdef([ds], ifelse(s, [], [  ], [-]s[]ifelse(an, [], [], l, [], [ ]an)))dnl
 pushdef([dl], ifelse(l, [], [], [--]l[]ifelse(an, [], [], [=]an)))dnl
 pushdef([lhs], [  ]ds[]ifelse(s, [], [  ], l, [], [], [[, ]])dl[])dnl
-format([%-20s  %s], defn([lhs]), patsubst(yuck_option_desc(C, I), [$], [\\n\\]))
+pushdef([all], [format([%-20s  %s], defn([lhs]), patsubst(yuck_option_desc(C, I), [
+], [\\n\\
+                      ]))])dnl
+patsubst([all], [$], [\\n\\])
+popdef([all])dnl
 popdef([lhs])dnl
 popdef([an])dnl
 popdef([dl])dnl
