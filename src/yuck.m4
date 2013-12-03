@@ -39,13 +39,25 @@ translit([$1], [!"#$%&'()*+,-./:;<=>?@[\]^`{|}~],dnl "
 define([select_divert], [divert[]undivert($1)[]divert(-1)[]undivert[]divert(0)])
 
 
+define([yuck_set_version], [dnl
+	define([YUCK_VER], [$1])
+])
+
 define([yuck_set_umbrella], [dnl
 	define([YUCK_UMB], [$1])
 	define([YUCK_UMC], make_c_ident([$1]))
 ])
-define([yuck_set_version], [dnl
-	define([YUCK_VER], [$1])
+
+define([yuck_set_umbrella_desc], [dnl
+	pushdef([umb], make_c_ident([$1]))
+	pushdef([desc], [$2])
+
+	define([YUCK_UMB.]defn([umb])[.desc], defn([desc]))
+
+	popdef([umb])
+	popdef([desc])
 ])
+
 define([yuck_add_command], [dnl
 	pushdef([cmd], make_c_ident([$1]))
 	pushdef([str], ifelse([$2], [], [$1], defn([cmd])))
@@ -53,6 +65,16 @@ define([yuck_add_command], [dnl
 	define([YUCK_STR.]defn([cmd]), defn([str]))
 	popdef([str])
 	popdef([cmd])
+])
+
+define([yuck_set_command_desc], [dnl
+	pushdef([cmd], make_c_ident([$1]))
+	pushdef([desc], [$2])
+
+	define([YUCK_CMD.]defn([cmd])[.desc], defn([desc]))
+
+	popdef([cmd])
+	popdef([desc])
 ])
 
 ## yuck_add_option(short, long, type, [CMD])
@@ -199,6 +221,12 @@ define([yuck_cmd], [YUCK_UMC[_]ifelse([$1], [], [NONE], [$1])])
 
 ## yuck_cmd_string
 define([yuck_cmd_string], [defn([YUCK_STR.]$1)])
+
+## yuck_umb_desc([[umb]]) getter for the umbrella description
+define([yuck_umb_desc], [defn([YUCK_UMB.]ifelse([$1], [], defn([YUCK_UMB]), [$1])[.desc])])
+
+## yuck_cmd_desc([cmd]) getter for the command description
+define([yuck_cmd_desc], [defn([YUCK_CMD.$1.desc])])
 
 ## yuck_shorts([cmd])
 define([yuck_shorts], [defn([YUCK.]$1[.S])])
