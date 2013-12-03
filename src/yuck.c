@@ -430,16 +430,15 @@ start_over:
 		if (usagep(line, llen)) {
 			st = SET_UMBCMD;
 		} else if (st == SET_UMBCMD) {
-			/* finally, a yield! */
+			/* reset state, go on with inter parsing */
 			st = UNKNOWN;
-			goto start_over;
 		}
 	case SET_OPTION:
 		/* check them option things */
 		if (optionp(line, llen)) {
 			st = SET_OPTION;
 		} else if (st == SET_OPTION) {
-			/* yield */
+			/* reset state, start at the beginning */
 			st = UNKNOWN;
 			goto start_over;
 		}
