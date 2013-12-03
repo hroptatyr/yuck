@@ -62,24 +62,27 @@ define([yuck_add_option], [dnl
 	pushdef([type], [$3])
 	pushdef([cmd], make_c_ident([$4]))
 
-	pushdef([ident], ifelse(long, [], ifelse(short, [], [define([cnt], ifdef([cnt], [incr(cnt)], [0]))[s]cnt], [dash]short), make_c_ident(long)))
+	pushdef([ident], ifelse(defn([long]), [],
+		ifelse(defn([short]), [],
+			[define([cnt], ifdef([cnt], [incr(cnt)], [0]))[s]cnt],
+			[dash]defn([short])), make_c_ident(defn([long]))))
 
 	ifdef([YUCK.]cmd[.]ident[.canon], [], [dnl
 		## process only if new
-		append_ne([YUCK.]cmd[.S], short, [,])
-		append_ne([YUCK.]cmd[.L], long, [,])
-		append_ne([YUCK.]cmd[.I], ident, [,])
+		append_ne([YUCK.]defn([cmd])[.S], defn([short]), [,])
+		append_ne([YUCK.]defn([cmd])[.L], defn([long]), [,])
+		append_ne([YUCK.]defn([cmd])[.I], defn([ident]), [,])
 
-		define([YUCK.]cmd[.]short[.canon], ident)
-		define([YUCK.]cmd[.]long[.canon], ident)
-		define([YUCK.]cmd[.]ident[.canon], ident)
-		define([YUCK.]cmd[.]short[.type], defn([type]))
-		define([YUCK.]cmd[.]long[.type], defn([type]))
-		define([YUCK.]cmd[.]ident[.type], defn([type]))
+		define([YUCK.]defn([cmd])[.]defn([short])[.canon], defn([ident]))
+		define([YUCK.]defn([cmd])[.]defn([long])[.canon], defn([ident]))
+		define([YUCK.]defn([cmd])[.]defn([ident])[.canon], defn([ident]))
+		define([YUCK.]defn([cmd])[.]defn([short])[.type], defn([type]))
+		define([YUCK.]defn([cmd])[.]defn([long])[.type], defn([type]))
+		define([YUCK.]defn([cmd])[.]defn([ident])[.type], defn([type]))
 
 		## reverse maps
-		define([YUCK.]cmd[.]ident[.short], short)
-		define([YUCK.]cmd[.]ident[.long], long)
+		define([YUCK.]defn([cmd])[.]defn([ident])[.short], defn([short]))
+		define([YUCK.]defn([cmd])[.]defn([ident])[.long], defn([long]))
 	])
 
 	popdef([ident])
@@ -96,9 +99,12 @@ define([yuck_set_option_desc], [dnl
 	pushdef([cmd], make_c_ident([$3]))
 	pushdef([desc], [$4])
 
-	pushdef([ident], ifelse(long, [], ifelse(short, [], [define([dcnt], ifdef([dcnt], [incr(dcnt)], [0]))[s]cnt], [dash]short), make_c_ident(long)))
+	pushdef([ident], ifelse(defn([long]), [],
+		ifelse(defn([short]), [],
+			[define([dcnt], ifdef([dcnt], [incr(dcnt)], [0]))[s]dcnt],
+			[dash]defn([short])), make_c_ident(defn([long]))))
 
-	define([YUCK.]cmd[.]ident[.desc], defn([desc]))
+	define([YUCK.]defn([cmd])[.]defn([ident])[.desc], defn([desc]))
 
 	popdef([short])
 	popdef([long])
