@@ -6,7 +6,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
-#include "YUCK_HEADER"
+ifdef([YUCK_HEADER], [
+#include "YUCK_HEADER"])dnl
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:177)
