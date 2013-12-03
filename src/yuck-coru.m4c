@@ -40,14 +40,14 @@ static void yuck_auto_usage(enum yuck_cmds_e cmd)
 	default:
 	YUCK_NONE:
 		if (!YUCK_NCMDS) {
-			puts("Usage: YUCK_UMB [OPTION]...");
+			puts("Usage: YUCK_UMB [[OPTION]]...");
 		} else {
-			puts("Usage: YUCK_UMB [OPTION]... COMMAND");
+			puts("Usage: YUCK_UMB [[OPTION]]... COMMAND");
 		}
 		break;
 foreachq([C], yuck_cmds, [
 	case yuck_cmd(C):
-		puts("Usage: YUCK_UMB [OPTION]... yuck_cmd_string(C)");
+		puts("Usage: YUCK_UMB [[OPTION]]... yuck_cmd_string(C)");
 		break;
 ])
 	}
@@ -72,20 +72,9 @@ foreachq([C], yuck_cmds, [  yuck_cmd_string(C)\n\
 	case yuck_cmd(C):
 		puts("\n\
 foreachq([I], yuck_idents(C), [dnl
-pushdef([s], yuck_short(C, I))dnl
-pushdef([l], yuck_long(C, I))dnl
-pushdef([an], [yuck_arg_name(I, C)])dnl
-pushdef([ds], ifelse(s, [], [  ], [-]s[]ifelse(an, [], [], l, [], [ ]an)))dnl
-pushdef([dl], ifelse(l, [], [], [--]l[]ifelse(an, [], [], [=]an)))dnl
-pushdef([lhs], [  ]ds[]ifelse(s, [], [  ], l, [], [], [[, ]])dl[])dnl
-format([%-20s  %s], defn([lhs]), patsubst(yuck_option_desc(C, I), [$], [\\n\\]))
-popdef([lhs])dnl
-popdef([an])dnl
-popdef([dl])dnl
-popdef([ds])dnl
-popdef([s])dnl
-popdef([l])dnl
-])");
+yuck_C_literal(yuck_option_help_line(defn([I]), defn([C])))[]dnl
+])dnl
+");
 		break;
 ])
 	}
