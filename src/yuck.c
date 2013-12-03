@@ -367,14 +367,14 @@ yield_usg(const struct usg_s *arg)
 {
 	if (arg->cmd != NULL) {
 		curr_cmd = arg->cmd;
-		printf("yuck_add_command([%s])\n", arg->cmd);
+		printf("\nyuck_add_command([%s])\n", arg->cmd);
 		if (arg->desc != NULL) {
 			printf("yuck_set_command_desc([%s], [%s])\n",
 			       arg->cmd, arg->desc);
 		}
 	} else if (arg->umb != NULL) {
 		curr_umb = arg->umb;
-		printf("yuck_set_umbrella([%s])\n", arg->umb);
+		printf("\nyuck_set_umbrella([%s])\n", arg->umb);
 		if (arg->desc != NULL) {
 			printf("yuck_set_umbrella_desc([%s], [%s])\n",
 			       arg->umb, arg->desc);
@@ -457,7 +457,7 @@ snarf_f(FILE *f)
 
 	puts("\
 changequote([,])dnl\n\
-divert([-1])\n");
+divert([-1])");
 
 	while ((nrd = getline(&line, &llen, f)) > 0) {
 		if (*line == '#') {
