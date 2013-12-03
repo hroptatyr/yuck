@@ -188,7 +188,10 @@ popdef([opt])dnl
 popdef([type])dnl
 ])
 
-## yuck_cmds()
+## yuck_umbcmds(), umbrella + commands
+define([yuck_umbcmds], [ifdef([YUCK_CMD], [[,defn([YUCK_CMD])]], dquote([[]]))])
+
+## yuck_cmds(), just the commands
 define([yuck_cmds], [defn([YUCK_CMD])])
 
 ## yuck_cmd
