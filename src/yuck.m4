@@ -243,7 +243,7 @@ popdef([lhs])dnl
 popdef([desc])dnl
 ])
 
-define([yuck_C_string], [dnl
+define([yuck_C_literal], [dnl
 patsubst([$1], [
 ], [\\n\\
 ])dnl
