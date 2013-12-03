@@ -40,14 +40,14 @@ static void yuck_auto_usage(enum yuck_cmds_e cmd)
 	default:
 	YUCK_NONE:
 		if (!YUCK_NCMDS) {
-			puts("Usage: YUCK_UMB [OPTION]...");
+			puts("Usage: YUCK_UMB [[OPTION]]...");
 		} else {
-			puts("Usage: YUCK_UMB [OPTION]... COMMAND");
+			puts("Usage: YUCK_UMB [[OPTION]]... COMMAND");
 		}
 		break;
 foreachq([C], yuck_cmds, [
 	case yuck_cmd(C):
-		puts("Usage: YUCK_UMB [OPTION]... yuck_cmd_string(C)");
+		puts("Usage: YUCK_UMB [[OPTION]]... yuck_cmd_string(C)");
 		break;
 ])
 	}
