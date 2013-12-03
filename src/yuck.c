@@ -372,7 +372,7 @@ yield_usg(const struct usg_s *arg)
 			printf("yuck_set_command_desc([%s], [%s])\n",
 			       arg->cmd, arg->desc);
 		}
-	} else {
+	} else if (arg->umb != NULL) {
 		curr_umb = arg->umb;
 		printf("yuck_set_umbrella([%s])\n", arg->umb);
 		if (arg->desc != NULL) {
