@@ -618,8 +618,153 @@ main(int argc, char *argv[])
 
 
 #if !defined BOOTSTRAP
+#if !defined PATH_MAX
+# define PATH_MAX	(256U)
+#endif	/* !PATH_MAX */
+static char dslfn[PATH_MAX];
+static char gencfn[PATH_MAX];
+static char genhfn[PATH_MAX];
+
+static int
+find_aux(void)
+{
+	/* look up path relative to binary position */
+	char myself[PATH_MAX];
+	char *mp;
+
+	readlink("/proc/self/exe", myself, sizeof(myself));
+	/* go back to the dir bit */
+	if (UNLIKELY((mp = strrchr(myself, '/')) == NULL)) {
+		return -1;
+	}
+	/* otherwise just fiddle with it */
+	*mp = '\0';
+	if (UNLIKELY((mp = strrchr(myself, '/')) == NULL ||
+		     strcmp(mp, "bin"))) {
+		/* oh, it's local to something? */
+		char *srcdir;
+
+		if (UNLIKELY((srcdir = getenv("srcdir")) == NULL)) {
+			/* oh not invoked from the Makefile then, too bad */
+			return -1;
+		}
+	} else {
+		/* just use share/yuck/ then? */
+		xstrlcpy(mp, "/share/yuck/", sizeof(myself) - (mp - myself));
+		mp += sizeof("/share/yuck");
+
+		with (size_t off = mp - myself) {
+			xstrlcpy(dslfn, myself, sizeof(dslfn));
+			xstrlcpy(dslfn + off, "yuck.m4", sizeof(dslfn) - off);
+
+			xstrlcpy(gencfn, myself, sizeof(gencfn));
+			xstrlcpy(gencfn + off,
+				 "yuck-coru.m4c", sizeof(gencfn) - off);
+
+			xstrlcpy(genhfn, myself, sizeof(genhfn));
+			xstrlcpy(genhfn + off,
+				 "yuck-coru.m4h", sizeof(genhfn) - off);
+		}
+	}
+	return 0;
+}
+
+static pid_t
+run_m4(const char *deffn)
+{
+	static char this_deffn[PATH_MAX];
+	pid_t res;
+
+	switch ((res = vfork())) {
+	case -1:
+		/* i am an error */
+		error("vfork for m4 failed");
+		break;
+
+	case 0:;
+		/* i am the child */
+		static char *const m4_cmdline[] = {
+			"m4", dslfn, this_deffn, gencfn, genhfn,
+			NULL
+		};
+
+		xstrlcpy(this_deffn, deffn, sizeof(this_deffn));
+		execvp("m4", m4_cmdline);
+		error("execvp(m4) failed");
+		_exit(EXIT_FAILURE);
+
+	default:
+		/* i am the parent */
+		break;
+	}
+	return res;
+}
+#endif	/* !BOOTSTRAP */
+
+
+#if !defined BOOTSTRAP
 #include "yuck.yh"
 #include "yuck.yc"
+
+static int
+cmd_gen(struct yuck_s argi[static 1U])
+{
+	static const char outfn[] = "yuck.m4i";
+	int rc = 0;
+
+	/* deal with the output first */
+	if (UNLIKELY((outf = fopen(outfn, "w")) == NULL)) {
+		error("cannot open intermediate file `%s'", outfn);
+		return -1;
+	}
+
+	if (argi->nargs == 0U) {
+		if (snarf_f(stdin) < 0) {
+			error("gen command failed on stdin");
+			rc = 1;
+		}
+	}
+	for (unsigned int i = 0U; i < argi->nargs && rc == 0; i++) {
+		const char *fn = argi->args[i];
+		FILE *yf;
+
+		if (UNLIKELY((yf = fopen(fn, "r")) == NULL)) {
+			error("cannot open file `%s'", fn);
+			rc = 1;
+			break;
+		} else if (snarf_f(yf) < 0) {
+			error("gen command failed on `%s'", fn);
+			rc = 1;
+		}
+
+		/* clean up */
+		fclose(yf);
+	}
+	/* make sure we close the outfile */
+	fclose(outf);
+	/* only proceed if there has been no error yet */
+	if (rc) {
+		goto out;
+	} else if (find_aux() < 0) {
+		/* error whilst finding our DSL and things */
+		error("cannot find yuck dsl and template files");
+		rc = 2;
+		goto out;
+	}
+	/* now route that stuff through m4, assume failure */
+	rc = 2;
+	with (pid_t m4 = run_m4(outfn)) {
+		int st;
+
+		while (m4 > 0 && waitpid(m4, &st, 0) != m4);
+
+		if (m4 > 0 && WIFEXITED(st)) {
+			rc = WEXITSTATUS(st);
+		}
+	}
+out:
+	return rc;
+}
 
 int
 main(int argc, char *argv[])
@@ -640,28 +785,8 @@ See --help to obtain a list of available commands.\n", stderr);
 		rc = 1;
 		goto out;
 	case yuck_gen:
-		if (argi->nargs == 0U) {
-			if (snarf_f(stdin) < 0) {
-				error("gen command failed on stdin");
-				rc = 1;
-			}
-		}
-		for (unsigned int i = 0U; i < argi->nargs; i++) {
-			const char *fn = argi->args[i];
-			FILE *yf;
-
-			if (UNLIKELY((yf = fopen(fn, "r")) == NULL)) {
-				error("cannot open file `%s'", fn);
-				rc = 1;
-				break;
-			} else if (snarf_f(yf) < 0) {
-				error("gen command failed on `%s'", fn);
-				rc = 1;
-				break;
-			}
-
-			/* clean up */
-			fclose(yf);
+		if ((rc = cmd_gen(argi)) < 0) {
+			rc = 1;
 		}
 		break;
 	}
