@@ -5,14 +5,17 @@
 #include <stddef.h>
 
 enum yuck_cmds_e {
-	pushdef([last])pushdef([first], yuck_cmd())[]first,
+pushdef([last], yuck_cmd())pushdef([first], defn([last]))[]dnl
+	/* value used when no command was specified */
+	first,
 
 	/* actual commands */
 	foreachq([cmd], yuck_cmds(), [define([last], yuck_cmd(cmd))[]last,
 	])
 	/* convenience identifiers */
 	YUCK_NONE = first,
-	YUCK_NCMDS = last[]popdef([last])popdef([first])
+	YUCK_NCMDS = last
+popdef([last])popdef([first])[]dnl
 };
 
 struct yuck_s {
