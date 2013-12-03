@@ -237,8 +237,12 @@ define([yuck_option_help_line], [dnl
 pushdef([lhs], yuck_option_help_lhs([$1], [$2]))dnl
 pushdef([desc], patsubst(yuck_option_desc([$1], [$2]), [
 ], [
-                      ]))dnl
-format([[%-20s  %s]], defn([lhs]), defn([desc]))[]
+                        ]))dnl
+ifelse(eval(len(defn([lhs])) >= 24), [0], [dnl
+format([[%-22s  %s]], defn([lhs]), defn([desc]))], [dnl
+defn([lhs])[]
+                        defn([desc])[]dnl
+])
 popdef([lhs])dnl
 popdef([desc])dnl
 ])
