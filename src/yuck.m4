@@ -138,7 +138,7 @@ pushdef([ctype],
 		defn([type]), [auto], [unsigned int ],
 		[], [], [void ]))dnl
 pushdef([cpost],
-	ifelse(defn([type]), [auto], [[[[0U]]]]))dnl
+	ifelse(defn([type]), [auto], [[[0U]]]))dnl
 dnl
 defn([ctype])[]yuck_slot_identifier(defn([opt]), defn([cmd]))[]defn([cpost])[]dnl
 dnl
