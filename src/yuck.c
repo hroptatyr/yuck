@@ -142,6 +142,17 @@ xstreqp(const char *s1, const char *s2)
 	return !strcasecmp(s1, s2);
 }
 
+static bool
+only_whitespace_p(const char *line, size_t llen)
+{
+	for (const char *lp = line, *const ep = line + llen; lp < ep; lp++) {
+		if (!isspace(*lp)) {
+			return false;
+		}
+	}
+	return true;
+}
+
 
 /* bang buffers */
 typedef struct {
@@ -182,6 +193,9 @@ bbuf_cat(bbuf_t b[static 1U], const char *str, size_t ssz)
 
 static void yield_usg(const struct usg_s *arg);
 static void yield_opt(const struct opt_s *arg);
+static void yield_inter(bbuf_t x[static 1U]);
+
+#define DEBUG(args...)
 
 static int
 usagep(const char *line, size_t llen)
@@ -199,6 +213,8 @@ usagep(const char *line, size_t llen)
 	if (UNLIKELY(line == NULL)) {
 		goto yield;
 	}
+
+	DEBUG("USAGEP CALLED with %s", line);
 
 	if (!STREQLITP(line, "usage:")) {
 	yield:
@@ -254,6 +270,9 @@ optionp(const char *line, size_t llen)
 	if (UNLIKELY(line == NULL)) {
 		goto yield;
 	}
+
+	DEBUG("OPTIONP CALLED with %s", line);
+
 	/* overread whitespace */
 	for (; sp < ep && isspace(*sp); sp++);
 	if (sp - line >= 8) {
@@ -335,6 +354,30 @@ desc:
 	return 1;
 }
 
+static int
+interp(const char *line, size_t llen)
+{
+	static bbuf_t desc[1U];
+	bool only_ws_p = only_whitespace_p(line, llen);
+
+	if (UNLIKELY(line == NULL)) {
+		goto yield;
+	}
+
+	DEBUG("INTERP CALLED with %s", line);
+	if (only_ws_p && desc->z) {
+	yield:
+		yield_inter(desc);
+		/* reset */
+		desc->z = 0U;
+	} else if (!only_ws_p) {
+		/* snarf the line */
+		bbuf_cat(desc, line, llen);
+		return 1;
+	}
+	return 0;
+}
+
 
 static const char *UNUSED(curr_umb);
 static const char *curr_cmd;
@@ -412,9 +455,22 @@ yield_opt(const struct opt_s *arg)
 	return;
 }
 
+static void
+yield_inter(bbuf_t x[static 1U])
+{
+	if (x->z) {
+		if (x->s[x->z - 1U] == '\n') {
+			x->s[x->z - 1U] = '\0';
+		}
+		printf("yuck_add_inter([%s])\n", x->s);
+	}
+	return;
+}
+
 
 static enum {
 	UNKNOWN,
+	SET_INTER,
 	SET_UMBCMD,
 	SET_OPTION,
 }
@@ -422,25 +478,38 @@ snarf_ln(char *line, size_t llen)
 {
 	static unsigned int st;
 
-start_over:
 	switch (st) {
 	case UNKNOWN:
 	case SET_UMBCMD:
+	usage:
 		/* first keep looking for Usage: lines */
 		if (usagep(line, llen)) {
 			st = SET_UMBCMD;
+			break;
 		} else if (st == SET_UMBCMD) {
-			/* reset state, go on with inter parsing */
+			/* reset state, go on with option parsing */
 			st = UNKNOWN;
+			goto option;
 		}
 	case SET_OPTION:
+	option:
 		/* check them option things */
 		if (optionp(line, llen)) {
 			st = SET_OPTION;
+			break;
 		} else if (st == SET_OPTION) {
-			/* reset state, start at the beginning */
+			/* reset state, go on with usage parsing */
 			st = UNKNOWN;
-			goto start_over;
+			goto usage;
+		}
+	case SET_INTER:
+		/* check for some intro texts */
+		if (interp(line, llen)) {
+			st = SET_INTER;
+			break;
+		} else {
+			/* reset state, go on with option parsing */
+			st = UNKNOWN;
 		}
 	default:
 		break;
