@@ -204,6 +204,7 @@ usagep(const char *line, size_t llen)
 	static struct usg_s cur_usg;
 	static bbuf_t umb[1U];
 	static bbuf_t cmd[1U];
+	static bbuf_t desc[1U];
 	static bool cur_usg_ylddp;
 	const char *sp;
 	const char *up;
@@ -217,11 +218,19 @@ usagep(const char *line, size_t llen)
 	DEBUG("USAGEP CALLED with %s", line);
 
 	if (!STREQLITP(line, "usage:")) {
+		if (only_whitespace_p(line, llen) && !desc->z) {
+			return 1;
+		} else if (!isspace(*line) && !cur_usg_ylddp) {
+			/* append to description */
+			cur_usg.desc = bbuf_cat(desc, line, llen);
+			return 1;
+		}
 	yield:
 		if (!cur_usg_ylddp) {
 			yield_usg(&cur_usg);
 			/* reset */
 			memset(&cur_usg, 0, sizeof(cur_usg));
+			desc->z = 0U;
 			cur_usg_ylddp = true;
 		}
 		return 0;
@@ -408,6 +417,13 @@ output version information and exit])\n", cmd);
 static void
 yield_usg(const struct usg_s *arg)
 {
+	if (arg->desc != NULL) {
+		/* kick last newline */
+		size_t z = strlen(arg->desc);
+		if (arg->desc[z - 1U] == '\n') {
+			arg->desc[z - 1U] = '\0';
+		}
+	}
 	if (arg->cmd != NULL) {
 		curr_cmd = arg->cmd;
 		printf("\nyuck_add_command([%s])\n", arg->cmd);
