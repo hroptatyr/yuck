@@ -204,6 +204,8 @@ usagep(const char *line, size_t llen)
 	yield:
 		if (!cur_usg_ylddp) {
 			yield_usg(&cur_usg);
+			/* reset */
+			memset(&cur_usg, 0, sizeof(cur_usg));
 			cur_usg_ylddp = true;
 		}
 		return 0;
@@ -265,9 +267,7 @@ yield:
 		yield_opt(&cur_opt);
 	}
 	/* complete reset */
-	cur_opt.lopt = NULL;
-	cur_opt.larg = NULL;
-	cur_opt.sopt = '\0';
+	memset(&cur_opt, 0, sizeof(cur_opt));
 	if (sp - line < 2) {
 		/* can't be an option, can it? */
 		return 0;
