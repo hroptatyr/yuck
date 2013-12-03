@@ -116,49 +116,31 @@ define([yuck_set_option_desc], [dnl
 ## helpers for the m4c and m4h
 
 ## yuck_canon([opt], [[cmd]])
-define([yuck_canon], [dnl
-pushdef([opt], [$1])dnl
-pushdef([cmd], [$2])dnl
-defn([YUCK.]cmd[.]opt[.canon])dnl
-popdef([cmd])dnl
-popdef([opt])dnl
-])
+define([yuck_canon], [defn([YUCK.$2.$1.canon])])
 
 ## yuck_type([opt], [[cmd]])
-define([yuck_type], [dnl
-pushdef([opt], [$1])dnl
-pushdef([cmd], [$2])dnl
-first(defn([YUCK.]cmd[.]opt[.type]))[]dnl
-popdef([cmd])dnl
-popdef([opt])dnl
-])
+define([yuck_type], [first(defn([YUCK.$2.$1.type]))])
 
 ## yuck_arg_name([opt], [[cmd]])
-define([yuck_arg_name], [dnl
-pushdef([opt], [$1])dnl
-pushdef([cmd], [$2])dnl
-second(defn([YUCK.]cmd[.]opt[.type]))[]dnl
-popdef([cmd])dnl
-popdef([opt])dnl
-])
+define([yuck_arg_name], [second(defn([YUCK.$2.$1.type]))])
 
 ## yuck_slot_decl([option], [[cmd]])
 define([yuck_slot_decl], [dnl
 pushdef([opt], [$1])dnl
 pushdef([cmd], [$2])dnl
-pushdef([type], [yuck_type(opt, cmd)])dnl
+pushdef([type], yuck_type(defn([opt]), defn([cmd])))dnl
 dnl
 pushdef([ctype],
 	ifelse(
-		type, [flag], [unsigned int ],
-		type, [arg], [const char *],
-		type, [marg], [const char **],
-		type, [auto], [unsigned int ],
+		defn([type]), [flag], [unsigned int ],
+		defn([type]), [arg], [const char *],
+		defn([type]), [marg], [const char **],
+		defn([type]), [auto], [unsigned int ],
 		[], [], [void ]))dnl
 pushdef([cpost],
-	ifelse(type, [auto], [[[[0U]]]]))dnl
+	ifelse(defn([type]), [auto], [[[[0U]]]]))dnl
 dnl
-ctype[]yuck_slot_identifier(opt, cmd)[]cpost[]dnl
+defn([ctype])[]yuck_slot_identifier(defn([opt]), defn([cmd]))[]defn([cpost])[]dnl
 dnl
 popdef([cpost])dnl
 popdef([ctype])dnl
@@ -171,10 +153,10 @@ popdef([opt])dnl
 define([yuck_slot_identifier], [dnl
 pushdef([opt], [$1])dnl
 pushdef([cmd], [$2])dnl
-pushdef([canon], [yuck_canon(opt, cmd)])dnl
-pushdef([type], [yuck_type(opt, cmd)])dnl
+pushdef([canon], yuck_canon(defn([opt]), defn([cmd])))dnl
+pushdef([type], yuck_type(defn([opt]), defn([cmd])))dnl
 dnl
-canon[_]type[]dnl
+defn([canon])[_]defn([type])[]dnl
 dnl
 popdef([canon])dnl
 popdef([type])dnl
@@ -186,9 +168,9 @@ popdef([opt])dnl
 define([yuck_slot], [dnl
 pushdef([opt], [$1])dnl
 pushdef([cmd], [$2])dnl
-pushdef([idn], [yuck_slot_identifier(opt, cmd)])dnl
+pushdef([idn], yuck_slot_identifier(defn([opt]), defn([cmd])))dnl
 dnl
-ifelse(cmd, [], [idn], [cmd.idn])[]dnl
+ifelse(defn([cmd]), [], defn([idn]), defn([cmd])[.]defn([idn]))[]dnl
 dnl
 popdef([idn])dnl
 popdef([cmd])dnl
@@ -199,10 +181,10 @@ popdef([opt])dnl
 define([yuck_iftype], [dnl
 pushdef([opt], [$1])dnl
 pushdef([cmd], [$2])dnl
-pushdef([type], yuck_type(opt, cmd))dnl
+pushdef([type], yuck_type(defn([opt]), defn([cmd])))dnl
 popdef([cmd])dnl
 popdef([opt])dnl
-[]ifelse(_splice(type, shift(shift($@))))[]dnl
+[]ifelse(_splice(defn([type]), shift(shift($@))))[]dnl
 popdef([type])dnl
 ])
 
