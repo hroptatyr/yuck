@@ -46,6 +46,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <ctype.h>
+#include <sys/wait.h>
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect((_x), 1)
@@ -124,6 +125,18 @@ max_zu(size_t x, size_t y)
 static size_t
 xstrncpy(char *restrict dst, const char *src, size_t ssz)
 {
+	memcpy(dst, src, ssz);
+	dst[ssz] = '\0';
+	return ssz;
+}
+
+static __attribute__((unused)) size_t
+xstrlcpy(char *restrict dst, const char *src, size_t dsz)
+{
+	size_t ssz = strlen(src);
+	if (ssz > dsz) {
+		ssz = dsz - 1U;
+	}
 	memcpy(dst, src, ssz);
 	dst[ssz] = '\0';
 	return ssz;
@@ -391,14 +404,15 @@ interp(const char *line, size_t llen)
 static const char *UNUSED(curr_umb);
 static const char *curr_cmd;
 static const char nul_str[] = "";
+static FILE *outf;
 
 static void
 yield_help(void)
 {
 	const char *cmd = curr_cmd ?: nul_str;
 
-	printf("yuck_add_option([h], [help], [auto], [%s])\n", cmd);
-	printf("yuck_set_option_desc([h], [help], [%s], [\
+	fprintf(outf, "yuck_add_option([h], [help], [auto], [%s])\n", cmd);
+	fprintf(outf, "yuck_set_option_desc([h], [help], [%s], [\
 display this help and exit])\n", cmd);
 	return;
 }
@@ -408,8 +422,8 @@ yield_version(void)
 {
 	const char *cmd = curr_cmd ?: nul_str;
 
-	printf("yuck_add_option([V], [version], [auto], [%s])\n", cmd);
-	printf("yuck_set_option_desc([V], [version], [%s], [\
+	fprintf(outf, "yuck_add_option([V], [version], [auto], [%s])\n", cmd);
+	fprintf(outf, "yuck_set_option_desc([V], [version], [%s], [\
 output version information and exit])\n", cmd);
 	return;
 }
@@ -426,17 +440,17 @@ yield_usg(const struct usg_s *arg)
 	}
 	if (arg->cmd != NULL) {
 		curr_cmd = arg->cmd;
-		printf("\nyuck_add_command([%s])\n", arg->cmd);
+		fprintf(outf, "\nyuck_add_command([%s])\n", arg->cmd);
 		if (arg->desc != NULL) {
-			printf("yuck_set_command_desc([%s], [%s])\n",
-			       arg->cmd, arg->desc);
+			fprintf(outf, "yuck_set_command_desc([%s], [%s])\n",
+				arg->cmd, arg->desc);
 		}
 	} else if (arg->umb != NULL) {
 		curr_umb = arg->umb;
-		printf("\nyuck_set_umbrella([%s])\n", arg->umb);
+		fprintf(outf, "\nyuck_set_umbrella([%s])\n", arg->umb);
 		if (arg->desc != NULL) {
-			printf("yuck_set_umbrella_desc([%s], [%s])\n",
-			       arg->umb, arg->desc);
+			fprintf(outf, "yuck_set_umbrella_desc([%s], [%s])\n",
+				arg->umb, arg->desc);
 		}
 		/* insert auto-help and auto-version */
 		yield_help();
@@ -453,11 +467,11 @@ yield_opt(const struct opt_s *arg)
 	const char *cmd = curr_cmd ?: nul_str;
 
 	if (arg->larg == NULL) {
-		printf("yuck_add_option([%s], [%s], [flag], [%s]);\n",
-		       sopt, opt, cmd);
+		fprintf(outf, "yuck_add_option([%s], [%s], [flag], [%s]);\n",
+			sopt, opt, cmd);
 	} else {
-		printf("yuck_add_option([%s], [%s], [arg, %s], [%s]);\n",
-		       sopt, opt, arg->larg, cmd);
+		fprintf(outf, "yuck_add_option([%s], [%s], [arg, %s], [%s]);\n",
+			sopt, opt, arg->larg, cmd);
 	}
 	if (arg->desc != NULL) {
 		/* kick last newline */
@@ -465,8 +479,8 @@ yield_opt(const struct opt_s *arg)
 		if (arg->desc[z - 1U] == '\n') {
 			arg->desc[z - 1U] = '\0';
 		}
-		printf("yuck_set_option_desc([%s], [%s], [%s], [%s])\n",
-		       sopt, opt, cmd, arg->desc);
+		fprintf(outf, "yuck_set_option_desc([%s], [%s], [%s], [%s])\n",
+			sopt, opt, cmd, arg->desc);
 	}
 	return;
 }
@@ -478,7 +492,7 @@ yield_inter(bbuf_t x[static 1U])
 		if (x->s[x->z - 1U] == '\n') {
 			x->s[x->z - 1U] = '\0';
 		}
-		printf("yuck_add_inter([%s])\n", x->s);
+		fprintf(outf, "yuck_add_inter([%s])\n", x->s);
 	}
 	return;
 }
@@ -540,9 +554,9 @@ snarf_f(FILE *f)
 	size_t llen = 0U;
 	ssize_t nrd;
 
-	puts("\
+	fputs("\
 changequote([,])dnl\n\
-divert([-1])");
+divert([-1])\n", outf);
 
 	while ((nrd = getline(&line, &llen, f)) > 0) {
 		if (*line == '#') {
@@ -553,9 +567,9 @@ divert([-1])");
 	/* drain */
 	snarf_ln(NULL, 0U);
 
-	puts("\n\
+	fputs("\n\
 changecom([//])\n\
-divert[]dnl");
+divert[]dnl\n", outf);
 
 	free(line);
 	return 0;
@@ -588,6 +602,9 @@ main(int argc, char *argv[])
 	if (UNLIKELY((yf = get_fn(argc, argv)) == NULL)) {
 		rc = -1;
 	} else {
+		/* always use stdout */
+		outf = stdout;
+
 		/* let the snarfing begin */
 		rc = snarf_f(yf);
 
