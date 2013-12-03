@@ -142,6 +142,17 @@ xstreqp(const char *s1, const char *s2)
 	return !strcasecmp(s1, s2);
 }
 
+static bool
+only_whitespace_p(const char *line, size_t llen)
+{
+	for (const char *lp = line, *const ep = line + llen; lp < ep; lp++) {
+		if (!isspace(*lp)) {
+			return false;
+		}
+	}
+	return true;
+}
+
 
 /* bang buffers */
 typedef struct {
@@ -182,6 +193,9 @@ bbuf_cat(bbuf_t b[static 1U], const char *str, size_t ssz)
 
 static void yield_usg(const struct usg_s *arg);
 static void yield_opt(const struct opt_s *arg);
+static void yield_inter(bbuf_t x[static 1U]);
+
+#define DEBUG(args...)
 
 static int
 usagep(const char *line, size_t llen)
@@ -190,6 +204,7 @@ usagep(const char *line, size_t llen)
 	static struct usg_s cur_usg;
 	static bbuf_t umb[1U];
 	static bbuf_t cmd[1U];
+	static bbuf_t desc[1U];
 	static bool cur_usg_ylddp;
 	const char *sp;
 	const char *up;
@@ -200,10 +215,22 @@ usagep(const char *line, size_t llen)
 		goto yield;
 	}
 
+	DEBUG("USAGEP CALLED with %s", line);
+
 	if (!STREQLITP(line, "usage:")) {
+		if (only_whitespace_p(line, llen) && !desc->z) {
+			return 1;
+		} else if (!isspace(*line) && !cur_usg_ylddp) {
+			/* append to description */
+			cur_usg.desc = bbuf_cat(desc, line, llen);
+			return 1;
+		}
 	yield:
 		if (!cur_usg_ylddp) {
 			yield_usg(&cur_usg);
+			/* reset */
+			memset(&cur_usg, 0, sizeof(cur_usg));
+			desc->z = 0U;
 			cur_usg_ylddp = true;
 		}
 		return 0;
@@ -252,6 +279,9 @@ optionp(const char *line, size_t llen)
 	if (UNLIKELY(line == NULL)) {
 		goto yield;
 	}
+
+	DEBUG("OPTIONP CALLED with %s", line);
+
 	/* overread whitespace */
 	for (; sp < ep && isspace(*sp); sp++);
 	if (sp - line >= 8) {
@@ -265,9 +295,7 @@ yield:
 		yield_opt(&cur_opt);
 	}
 	/* complete reset */
-	cur_opt.lopt = NULL;
-	cur_opt.larg = NULL;
-	cur_opt.sopt = '\0';
+	memset(&cur_opt, 0, sizeof(cur_opt));
 	if (sp - line < 2) {
 		/* can't be an option, can it? */
 		return 0;
@@ -335,6 +363,30 @@ desc:
 	return 1;
 }
 
+static int
+interp(const char *line, size_t llen)
+{
+	static bbuf_t desc[1U];
+	bool only_ws_p = only_whitespace_p(line, llen);
+
+	if (UNLIKELY(line == NULL)) {
+		goto yield;
+	}
+
+	DEBUG("INTERP CALLED with %s", line);
+	if (only_ws_p && desc->z) {
+	yield:
+		yield_inter(desc);
+		/* reset */
+		desc->z = 0U;
+	} else if (!only_ws_p) {
+		/* snarf the line */
+		bbuf_cat(desc, line, llen);
+		return 1;
+	}
+	return 0;
+}
+
 
 static const char *UNUSED(curr_umb);
 static const char *curr_cmd;
@@ -365,16 +417,23 @@ output version information and exit])\n", cmd);
 static void
 yield_usg(const struct usg_s *arg)
 {
+	if (arg->desc != NULL) {
+		/* kick last newline */
+		size_t z = strlen(arg->desc);
+		if (arg->desc[z - 1U] == '\n') {
+			arg->desc[z - 1U] = '\0';
+		}
+	}
 	if (arg->cmd != NULL) {
 		curr_cmd = arg->cmd;
-		printf("yuck_add_command([%s])\n", arg->cmd);
+		printf("\nyuck_add_command([%s])\n", arg->cmd);
 		if (arg->desc != NULL) {
 			printf("yuck_set_command_desc([%s], [%s])\n",
 			       arg->cmd, arg->desc);
 		}
-	} else {
+	} else if (arg->umb != NULL) {
 		curr_umb = arg->umb;
-		printf("yuck_set_umbrella([%s])\n", arg->umb);
+		printf("\nyuck_set_umbrella([%s])\n", arg->umb);
 		if (arg->desc != NULL) {
 			printf("yuck_set_umbrella_desc([%s], [%s])\n",
 			       arg->umb, arg->desc);
@@ -412,9 +471,22 @@ yield_opt(const struct opt_s *arg)
 	return;
 }
 
+static void
+yield_inter(bbuf_t x[static 1U])
+{
+	if (x->z) {
+		if (x->s[x->z - 1U] == '\n') {
+			x->s[x->z - 1U] = '\0';
+		}
+		printf("yuck_add_inter([%s])\n", x->s);
+	}
+	return;
+}
+
 
 static enum {
 	UNKNOWN,
+	SET_INTER,
 	SET_UMBCMD,
 	SET_OPTION,
 }
@@ -422,26 +494,38 @@ snarf_ln(char *line, size_t llen)
 {
 	static unsigned int st;
 
-start_over:
 	switch (st) {
 	case UNKNOWN:
 	case SET_UMBCMD:
+	usage:
 		/* first keep looking for Usage: lines */
 		if (usagep(line, llen)) {
 			st = SET_UMBCMD;
+			break;
 		} else if (st == SET_UMBCMD) {
-			/* finally, a yield! */
+			/* reset state, go on with option parsing */
 			st = UNKNOWN;
-			goto start_over;
+			goto option;
 		}
 	case SET_OPTION:
+	option:
 		/* check them option things */
 		if (optionp(line, llen)) {
 			st = SET_OPTION;
+			break;
 		} else if (st == SET_OPTION) {
-			/* yield */
+			/* reset state, go on with usage parsing */
 			st = UNKNOWN;
-			goto start_over;
+			goto usage;
+		}
+	case SET_INTER:
+		/* check for some intro texts */
+		if (interp(line, llen)) {
+			st = SET_INTER;
+			break;
+		} else {
+			/* reset state, go on with option parsing */
+			st = UNKNOWN;
 		}
 	default:
 		break;
@@ -458,7 +542,7 @@ snarf_f(FILE *f)
 
 	puts("\
 changequote([,])dnl\n\
-divert([-1])\n");
+divert([-1])");
 
 	while ((nrd = getline(&line, &llen, f)) > 0) {
 		if (*line == '#') {

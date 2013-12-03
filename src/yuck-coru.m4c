@@ -44,10 +44,18 @@ static void yuck_auto_usage(enum yuck_cmds_e cmd)
 		} else {
 			puts("Usage: YUCK_UMB [[OPTION]]... COMMAND");
 		}
+ifelse(yuck_umb_desc(), [], [], [dnl
+		puts("\n\
+yuck_C_literal(yuck_umb_desc())");
+])dnl
 		break;
-foreachq([C], yuck_cmds, [
+foreachq([C], yuck_cmds(), [
 	case yuck_cmd(C):
 		puts("Usage: YUCK_UMB [[OPTION]]... yuck_cmd_string(C)");
+ifelse(yuck_cmd_desc(C), [], [], [dnl
+		puts("\n\
+yuck_C_literal(yuck_cmd_desc(C))");
+])dnl
 		break;
 ])
 	}
@@ -63,12 +71,12 @@ static void yuck_auto_help(enum yuck_cmds_e cmd)
 	if (YUCK_NCMDS && cmd == YUCK_NONE) {
 		/* also output a list of commands */
 		puts("\nCOMMAND may be one of:\n\
-foreachq([C], yuck_cmds, [  yuck_cmd_string(C)\n\
+foreachq([C], yuck_cmds(), [  yuck_cmd_string(C)\n\
 ])");
 	}
 
 	switch (cmd) {
-	default:foreachq([C], [,]yuck_cmds, [
+	default:foreachq([C], yuck_umbcmds(), [
 	case yuck_cmd(C):
 		puts("\n\
 foreachq([I], yuck_idents(C), [dnl
@@ -160,7 +168,7 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 		])}
 		resume;
 
-		foreachq([C], [,]yuck_cmds(), [coroutine(yuck_cmd(C)[_longopt])
+		foreachq([C], yuck_umbcmds(), [coroutine(yuck_cmd(C)[_longopt])
 		{
 			if (0) {
 				;
@@ -197,7 +205,7 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 		])}
 		resume;
 
-		foreachq([C], [,]yuck_cmds(), [coroutine(yuck_cmd(C)[_shortopt])
+		foreachq([C], yuck_umbcmds(), [coroutine(yuck_cmd(C)[_shortopt])
 		{
 			switch (*op) {
 			default:

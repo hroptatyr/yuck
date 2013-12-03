@@ -18,3 +18,6 @@ Usage: yuck gen [FILE...]
       --version         Show version number.
   --some-super-long=THING  And its super-long description
                         that goes over 2 lines in total.
+
+Just some concluding thoughts.
+This should work.
