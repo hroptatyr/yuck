@@ -206,14 +206,48 @@ define([yuck_longs], [defn([YUCK.]$1[.L])])
 ## yuck_idents([cmd])
 define([yuck_idents], [defn([YUCK.]$1[.I])])
 
-## yuck_short([cmd], [ident])
-define([yuck_short], [defn([YUCK.]$1[.]$2[.short])])
+## yuck_short([ident], [[cmd]])
+define([yuck_short], [defn([YUCK.]$2[.]$1[.short])])
 
-## yuck_long([cmd], [ident])
-define([yuck_long], [defn([YUCK.]$1[.]$2[.long])])
+## yuck_long([ident], [[cmd]])
+define([yuck_long], [defn([YUCK.]$2[.]$1[.long])])
 
-## yuck_option_desc([cmd], [ident])
-define([yuck_option_desc], [defn([YUCK.]$1[.]$2[.desc])])
+## yuck_option_desc([ident], [[cmd]])
+define([yuck_option_desc], [defn([YUCK.]$2[.]$1[.desc])])
+
+## yuck_option_help_lhs([ident], [[cmd]])
+define([yuck_option_help_lhs], [dnl
+pushdef([s], yuck_short([$1], [$2]))dnl
+pushdef([l], yuck_long([$1], [$2]))dnl
+pushdef([an], yuck_arg_name([$1], [$2]))dnl
+pushdef([ds], ifelse(defn([s]), [], [  ],
+	[-]defn([s])[]ifelse(defn([an]), [], [], l, [], [ ]defn([an]))))dnl
+pushdef([dl], ifelse(defn([l]), [], [],
+	[--]defn([l])[]ifelse(defn([an]), [], [], [=]defn([an]))))dnl
+[  ]ds[]ifelse(defn([s]), [], [  ], defn([l]), [], [], [[, ]])defn([dl])[]dnl
+popdef([s])dnl
+popdef([l])dnl
+popdef([an])dnl
+popdef([ds])dnl
+popdef([dl])dnl
+])
+
+## yuck_option_help_line([ident], [[cmd]])
+define([yuck_option_help_line], [dnl
+pushdef([lhs], yuck_option_help_lhs([$1], [$2]))dnl
+pushdef([desc], patsubst(yuck_option_desc([$1], [$2]), [
+], [
+                      ]))dnl
+format([[%-20s  %s]], defn([lhs]), defn([desc]))[]
+popdef([lhs])dnl
+popdef([desc])dnl
+])
+
+define([yuck_C_string], [dnl
+patsubst([$1], [
+], [\\n\\
+])dnl
+])
 
 
 ## coroutine stuff
