@@ -46,6 +46,8 @@
 #include <assert.h>
 #include <errno.h>
 #include <ctype.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect((_x), 1)
@@ -124,6 +126,29 @@ max_zu(size_t x, size_t y)
 static size_t
 xstrncpy(char *restrict dst, const char *src, size_t ssz)
 {
+	memcpy(dst, src, ssz);
+	dst[ssz] = '\0';
+	return ssz;
+}
+
+static __attribute__((unused)) size_t
+xstrlcpy(char *restrict dst, const char *src, size_t dsz)
+{
+	size_t ssz = strlen(src);
+	if (ssz > dsz) {
+		ssz = dsz - 1U;
+	}
+	memcpy(dst, src, ssz);
+	dst[ssz] = '\0';
+	return ssz;
+}
+
+static __attribute__((unused)) size_t
+xstrlncpy(char *restrict dst, size_t dsz, const char *src, size_t ssz)
+{
+	if (ssz > dsz) {
+		ssz = dsz - 1U;
+	}
 	memcpy(dst, src, ssz);
 	dst[ssz] = '\0';
 	return ssz;
@@ -391,14 +416,15 @@ interp(const char *line, size_t llen)
 static const char *UNUSED(curr_umb);
 static const char *curr_cmd;
 static const char nul_str[] = "";
+static FILE *outf;
 
 static void
 yield_help(void)
 {
 	const char *cmd = curr_cmd ?: nul_str;
 
-	printf("yuck_add_option([h], [help], [auto], [%s])\n", cmd);
-	printf("yuck_set_option_desc([h], [help], [%s], [\
+	fprintf(outf, "yuck_add_option([h], [help], [auto], [%s])\n", cmd);
+	fprintf(outf, "yuck_set_option_desc([h], [help], [%s], [\
 display this help and exit])\n", cmd);
 	return;
 }
@@ -408,8 +434,8 @@ yield_version(void)
 {
 	const char *cmd = curr_cmd ?: nul_str;
 
-	printf("yuck_add_option([V], [version], [auto], [%s])\n", cmd);
-	printf("yuck_set_option_desc([V], [version], [%s], [\
+	fprintf(outf, "yuck_add_option([V], [version], [auto], [%s])\n", cmd);
+	fprintf(outf, "yuck_set_option_desc([V], [version], [%s], [\
 output version information and exit])\n", cmd);
 	return;
 }
@@ -426,17 +452,17 @@ yield_usg(const struct usg_s *arg)
 	}
 	if (arg->cmd != NULL) {
 		curr_cmd = arg->cmd;
-		printf("\nyuck_add_command([%s])\n", arg->cmd);
+		fprintf(outf, "\nyuck_add_command([%s])\n", arg->cmd);
 		if (arg->desc != NULL) {
-			printf("yuck_set_command_desc([%s], [%s])\n",
-			       arg->cmd, arg->desc);
+			fprintf(outf, "yuck_set_command_desc([%s], [%s])\n",
+				arg->cmd, arg->desc);
 		}
 	} else if (arg->umb != NULL) {
 		curr_umb = arg->umb;
-		printf("\nyuck_set_umbrella([%s])\n", arg->umb);
+		fprintf(outf, "\nyuck_set_umbrella([%s])\n", arg->umb);
 		if (arg->desc != NULL) {
-			printf("yuck_set_umbrella_desc([%s], [%s])\n",
-			       arg->umb, arg->desc);
+			fprintf(outf, "yuck_set_umbrella_desc([%s], [%s])\n",
+				arg->umb, arg->desc);
 		}
 		/* insert auto-help and auto-version */
 		yield_help();
@@ -453,11 +479,11 @@ yield_opt(const struct opt_s *arg)
 	const char *cmd = curr_cmd ?: nul_str;
 
 	if (arg->larg == NULL) {
-		printf("yuck_add_option([%s], [%s], [flag], [%s]);\n",
-		       sopt, opt, cmd);
+		fprintf(outf, "yuck_add_option([%s], [%s], [flag], [%s]);\n",
+			sopt, opt, cmd);
 	} else {
-		printf("yuck_add_option([%s], [%s], [arg, %s], [%s]);\n",
-		       sopt, opt, arg->larg, cmd);
+		fprintf(outf, "yuck_add_option([%s], [%s], [arg, %s], [%s]);\n",
+			sopt, opt, arg->larg, cmd);
 	}
 	if (arg->desc != NULL) {
 		/* kick last newline */
@@ -465,8 +491,8 @@ yield_opt(const struct opt_s *arg)
 		if (arg->desc[z - 1U] == '\n') {
 			arg->desc[z - 1U] = '\0';
 		}
-		printf("yuck_set_option_desc([%s], [%s], [%s], [%s])\n",
-		       sopt, opt, cmd, arg->desc);
+		fprintf(outf, "yuck_set_option_desc([%s], [%s], [%s], [%s])\n",
+			sopt, opt, cmd, arg->desc);
 	}
 	return;
 }
@@ -478,7 +504,7 @@ yield_inter(bbuf_t x[static 1U])
 		if (x->s[x->z - 1U] == '\n') {
 			x->s[x->z - 1U] = '\0';
 		}
-		printf("yuck_add_inter([%s])\n", x->s);
+		fprintf(outf, "yuck_add_inter([%s])\n", x->s);
 	}
 	return;
 }
@@ -540,9 +566,9 @@ snarf_f(FILE *f)
 	size_t llen = 0U;
 	ssize_t nrd;
 
-	puts("\
+	fputs("\
 changequote([,])dnl\n\
-divert([-1])");
+divert([-1])\n", outf);
 
 	while ((nrd = getline(&line, &llen, f)) > 0) {
 		if (*line == '#') {
@@ -553,9 +579,9 @@ divert([-1])");
 	/* drain */
 	snarf_ln(NULL, 0U);
 
-	puts("\n\
+	fputs("\n\
 changecom([//])\n\
-divert[]dnl");
+divert[]dnl\n", outf);
 
 	free(line);
 	return 0;
@@ -588,6 +614,9 @@ main(int argc, char *argv[])
 	if (UNLIKELY((yf = get_fn(argc, argv)) == NULL)) {
 		rc = -1;
 	} else {
+		/* always use stdout */
+		outf = stdout;
+
 		/* let the snarfing begin */
 		rc = snarf_f(yf);
 
@@ -601,8 +630,225 @@ main(int argc, char *argv[])
 
 
 #if !defined BOOTSTRAP
+#if !defined PATH_MAX
+# define PATH_MAX	(256U)
+#endif	/* !PATH_MAX */
+static char dslfn[PATH_MAX];
+static char gencfn[PATH_MAX];
+static char genhfn[PATH_MAX];
+
+static bool
+aux_in_path_p(const char *aux, const char *path, size_t pathz)
+{
+	char fn[PATH_MAX];
+	char *restrict fp = fn;
+	struct stat st[1U];
+
+	fp += xstrlncpy(fn, sizeof(fn), path, pathz);
+	*fp++ = '/';
+	xstrlcpy(fp, aux, sizeof(fn) - (fp - fn));
+
+	if (stat(fn, st) < 0) {
+		return false;
+	}
+	return S_ISREG(st->st_mode);
+}
+
+static ssize_t
+get_myself(char *restrict buf, size_t bsz)
+{
+	ssize_t off;
+	char *mp;
+
+	if ((off = readlink("/proc/self/exe", buf, bsz)) < 0) {
+		return -1;
+	}
+	/* go back to the dir bit */
+	for (mp = buf + off - 1U; mp > buf && *mp != '/'; mp--);
+	/* should be bin/, go up one level */
+	*mp = '\0';
+	for (; mp > buf && *mp != '/'; mp--);
+	/* check if we're right */
+	if (UNLIKELY(strcmp(++mp, "bin"))) {
+		/* oh, it's somewhere but not bin/? */
+		return -1;
+	}
+	/* now just use share/yuck/ */
+	xstrlcpy(mp, "share/yuck/", bsz - (mp - buf));
+	mp += sizeof("share/yuck");
+	return mp - buf;
+}
+
+static int
+find_aux(char *restrict buf, size_t bsz, const char *aux)
+{
+	/* look up path relative to binary position */
+	static char pkgdatadir[PATH_MAX];
+	static ssize_t pkgdatalen;
+	static const char *tmplpath;
+	static ssize_t tmplplen;
+	const char *path;
+	size_t plen;
+
+	/* start off by snarfing the environment */
+	if (tmplplen == 0U) {
+		if ((tmplpath = getenv("YUCK_TEMPLATE_PATH")) != NULL) {
+			tmplplen = strlen(tmplpath);
+		} else {
+			/* just set it to something non-0 to indicate initting
+			 * and that also works with the loop below */
+			tmplplen = -1;
+			tmplpath = (void*)0x1U;
+		}
+	}
+
+	/* snarf pkgdatadir */
+	if (pkgdatalen == 0U) {
+		pkgdatalen = get_myself(pkgdatadir, sizeof(pkgdatadir));
+	}
+
+	/* go through the path first */
+	for (const char *pp = tmplpath, *ep, *const end = tmplpath + tmplplen;
+	     pp < end; pp = ep + 1U) {
+		ep = strchr(pp, ':') ?: end;
+		if (aux_in_path_p(aux, pp, ep - pp)) {
+			path = pp;
+			plen = ep - pp;
+			goto bang;
+		}
+	}
+	/* no luck with the env path then aye */
+	if (pkgdatalen > 0 && aux_in_path_p(aux, pkgdatadir, pkgdatalen)) {
+		path = pkgdatadir;
+		plen = pkgdatalen;
+		goto bang;
+	}
+#if defined YUCK_TEMPLATE_PATH
+	path = YUCK_TEMPLATE_PATH;
+	plen = sizeof(YUCK_TEMPLATE_PATH);
+	if (plen-- > 0U && aux_in_path_p(aux, path, plen)) {
+		goto bang;
+	}
+#endif	/* YUCK_TEMPLATE_PATH */
+	/* not what we wanted at all, must be christmas */
+	return -1;
+
+bang:
+	with (size_t z) {
+		z = xstrlncpy(buf, bsz, path, plen);
+		buf[z++] = '/';
+		xstrlcpy(buf + z, aux, bsz - z);
+	}
+	return 0;
+}
+
+static int
+find_auxs(void)
+{
+	int rc = 0;
+
+	rc += find_aux(dslfn, sizeof(dslfn), "yuck.m4");
+	rc += find_aux(gencfn, sizeof(gencfn), "yuck-coru.m4c");
+	rc += find_aux(genhfn, sizeof(genhfn), "yuck-coru.m4h");
+	return rc;
+}
+
+static pid_t
+run_m4(const char *deffn)
+{
+	static char this_deffn[PATH_MAX];
+	pid_t res;
+
+	switch ((res = vfork())) {
+	case -1:
+		/* i am an error */
+		error("vfork for m4 failed");
+		break;
+
+	case 0:;
+		/* i am the child */
+		static char *const m4_cmdline[] = {
+			"m4", dslfn, this_deffn, gencfn, genhfn,
+			NULL
+		};
+
+		xstrlcpy(this_deffn, deffn, sizeof(this_deffn));
+		execvp("m4", m4_cmdline);
+		error("execvp(m4) failed");
+		_exit(EXIT_FAILURE);
+
+	default:
+		/* i am the parent */
+		break;
+	}
+	return res;
+}
+#endif	/* !BOOTSTRAP */
+
+
+#if !defined BOOTSTRAP
 #include "yuck.yh"
 #include "yuck.yc"
+
+static int
+cmd_gen(struct yuck_s argi[static 1U])
+{
+	static const char outfn[] = "yuck.m4i";
+	int rc = 0;
+
+	/* deal with the output first */
+	if (UNLIKELY((outf = fopen(outfn, "w")) == NULL)) {
+		error("cannot open intermediate file `%s'", outfn);
+		return -1;
+	}
+
+	if (argi->nargs == 0U) {
+		if (snarf_f(stdin) < 0) {
+			error("gen command failed on stdin");
+			rc = 1;
+		}
+	}
+	for (unsigned int i = 0U; i < argi->nargs && rc == 0; i++) {
+		const char *fn = argi->args[i];
+		FILE *yf;
+
+		if (UNLIKELY((yf = fopen(fn, "r")) == NULL)) {
+			error("cannot open file `%s'", fn);
+			rc = 1;
+			break;
+		} else if (snarf_f(yf) < 0) {
+			error("gen command failed on `%s'", fn);
+			rc = 1;
+		}
+
+		/* clean up */
+		fclose(yf);
+	}
+	/* make sure we close the outfile */
+	fclose(outf);
+	/* only proceed if there has been no error yet */
+	if (rc) {
+		goto out;
+	} else if (find_auxs() < 0) {
+		/* error whilst finding our DSL and things */
+		error("cannot find yuck dsl and template files");
+		rc = 2;
+		goto out;
+	}
+	/* now route that stuff through m4, assume failure */
+	rc = 2;
+	with (pid_t m4 = run_m4(outfn)) {
+		int st;
+
+		while (m4 > 0 && waitpid(m4, &st, 0) != m4);
+
+		if (m4 > 0 && WIFEXITED(st)) {
+			rc = WEXITSTATUS(st);
+		}
+	}
+out:
+	return rc;
+}
 
 int
 main(int argc, char *argv[])
@@ -623,28 +869,8 @@ See --help to obtain a list of available commands.\n", stderr);
 		rc = 1;
 		goto out;
 	case yuck_gen:
-		if (argi->nargs == 0U) {
-			if (snarf_f(stdin) < 0) {
-				error("gen command failed on stdin");
-				rc = 1;
-			}
-		}
-		for (unsigned int i = 0U; i < argi->nargs; i++) {
-			const char *fn = argi->args[i];
-			FILE *yf;
-
-			if (UNLIKELY((yf = fopen(fn, "r")) == NULL)) {
-				error("cannot open file `%s'", fn);
-				rc = 1;
-				break;
-			} else if (snarf_f(yf) < 0) {
-				error("gen command failed on `%s'", fn);
-				rc = 1;
-				break;
-			}
-
-			/* clean up */
-			fclose(yf);
+		if ((rc = cmd_gen(argi)) < 0) {
+			rc = 1;
 		}
 		break;
 	}

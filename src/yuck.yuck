@@ -2,22 +2,8 @@ Usage: yuck COMMAND [OPTION...]
 
 Generate command line option parsers for umbrella commands.
 
-COMMAND may be one of:
-  gen   Generate.
-
-  --help    Generate a nice help screen like this.
-
 ## Usages of the single commands
 Usage: yuck gen [FILE...]
 
-  -x, --extra=SYM       Be extra generative.
-  -h                    And helpful.
-                        Also works with other commands.
-  -F BINGO              And helpful.
-                        Also works with other commands.
-      --version         Show version number.
-  --some-super-long=THING  And its super-long description
-                        that goes over 2 lines in total.
+Generate a parser with definitions from FILE, or stdin if omitted.
 
-Just some concluding thoughts.
-This should work.
