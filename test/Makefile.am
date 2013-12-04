@@ -13,4 +13,6 @@ TESTS =
 TEST_EXTENSIONS =
 BUILT_SOURCES =
 
+EXTRA_DIST += xmpl.c xmpl.yuck
+
 ## Makefile.am ends here

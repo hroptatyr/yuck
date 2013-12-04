@@ -1,0 +1,5 @@
+Usage: xmpl
+Shows off yuck.
+
+  -x, --extra        Produce some extra bling.
+  -o, --output=FILE  Output bling to file.
