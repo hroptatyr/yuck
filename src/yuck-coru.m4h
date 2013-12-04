@@ -38,7 +38,9 @@ struct yuck_s {
 };
 
 
-extern int yuck_parse(struct yuck_s *restrict, int argc, char *const argv[[]]);
-extern void yuck_free(struct yuck_s *restrict);
+pushdef([DECLF], ifdef([YUCK_HEADER], [extern], [static]))[]dnl
+DECLF int yuck_parse(struct yuck_s *restrict, int argc, char *const argv[[]]);
+DECLF void yuck_free(struct yuck_s *restrict);
+popdef([DECLF])[]dnl
 
 #endif	/* INCLUDED_yuck_h_ */
