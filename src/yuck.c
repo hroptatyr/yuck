@@ -846,6 +846,9 @@ cmd_gen(struct yuck_s argi[static 1U])
 		}
 	}
 out:
+	if (!0/*argi->keep_intermediate*/) {
+		unlink(deffn);
+	}
 	return rc;
 }
 
