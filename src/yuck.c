@@ -792,12 +792,12 @@ run_m4(const char *deffn)
 static int
 cmd_gen(struct yuck_s argi[static 1U])
 {
-	static const char outfn[] = "yuck.m4i";
+	static const char deffn[] = "yuck.m4i";
 	int rc = 0;
 
 	/* deal with the output first */
-	if (UNLIKELY((outf = fopen(outfn, "w")) == NULL)) {
-		error("cannot open intermediate file `%s'", outfn);
+	if (UNLIKELY((outf = fopen(deffn, "w")) == NULL)) {
+		error("cannot open intermediate file `%s'", deffn);
 		return -1;
 	}
 
@@ -836,7 +836,7 @@ cmd_gen(struct yuck_s argi[static 1U])
 	}
 	/* now route that stuff through m4, assume failure */
 	rc = 2;
-	with (pid_t m4 = run_m4(outfn)) {
+	with (pid_t m4 = run_m4(deffn)) {
 		int st;
 
 		while (m4 > 0 && waitpid(m4, &st, 0) != m4);
