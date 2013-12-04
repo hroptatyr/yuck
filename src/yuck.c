@@ -687,6 +687,8 @@ find_aux(char *restrict buf, size_t bsz, const char *aux)
 	static ssize_t pkgdatalen;
 	static const char *tmplpath;
 	static ssize_t tmplplen;
+	const char *path;
+	size_t plen;
 
 	/* start off by snarfing the environment */
 	if (tmplplen == 0U) {
@@ -710,21 +712,34 @@ find_aux(char *restrict buf, size_t bsz, const char *aux)
 	     pp < end; pp = ep + 1U) {
 		ep = strchr(pp, ':') ?: end;
 		if (aux_in_path_p(aux, pp, ep - pp)) {
-			size_t z = xstrlncpy(buf, bsz, pp, ep - pp);
-			buf[z++] = '/';
-			xstrlcpy(buf + z, aux, bsz - z);
-			return 0;
+			path = pp;
+			plen = ep - pp;
+			goto bang;
 		}
 	}
 	/* no luck with the env path then aye */
 	if (pkgdatalen > 0 && aux_in_path_p(aux, pkgdatadir, pkgdatalen)) {
-		size_t z = xstrlncpy(buf, bsz, pkgdatadir, pkgdatalen);
-		buf[z++] = '/';
-		xstrlcpy(buf + z, aux, bsz - z);
-		return 0;
+		path = pkgdatadir;
+		plen = pkgdatalen;
+		goto bang;
 	}
+#if defined YUCK_TEMPLATE_PATH
+	path = YUCK_TEMPLATE_PATH;
+	plen = sizeof(YUCK_TEMPLATE_PATH);
+	if (plen-- > 0U && aux_in_path_p(aux, path, plen)) {
+		goto bang;
+	}
+#endif	/* YUCK_TEMPLATE_PATH */
 	/* not what we wanted at all, must be christmas */
 	return -1;
+
+bang:
+	with (size_t z) {
+		z = xstrlncpy(buf, bsz, path, plen);
+		buf[z++] = '/';
+		xstrlcpy(buf + z, aux, bsz - z);
+	}
+	return 0;
 }
 
 static int
