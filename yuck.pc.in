@@ -1,0 +1,7 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+yuckdir = @datarootdir@/@PACKAGE@
+
+Name: @PACKAGE_NAME@
+Description: Your Umbrella Command Kit
+Version: @VERSION@
