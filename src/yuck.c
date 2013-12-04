@@ -645,9 +645,7 @@ aux_in_path_p(const char *aux, const char *path, size_t pathz)
 	struct stat st[1U];
 
 	fp += xstrlncpy(fn, sizeof(fn), path, pathz);
-	if (fp > fn && fp[-1U] != '/') {
-		*fp++ = '/';
-	}
+	*fp++ = '/';
 	xstrlcpy(fp, aux, sizeof(fn) - (fp - fn));
 
 	if (stat(fn, st) < 0) {
