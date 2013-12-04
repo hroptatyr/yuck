@@ -12,6 +12,7 @@ AM_CPPFLAGS = -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -D_BSD_SOURCE
 bin_PROGRAMS =
 noinst_PROGRAMS =
 pkglib_LIBRARIES =
+pkgdata_DATA =
 noinst_LIBRARIES =
 BUILT_SOURCES =
 EXTRA_DIST = $(BUILT_SOURCES)
@@ -32,6 +33,10 @@ yuck_bootstrap_CPPFLAGS += -DBOOTSTRAP
 bin_PROGRAMS += yuck
 yuck_SOURCES = yuck.c yuck.yuck
 BUILT_SOURCES += yuck.yc yuck.yh
+
+pkgdata_DATA += yuck.m4
+pkgdata_DATA += yuck-coru.m4c
+pkgdata_DATA += yuck-coru.m4h
 
 
 ## bootstrapping rules
