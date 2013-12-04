@@ -754,22 +754,31 @@ find_auxs(void)
 	return rc;
 }
 
-static pid_t
+static __attribute__((noinline)) int
 run_m4(const char *outfn, ...)
 {
 	static char *m4_cmdline[6U] = {
 		"m4", dslfn,
 	};
 	va_list vap;
-	pid_t res;
+	pid_t m4p;
 
-	switch ((res = vfork())) {
+	switch ((m4p = vfork())) {
 	case -1:
 		/* i am an error */
 		error("vfork for m4 failed");
-	default:
+		return -1;
+
+	default:;
 		/* i am the parent */
-		return res;
+		int rc;
+		int st;
+
+		while (waitpid(m4p, &st, 0) != m4p);
+		if (WIFEXITED(st)) {
+			rc = WEXITSTATUS(st);
+		}
+		return rc;
 
 	case 0:;
 		/* i am the child */
@@ -854,18 +863,19 @@ cmd_gen(struct yuck_s argi[static 1U])
 		rc = 2;
 		goto out;
 	}
-	/* now route that stuff through m4, assume failure */
-	rc = 2;
-	with (pid_t m4) {
-		int st;
-
-		/* standard case, pipe directives, then header, then code */
-		m4 = run_m4(argi->gen.output_arg, deffn, genhfn, gencfn, NULL);
-		while (m4 > 0 && waitpid(m4, &st, 0) != m4);
-
-		if (m4 > 0 && WIFEXITED(st)) {
-			rc = WEXITSTATUS(st);
+	/* now route that stuff through m4 */
+	with (const char *outfn = argi->gen.output_arg, *hdrfn) {
+		if ((hdrfn = argi->gen.header_arg) != NULL) {
+			/* run a special one for the header */
+			if ((rc = run_m4(hdrfn, deffn, genhfn, NULL))) {
+				break;
+			}
+			/* now run the whole shebang for the beef code */
+			rc = run_m4(outfn, deffn, gencfn, NULL);
+			break;
 		}
+		/* standard case: pipe directives, then header, then code */
+		rc = run_m4(outfn, deffn, genhfn, gencfn, NULL);
 	}
 out:
 	if (!0/*argi->keep_intermediate*/) {
