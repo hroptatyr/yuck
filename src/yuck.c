@@ -368,7 +368,15 @@ yield:
 		} else {
 			/* just an arg name */
 			const char *ap;
-			for (ap = sp; sp < ep && !isspace(*sp); sp++);
+
+			if (*sp == '[') {
+				cur_opt.oarg = 1U;
+				sp++;
+			}
+			if (*sp == '=') {
+				sp++;
+			}
+			for (ap = sp; sp < ep && isdashdash(*sp); sp++);
 			cur_opt.larg = bbuf_cpy(larg, ap, sp - ap);
 		}
 	} else if (*sp == '-') {
