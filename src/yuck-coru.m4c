@@ -13,7 +13,9 @@ ifdef([YUCK_HEADER], [
 # pragma warning (disable:177)
 # pragma warning (disable:111)
 #elif defined __GNUC__
-# pragma GCC diagnostic push
+# if __GNUC__ > 4 || __GNUC__ == 4 &&  __GNUC_MINOR__ >= 6
+#  pragma GCC diagnostic push
+# endif	 /* GCC version */
 # pragma GCC diagnostic ignored "-Wunused-label"
 # pragma GCC diagnostic ignored "-Wunused-variable"
 #endif	/* __INTEL_COMPILER */
@@ -296,5 +298,7 @@ void yuck_free(struct yuck_s *restrict tgt)
 # pragma warning (default:177)
 # pragma warning (default:111)
 #elif defined __GNUC__
-# pragma GCC diagnostic pop
+# if __GNUC__ > 4 || __GNUC__ == 4 &&  __GNUC_MINOR__ >= 6
+#  pragma GCC diagnostic pop
+# endif	 /* GCC version */
 #endif	/* __INTEL_COMPILER */
