@@ -46,6 +46,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <ctype.h>
+#include <fcntl.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
 
@@ -754,7 +755,7 @@ find_auxs(void)
 }
 
 static pid_t
-run_m4(const char *deffn)
+run_m4(const char *deffn, const char *outfn)
 {
 	static char this_deffn[PATH_MAX];
 	pid_t res;
@@ -771,10 +772,27 @@ run_m4(const char *deffn)
 			"m4", dslfn, this_deffn, genhfn, gencfn,
 			NULL
 		};
-
+		/* fill in intermediate file name */
 		xstrlcpy(this_deffn, deffn, sizeof(this_deffn));
+
+		if (outfn != NULL) {
+			/* --output given */
+			const int outfl = O_RDWR | O_CREAT | O_TRUNC;
+			int outfd;
+
+			if ((outfd = open(outfn, outfl, 0666)) < 0) {
+				/* bollocks */
+				error("cannot open outfile `%s'", outfn);
+				goto bollocks;
+			}
+
+			/* really redir now */
+			dup2(outfd, STDOUT_FILENO);
+		}
+
 		execvp("m4", m4_cmdline);
 		error("execvp(m4) failed");
+	bollocks:
 		_exit(EXIT_FAILURE);
 
 	default:
@@ -836,7 +854,7 @@ cmd_gen(struct yuck_s argi[static 1U])
 	}
 	/* now route that stuff through m4, assume failure */
 	rc = 2;
-	with (pid_t m4 = run_m4(deffn)) {
+	with (pid_t m4 = run_m4(deffn, argi->gen.output_arg)) {
 		int st;
 
 		while (m4 > 0 && waitpid(m4, &st, 0) != m4);

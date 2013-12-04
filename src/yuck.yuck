@@ -7,3 +7,4 @@ Usage: yuck gen [FILE...]
 
 Generate a parser with definitions from FILE, or stdin if omitted.
 
+  -o, --output=FILE  Output goes into FILE instead of stdout.
