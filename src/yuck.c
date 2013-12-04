@@ -768,7 +768,7 @@ run_m4(const char *deffn)
 	case 0:;
 		/* i am the child */
 		static char *const m4_cmdline[] = {
-			"m4", dslfn, this_deffn, gencfn, genhfn,
+			"m4", dslfn, this_deffn, genhfn, gencfn,
 			NULL
 		};
 
