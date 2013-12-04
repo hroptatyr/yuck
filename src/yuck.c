@@ -567,10 +567,6 @@ snarf_f(FILE *f)
 	size_t llen = 0U;
 	ssize_t nrd;
 
-	fputs("\
-changequote([,])dnl\n\
-divert([-1])\n", outf);
-
 	while ((nrd = getline(&line, &llen, f)) > 0) {
 		if (*line == '#') {
 			continue;
@@ -579,10 +575,6 @@ divert([-1])\n", outf);
 	}
 	/* drain */
 	snarf_ln(NULL, 0U);
-
-	fputs("\n\
-changecom([//])\n\
-divert[]dnl\n", outf);
 
 	free(line);
 	return 0;
@@ -618,8 +610,16 @@ main(int argc, char *argv[])
 		/* always use stdout */
 		outf = stdout;
 
+		fputs("\
+changequote([,])dnl\n\
+divert([-1])\n", outf);
+
 		/* let the snarfing begin */
 		rc = snarf_f(yf);
+
+		fputs("\n\
+changecom([//])\n\
+divert[]dnl\n", outf);
 
 		/* clean up */
 		fclose(yf);
@@ -830,6 +830,10 @@ cmd_gen(struct yuck_s argi[static 1U])
 		return -1;
 	}
 
+	fputs("\
+changequote([,])dnl\n\
+divert([-1])\n", outf);
+
 	if (argi->nargs == 0U) {
 		if (snarf_f(stdin) < 0) {
 			error("gen command failed on stdin");
@@ -852,7 +856,27 @@ cmd_gen(struct yuck_s argi[static 1U])
 		/* clean up */
 		fclose(yf);
 	}
+	/* special directive for the header */
+	if (argi->gen.header_arg != NULL) {
+		const char *hdr = argi->gen.header_arg;
+
+		/* massage the hdr bit a bit */
+		if (strcmp(hdr, "/dev/null")) {
+			/* /dev/null just means ignore the header aye? */
+			const char *hp;
+
+			if ((hp = strrchr(hdr, '/')) == NULL) {
+				hp = hdr;
+			} else {
+				hp++;
+			};
+			fprintf(outf, "\ndefine([YUCK_HEADER], [%s])\n", hp);
+		}
+	}
 	/* make sure we close the outfile */
+	fputs("\n\
+changecom([//])\n\
+divert[]dnl\n", outf);
 	fclose(outf);
 	/* only proceed if there has been no error yet */
 	if (rc) {
