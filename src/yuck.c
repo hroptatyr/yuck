@@ -755,51 +755,53 @@ find_auxs(void)
 }
 
 static pid_t
-run_m4(const char *deffn, const char *outfn)
+run_m4(const char *outfn, ...)
 {
-	static char this_deffn[PATH_MAX];
+	static char *m4_cmdline[6U] = {
+		"m4", dslfn,
+	};
+	va_list vap;
 	pid_t res;
 
 	switch ((res = vfork())) {
 	case -1:
 		/* i am an error */
 		error("vfork for m4 failed");
-		break;
+	default:
+		/* i am the parent */
+		return res;
 
 	case 0:;
 		/* i am the child */
-		static char *const m4_cmdline[] = {
-			"m4", dslfn, this_deffn, genhfn, gencfn,
-			NULL
-		};
-		/* fill in intermediate file name */
-		xstrlcpy(this_deffn, deffn, sizeof(this_deffn));
-
-		if (outfn != NULL) {
-			/* --output given */
-			const int outfl = O_RDWR | O_CREAT | O_TRUNC;
-			int outfd;
-
-			if ((outfd = open(outfn, outfl, 0666)) < 0) {
-				/* bollocks */
-				error("cannot open outfile `%s'", outfn);
-				goto bollocks;
-			}
-
-			/* really redir now */
-			dup2(outfd, STDOUT_FILENO);
-		}
-
-		execvp("m4", m4_cmdline);
-		error("execvp(m4) failed");
-	bollocks:
-		_exit(EXIT_FAILURE);
-
-	default:
-		/* i am the parent */
 		break;
 	}
-	return res;
+
+	/* child code here */
+	va_start(vap, outfn);
+	for (size_t i = 2U;
+	     i < countof(m4_cmdline) &&
+		     (m4_cmdline[i] = va_arg(vap, char*)) != NULL; i++);
+	va_end(vap);
+
+	if (outfn != NULL) {
+		/* --output given */
+		const int outfl = O_RDWR | O_CREAT | O_TRUNC;
+		int outfd;
+
+		if ((outfd = open(outfn, outfl, 0666)) < 0) {
+			/* bollocks */
+			error("cannot open outfile `%s'", outfn);
+			goto bollocks;
+		}
+
+		/* really redir now */
+		dup2(outfd, STDOUT_FILENO);
+	}
+
+	execvp("m4", m4_cmdline);
+	error("execvp(m4) failed");
+bollocks:
+	_exit(EXIT_FAILURE);
 }
 #endif	/* !BOOTSTRAP */
 
@@ -854,9 +856,11 @@ cmd_gen(struct yuck_s argi[static 1U])
 	}
 	/* now route that stuff through m4, assume failure */
 	rc = 2;
-	with (pid_t m4 = run_m4(deffn, argi->gen.output_arg)) {
+	with (pid_t m4) {
 		int st;
 
+		/* standard case, pipe directives, then header, then code */
+		m4 = run_m4(argi->gen.output_arg, deffn, genhfn, gencfn, NULL);
 		while (m4 > 0 && waitpid(m4, &st, 0) != m4);
 
 		if (m4 > 0 && WIFEXITED(st)) {
