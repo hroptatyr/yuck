@@ -47,6 +47,7 @@
 #include <errno.h>
 #include <ctype.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect((_x), 1)
@@ -134,6 +135,17 @@ static __attribute__((unused)) size_t
 xstrlcpy(char *restrict dst, const char *src, size_t dsz)
 {
 	size_t ssz = strlen(src);
+	if (ssz > dsz) {
+		ssz = dsz - 1U;
+	}
+	memcpy(dst, src, ssz);
+	dst[ssz] = '\0';
+	return ssz;
+}
+
+static __attribute__((unused)) size_t
+xstrlncpy(char *restrict dst, size_t dsz, const char *src, size_t ssz)
+{
 	if (ssz > dsz) {
 		ssz = dsz - 1U;
 	}
@@ -625,48 +637,107 @@ static char dslfn[PATH_MAX];
 static char gencfn[PATH_MAX];
 static char genhfn[PATH_MAX];
 
-static int
-find_aux(void)
+static bool
+aux_in_path_p(const char *aux, const char *path, size_t pathz)
 {
-	/* look up path relative to binary position */
-	char myself[PATH_MAX];
+	char fn[PATH_MAX];
+	char *restrict fp = fn;
+	struct stat st[1U];
+
+	fp += xstrlncpy(fn, sizeof(fn), path, pathz);
+	if (fp > fn && fp[-1U] != '/') {
+		*fp++ = '/';
+	}
+	xstrlcpy(fp, aux, sizeof(fn) - (fp - fn));
+
+	if (stat(fn, st) < 0) {
+		return false;
+	}
+	return S_ISREG(st->st_mode);
+}
+
+static ssize_t
+get_myself(char *restrict buf, size_t bsz)
+{
+	ssize_t off;
 	char *mp;
 
-	readlink("/proc/self/exe", myself, sizeof(myself));
-	/* go back to the dir bit */
-	if (UNLIKELY((mp = strrchr(myself, '/')) == NULL)) {
+	if ((off = readlink("/proc/self/exe", buf, bsz)) < 0) {
 		return -1;
 	}
-	/* otherwise just fiddle with it */
+	/* go back to the dir bit */
+	for (mp = buf + off - 1U; mp > buf && *mp != '/'; mp--);
+	/* should be bin/, go up one level */
 	*mp = '\0';
-	if (UNLIKELY((mp = strrchr(myself, '/')) == NULL ||
-		     strcmp(mp, "bin"))) {
-		/* oh, it's local to something? */
-		char *srcdir;
+	for (; mp > buf && *mp != '/'; mp--);
+	/* check if we're right */
+	if (UNLIKELY(strcmp(++mp, "bin"))) {
+		/* oh, it's somewhere but not bin/? */
+		return -1;
+	}
+	/* now just use share/yuck/ */
+	xstrlcpy(mp, "share/yuck/", bsz - (mp - buf));
+	mp += sizeof("share/yuck");
+	return mp - buf;
+}
 
-		if (UNLIKELY((srcdir = getenv("srcdir")) == NULL)) {
-			/* oh not invoked from the Makefile then, too bad */
-			return -1;
-		}
-	} else {
-		/* just use share/yuck/ then? */
-		xstrlcpy(mp, "/share/yuck/", sizeof(myself) - (mp - myself));
-		mp += sizeof("/share/yuck");
+static int
+find_aux(char *restrict buf, size_t bsz, const char *aux)
+{
+	/* look up path relative to binary position */
+	static char pkgdatadir[PATH_MAX];
+	static ssize_t pkgdatalen;
+	static const char *tmplpath;
+	static ssize_t tmplplen;
 
-		with (size_t off = mp - myself) {
-			xstrlcpy(dslfn, myself, sizeof(dslfn));
-			xstrlcpy(dslfn + off, "yuck.m4", sizeof(dslfn) - off);
-
-			xstrlcpy(gencfn, myself, sizeof(gencfn));
-			xstrlcpy(gencfn + off,
-				 "yuck-coru.m4c", sizeof(gencfn) - off);
-
-			xstrlcpy(genhfn, myself, sizeof(genhfn));
-			xstrlcpy(genhfn + off,
-				 "yuck-coru.m4h", sizeof(genhfn) - off);
+	/* start off by snarfing the environment */
+	if (tmplplen == 0U) {
+		if ((tmplpath = getenv("YUCK_TEMPLATE_PATH")) != NULL) {
+			tmplplen = strlen(tmplpath);
+		} else {
+			/* just set it to something non-0 to indicate initting
+			 * and that also works with the loop below */
+			tmplplen = -1;
+			tmplpath = (void*)0x1U;
 		}
 	}
-	return 0;
+
+	/* snarf pkgdatadir */
+	if (pkgdatalen == 0U) {
+		pkgdatalen = get_myself(pkgdatadir, sizeof(pkgdatadir));
+	}
+
+	/* go through the path first */
+	for (const char *pp = tmplpath, *ep, *const end = tmplpath + tmplplen;
+	     pp < end; pp = ep + 1U) {
+		ep = strchr(pp, ':') ?: end;
+		if (aux_in_path_p(aux, pp, ep - pp)) {
+			size_t z = xstrlncpy(buf, bsz, pp, ep - pp);
+			buf[z++] = '/';
+			xstrlcpy(buf + z, aux, bsz - z);
+			return 0;
+		}
+	}
+	/* no luck with the env path then aye */
+	if (pkgdatalen > 0 && aux_in_path_p(aux, pkgdatadir, pkgdatalen)) {
+		size_t z = xstrlncpy(buf, bsz, pkgdatadir, pkgdatalen);
+		buf[z++] = '/';
+		xstrlcpy(buf + z, aux, bsz - z);
+		return 0;
+	}
+	/* not what we wanted at all, must be christmas */
+	return -1;
+}
+
+static int
+find_auxs(void)
+{
+	int rc = 0;
+
+	rc += find_aux(dslfn, sizeof(dslfn), "yuck.m4");
+	rc += find_aux(gencfn, sizeof(gencfn), "yuck-coru.m4c");
+	rc += find_aux(genhfn, sizeof(genhfn), "yuck-coru.m4h");
+	return rc;
 }
 
 static pid_t
@@ -745,7 +816,7 @@ cmd_gen(struct yuck_s argi[static 1U])
 	/* only proceed if there has been no error yet */
 	if (rc) {
 		goto out;
-	} else if (find_aux() < 0) {
+	} else if (find_auxs() < 0) {
 		/* error whilst finding our DSL and things */
 		error("cannot find yuck dsl and template files");
 		rc = 2;
