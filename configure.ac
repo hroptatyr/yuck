@@ -55,7 +55,7 @@ echo
 echo "Build summary"
 echo "============="
 echo
-echo "[x] yuck"
+echo "[[x]] yuck"
 echo
 
 dnl configure.ac ends here
