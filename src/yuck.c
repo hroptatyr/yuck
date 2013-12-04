@@ -46,6 +46,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <ctype.h>
+#include <fcntl.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
 
@@ -566,10 +567,6 @@ snarf_f(FILE *f)
 	size_t llen = 0U;
 	ssize_t nrd;
 
-	fputs("\
-changequote([,])dnl\n\
-divert([-1])\n", outf);
-
 	while ((nrd = getline(&line, &llen, f)) > 0) {
 		if (*line == '#') {
 			continue;
@@ -578,10 +575,6 @@ divert([-1])\n", outf);
 	}
 	/* drain */
 	snarf_ln(NULL, 0U);
-
-	fputs("\n\
-changecom([//])\n\
-divert[]dnl\n", outf);
 
 	free(line);
 	return 0;
@@ -617,8 +610,16 @@ main(int argc, char *argv[])
 		/* always use stdout */
 		outf = stdout;
 
+		fputs("\
+changequote([,])dnl\n\
+divert([-1])\n", outf);
+
 		/* let the snarfing begin */
 		rc = snarf_f(yf);
+
+		fputs("\n\
+changecom([//])\n\
+divert[]dnl\n", outf);
 
 		/* clean up */
 		fclose(yf);
@@ -753,54 +754,85 @@ find_auxs(void)
 	return rc;
 }
 
-static pid_t
-run_m4(const char *deffn)
+static __attribute__((noinline)) int
+run_m4(const char *outfn, ...)
 {
-	static char this_deffn[PATH_MAX];
-	pid_t res;
+	static char *m4_cmdline[6U] = {
+		"m4", dslfn,
+	};
+	va_list vap;
+	pid_t m4p;
 
-	switch ((res = vfork())) {
+	switch ((m4p = vfork())) {
 	case -1:
 		/* i am an error */
 		error("vfork for m4 failed");
-		break;
+		return -1;
+
+	default:;
+		/* i am the parent */
+		int rc;
+		int st;
+
+		while (waitpid(m4p, &st, 0) != m4p);
+		if (WIFEXITED(st)) {
+			rc = WEXITSTATUS(st);
+		}
+		return rc;
 
 	case 0:;
 		/* i am the child */
-		static char *const m4_cmdline[] = {
-			"m4", dslfn, this_deffn, gencfn, genhfn,
-			NULL
-		};
-
-		xstrlcpy(this_deffn, deffn, sizeof(this_deffn));
-		execvp("m4", m4_cmdline);
-		error("execvp(m4) failed");
-		_exit(EXIT_FAILURE);
-
-	default:
-		/* i am the parent */
 		break;
 	}
-	return res;
+
+	/* child code here */
+	va_start(vap, outfn);
+	for (size_t i = 2U;
+	     i < countof(m4_cmdline) &&
+		     (m4_cmdline[i] = va_arg(vap, char*)) != NULL; i++);
+	va_end(vap);
+
+	if (outfn != NULL) {
+		/* --output given */
+		const int outfl = O_RDWR | O_CREAT | O_TRUNC;
+		int outfd;
+
+		if ((outfd = open(outfn, outfl, 0666)) < 0) {
+			/* bollocks */
+			error("cannot open outfile `%s'", outfn);
+			goto bollocks;
+		}
+
+		/* really redir now */
+		dup2(outfd, STDOUT_FILENO);
+	}
+
+	execvp("m4", m4_cmdline);
+	error("execvp(m4) failed");
+bollocks:
+	_exit(EXIT_FAILURE);
 }
 #endif	/* !BOOTSTRAP */
 
 
 #if !defined BOOTSTRAP
-#include "yuck.yh"
-#include "yuck.yc"
+#include "yuck.yucc"
 
 static int
 cmd_gen(struct yuck_s argi[static 1U])
 {
-	static const char outfn[] = "yuck.m4i";
+	static const char deffn[] = "yuck.m4i";
 	int rc = 0;
 
 	/* deal with the output first */
-	if (UNLIKELY((outf = fopen(outfn, "w")) == NULL)) {
-		error("cannot open intermediate file `%s'", outfn);
+	if (UNLIKELY((outf = fopen(deffn, "w")) == NULL)) {
+		error("cannot open intermediate file `%s'", deffn);
 		return -1;
 	}
+
+	fputs("\
+changequote([,])dnl\n\
+divert([-1])\n", outf);
 
 	if (argi->nargs == 0U) {
 		if (snarf_f(stdin) < 0) {
@@ -824,7 +856,27 @@ cmd_gen(struct yuck_s argi[static 1U])
 		/* clean up */
 		fclose(yf);
 	}
+	/* special directive for the header */
+	if (argi->gen.header_arg != NULL) {
+		const char *hdr = argi->gen.header_arg;
+
+		/* massage the hdr bit a bit */
+		if (strcmp(hdr, "/dev/null")) {
+			/* /dev/null just means ignore the header aye? */
+			const char *hp;
+
+			if ((hp = strrchr(hdr, '/')) == NULL) {
+				hp = hdr;
+			} else {
+				hp++;
+			};
+			fprintf(outf, "\ndefine([YUCK_HEADER], [%s])\n", hp);
+		}
+	}
 	/* make sure we close the outfile */
+	fputs("\n\
+changecom([//])\n\
+divert[]dnl\n", outf);
 	fclose(outf);
 	/* only proceed if there has been no error yet */
 	if (rc) {
@@ -835,18 +887,24 @@ cmd_gen(struct yuck_s argi[static 1U])
 		rc = 2;
 		goto out;
 	}
-	/* now route that stuff through m4, assume failure */
-	rc = 2;
-	with (pid_t m4 = run_m4(outfn)) {
-		int st;
-
-		while (m4 > 0 && waitpid(m4, &st, 0) != m4);
-
-		if (m4 > 0 && WIFEXITED(st)) {
-			rc = WEXITSTATUS(st);
+	/* now route that stuff through m4 */
+	with (const char *outfn = argi->gen.output_arg, *hdrfn) {
+		if ((hdrfn = argi->gen.header_arg) != NULL) {
+			/* run a special one for the header */
+			if ((rc = run_m4(hdrfn, deffn, genhfn, NULL))) {
+				break;
+			}
+			/* now run the whole shebang for the beef code */
+			rc = run_m4(outfn, deffn, gencfn, NULL);
+			break;
 		}
+		/* standard case: pipe directives, then header, then code */
+		rc = run_m4(outfn, deffn, genhfn, gencfn, NULL);
 	}
 out:
+	if (!0/*argi->keep_intermediate*/) {
+		unlink(deffn);
+	}
 	return rc;
 }
 
