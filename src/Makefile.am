@@ -32,7 +32,7 @@ yuck_bootstrap_CPPFLAGS += -DBOOTSTRAP
 
 bin_PROGRAMS += yuck
 yuck_SOURCES = yuck.c yuck.yuck
-BUILT_SOURCES += yuck.yc yuck.yh
+BUILT_SOURCES += yuck.yucc
 
 pkgdata_DATA += yuck.m4
 pkgdata_DATA += yuck-coru.m4c
@@ -43,11 +43,8 @@ pkgdata_DATA += yuck-coru.m4h
 yuck.m4i: yuck.yuck $(builddir)/yuck-bootstrap
 	$(builddir)/yuck-bootstrap $< > $@
 
-yuck.yh: yuck.m4 yuck.m4i yuck-coru.m4h
+yuck.yucc: yuck.m4 yuck.m4i yuck-coru.m4h yuck-coru.m4c
 	m4 $+ > $@ || rm -f -- $@
-
-yuck.yc: yuck.m4 yuck.m4i yuck-coru.m4c
-	m4 -DYUCK_HEADER=yuck.yh $+ > $@ || rm -f -- $@
 
 
 ## generate version.c from .c.in

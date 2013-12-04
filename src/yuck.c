@@ -787,8 +787,7 @@ run_m4(const char *deffn)
 
 
 #if !defined BOOTSTRAP
-#include "yuck.yh"
-#include "yuck.yc"
+#include "yuck.yucc"
 
 static int
 cmd_gen(struct yuck_s argi[static 1U])
