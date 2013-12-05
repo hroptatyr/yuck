@@ -20,11 +20,11 @@ define([append_nene], [ifelse(index([$3]defn([$1])[$3], [$3$2$3]), [-1],
 
 define([first_nonnil], [ifelse([$#], [0], [], [$1], [],
 	[first_nonnil(shift($@))], [], [], [$1])])
-define([first], _first($*))
+define([first], [_first($*)])
 define([_first], [$1])
-define([second], _second($*))
+define([second], [_second($*)])
 define([_second], [$2])
-define([thirds], _thirds($*))
+define([thirds], [_thirds($*)])
 define([_thirds], [quote(shift(shift($@)))])
 
 define([quote], [ifelse([$#], [0], [], [[$*]])])
@@ -206,12 +206,11 @@ popdef([opt])dnl
 
 ## yuck_iftype([opt], [cmd], [type], [body], [[type], [body]]...)
 define([yuck_iftype], [dnl
-pushdef([opt], [$1])dnl
-pushdef([cmd], [$2])dnl
-pushdef([type], yuck_type(defn([opt]), defn([cmd])))dnl
-popdef([cmd])dnl
-popdef([opt])dnl
+pushdef([type], yuck_type([$1], [$2]))dnl
+pushdef([tsuf], yuck_arg_suf([$1], [$2]))dnl
+append_ne([type], defn([tsuf]), [,])[]dnl
 []ifelse(_splice(defn([type]), shift(shift($@))))[]dnl
+popdef([tsuf])dnl
 popdef([type])dnl
 ])
 
