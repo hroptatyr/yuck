@@ -273,9 +273,18 @@ usagep(const char *line, size_t llen)
 		cur_usg.umb = bbuf_cpy(umb, up, sp - up);
 	}
 
-	/* overread more whitespace then */
-	for (; sp < ep && isspace(*sp); sp++);
-	/* time for the command innit */
+	/* overread more whitespace and [--BLA] decls then */
+	do {
+		for (; sp < ep && isspace(*sp); sp++);
+		/* we might be strafed with option decls here */
+		if (*sp != '[') {
+			break;
+		}
+		for (sp++; sp < ep && *sp++ != ']';);
+		for (sp++; sp < ep && *sp == '.'; sp++);
+	} while (1);
+
+	/* now it's time for the command innit */
 	for (cp = sp; sp < ep && !isspace(*sp); sp++);
 
 	if (cur_usg.cmd && !strncasecmp(cur_usg.cmd, cp, sp - cp)) {
