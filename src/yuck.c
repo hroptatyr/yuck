@@ -75,6 +75,7 @@
 struct usg_s {
 	char *umb;
 	char *cmd;
+	char *parg;
 	char *desc;
 };
 
@@ -230,6 +231,7 @@ usagep(const char *line, size_t llen)
 	static struct usg_s cur_usg;
 	static bbuf_t umb[1U];
 	static bbuf_t cmd[1U];
+	static bbuf_t parg[1U];
 	static bbuf_t desc[1U];
 	static bool cur_usg_ylddp;
 	const char *sp;
@@ -297,6 +299,14 @@ usagep(const char *line, size_t llen)
 	} else {
 		cur_usg.cmd = bbuf_cpy(cmd, cp, sp - cp);
 	}
+
+	/* now there might be positional args, snarf them */
+	with (const char *pp) {
+		for (; sp < ep && isspace(*sp); sp++);
+		for (pp = sp; sp < ep && !isspace(*sp); sp++);
+		cur_usg.parg = bbuf_cpy(parg, pp, sp - pp);
+	}
+
 	cur_usg_ylddp = false;
 	return 1;
 }
