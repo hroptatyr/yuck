@@ -24,6 +24,8 @@ define([first], _first($*))
 define([_first], [$1])
 define([second], _second($*))
 define([_second], [$2])
+define([thirds], _thirds($*))
+define([_thirds], [quote(shift(shift($@)))])
 
 define([quote], [ifelse([$#], [0], [], [[$*]])])
 define([dquote], [[$@]])
@@ -145,6 +147,9 @@ define([yuck_type], [first(defn([YUCK.$2.$1.type]))])
 
 ## yuck_arg_name([opt], [[cmd]])
 define([yuck_arg_name], [second(defn([YUCK.$2.$1.type]))])
+
+## yuck_arg_suf([opt], [[cmd]])
+define([yuck_arg_suf], [thirds(defn([YUCK.$2.$1.type]))])
 
 ## yuck_slot_decl([option], [[cmd]])
 define([yuck_slot_decl], [dnl
