@@ -183,6 +183,7 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 				yuck_iftype(opt, C, 
 					[flag], [tgt->yuck_slot(opt, C)++],
 					[arg], [tgt->yuck_slot(opt, C) = arg ?: argv[[++i]]],
+					[arg,opt], [tgt->yuck_slot(opt, C) = arg ?: YUCK_OPTARG_NONE],
 					[auto], [/* invoke auto action and exit */
 				yuck_auto_[]yuck_canon(opt, C)(tgt->cmd);
 				resume_at(success)]);
@@ -240,6 +241,9 @@ ifelse(quote(translit(yuck_shorts, [0123465789])), quote(yuck_shorts), [], [
 					[arg], [tgt->yuck_slot(opt, C) = *arg
 						? (op += strlen(arg), arg)
 						: argv[[++i]]],
+					[arg,opt], [tgt->yuck_slot(opt, C) = *arg
+						? (op += strlen(arg), arg)
+						: YUCK_OPTARG_NONE],
 					[auto], [/* invoke auto action and exit */
 				yuck_auto_[]yuck_canon(opt, C)(tgt->cmd);
 				resume_at(success)]);

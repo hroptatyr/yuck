@@ -20,15 +20,17 @@ define([append_nene], [ifelse(index([$3]defn([$1])[$3], [$3$2$3]), [-1],
 
 define([first_nonnil], [ifelse([$#], [0], [], [$1], [],
 	[first_nonnil(shift($@))], [], [], [$1])])
-define([first], _first($*))
+define([first], [_first($*)])
 define([_first], [$1])
-define([second], _second($*))
+define([second], [_second($*)])
 define([_second], [$2])
+define([thirds], [_thirds($*)])
+define([_thirds], [quote(shift(shift($@)))])
 
 define([quote], [ifelse([$#], [0], [], [[$*]])])
 define([dquote], [[$@]])
 
-define([_splice], [ifelse([$#], [3], [[$1], [$2], [$3]], [[$1], [$2], [$3], _splice([$1], shift(shift(shift($@))))])])
+define([_splice], [ifelse(eval([$#] > [3]), [0], [[$1], [$2], [$3]], [[$1], [$2], [$3], _splice([$1], shift(shift(shift($@))))])])
 
 define([make_c_ident], [dnl
 translit([$1], [!"#$%&'()*+,-./:;<=>?@[\]^`{|}~],dnl "
@@ -148,30 +150,8 @@ define([yuck_type], [first(defn([YUCK.$2.$1.type]))])
 ## yuck_arg_name([opt], [[cmd]])
 define([yuck_arg_name], [second(defn([YUCK.$2.$1.type]))])
 
-## yuck_slot_decl([option], [[cmd]])
-define([yuck_slot_decl], [dnl
-pushdef([opt], [$1])dnl
-pushdef([cmd], [$2])dnl
-pushdef([type], yuck_type(defn([opt]), defn([cmd])))dnl
-dnl
-pushdef([ctype],
-	ifelse(
-		defn([type]), [flag], [unsigned int ],
-		defn([type]), [arg], [const char *],
-		defn([type]), [marg], [const char **],
-		defn([type]), [auto], [unsigned int ],
-		[], [], [void ]))dnl
-pushdef([cpost],
-	ifelse(defn([type]), [auto], [[[0U]]]))dnl
-dnl
-defn([ctype])[]yuck_slot_identifier(defn([opt]), defn([cmd]))[]defn([cpost])[]dnl
-dnl
-popdef([cpost])dnl
-popdef([ctype])dnl
-popdef([type])dnl
-popdef([cmd])dnl
-popdef([opt])dnl
-])
+## yuck_arg_suf([opt], [[cmd]])
+define([yuck_arg_suf], [thirds(defn([YUCK.$2.$1.type]))])
 
 ## yuck_slot_identifier([option], [[cmd]])
 define([yuck_slot_identifier], [dnl
@@ -203,12 +183,11 @@ popdef([opt])dnl
 
 ## yuck_iftype([opt], [cmd], [type], [body], [[type], [body]]...)
 define([yuck_iftype], [dnl
-pushdef([opt], [$1])dnl
-pushdef([cmd], [$2])dnl
-pushdef([type], yuck_type(defn([opt]), defn([cmd])))dnl
-popdef([cmd])dnl
-popdef([opt])dnl
+pushdef([type], yuck_type([$1], [$2]))dnl
+pushdef([tsuf], yuck_arg_suf([$1], [$2]))dnl
+append_ne([type], defn([tsuf]), [,])[]dnl
 []ifelse(_splice(defn([type]), shift(shift($@))))[]dnl
+popdef([tsuf])dnl
 popdef([type])dnl
 ])
 

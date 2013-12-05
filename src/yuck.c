@@ -84,6 +84,8 @@ struct opt_s {
 	char *lopt;
 	char *larg;
 	char *desc;
+	unsigned int oarg:1U;
+	unsigned int marg:1U;
 };
 
 
@@ -311,6 +313,21 @@ usagep(const char *line, size_t llen)
 	return 1;
 }
 
+static bool
+isdashdash(const char c)
+{
+	switch (c) {
+	default:
+		return true;
+	case '=':
+	case '[':
+	case ']':
+	case '.':
+	case '\0' ... ' ':
+		return false;
+	}
+}
+
 static int
 optionp(const char *line, size_t llen)
 {
@@ -370,7 +387,15 @@ yield:
 		} else {
 			/* just an arg name */
 			const char *ap;
-			for (ap = sp; sp < ep && !isspace(*sp); sp++);
+
+			if (*sp == '[') {
+				cur_opt.oarg = 1U;
+				sp++;
+			}
+			if (*sp == '=') {
+				sp++;
+			}
+			for (ap = sp; sp < ep && isdashdash(*sp); sp++);
 			cur_opt.larg = bbuf_cpy(larg, ap, sp - ap);
 		}
 	} else if (*sp == '-') {
@@ -385,14 +410,28 @@ yield:
 	if (*sp++ == '-') {
 		const char *op;
 
-		for (op = sp; sp < ep && !isspace(*sp) && *sp != '='; sp++);
+		for (op = sp; sp < ep && isdashdash(*sp); sp++);
 		cur_opt.lopt = bbuf_cpy(lopt, op, sp - op);
 
-		if (*sp++ == '=') {
+		switch (*sp++) {
+		case '[':
+			if (*sp++ != '=') {
+				/* just bullshit then innit? */
+				break;
+			}
+			/* otherwise optarg, fall through */
+			cur_opt.oarg = 1U;
+		case '=':;
 			/* has got an arg */
 			const char *ap;
-			for (ap = sp; sp < ep && !isspace(*sp); sp++);
+			for (ap = sp; sp < ep && isdashdash(*sp); sp++);
 			cur_opt.larg = bbuf_cpy(larg, ap, sp - ap);
+			if (cur_opt.oarg && *sp++ != ']') {
+				/* maybe not an optarg? */
+				;
+			}
+		default:
+			break;
 		}
 	}
 	/* require at least one more space? */
@@ -504,8 +543,13 @@ yield_opt(const struct opt_s *arg)
 		fprintf(outf, "yuck_add_option([%s], [%s], [flag], [%s]);\n",
 			sopt, opt, cmd);
 	} else {
-		fprintf(outf, "yuck_add_option([%s], [%s], [arg, %s], [%s]);\n",
-			sopt, opt, arg->larg, cmd);
+		const char *asufs[] = {
+			nul_str, ",[opt]", ",[mul]", ",[mul],[opt]"
+		};
+		const char *asuf = asufs[arg->oarg | arg->marg << 1U];
+		fprintf(outf,
+			"yuck_add_option([%s], [%s], [arg,[%s]%s], [%s]);\n",
+			sopt, opt, arg->larg, asuf, cmd);
 	}
 	if (arg->desc != NULL) {
 		/* kick last newline */
