@@ -22,6 +22,22 @@ the m4 macro processor.
 yuck can be used in other projects by copying 4 files and setting up
 a simple Makefile rule.
 
+
+But why?
+--------
+There's [AutoOpts](http://autogen.sourceforge.net/autoopts.html),
+there's [gengetopt](http://www.gnu.org/software/gengetopt/), lately even
+glibc takes on arg parsing (see their argp section in the manual); makes
+you wonder how we dare create yet another thing for something as simple
+as command line argument parsing.
+
+Well, the killer feature, as we see it, is yuck's approach to specifying
+the parser in question.  You expect your users to grasp your `--help`
+output?  Well, there you go, if your users can understand it so can you!
+Just type up what you'd like to see in your `--help` output and yuck
+will generate a parser that does exactly that.
+
+
 Example
 -------
 Consider the following .yuck file:
