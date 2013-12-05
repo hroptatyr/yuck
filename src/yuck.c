@@ -463,6 +463,8 @@ output version information and exit])\n", cmd);
 static void
 yield_usg(const struct usg_s *arg)
 {
+	const char *parg = arg->parg ?: nul_str;
+
 	if (arg->desc != NULL) {
 		/* kick last newline */
 		size_t z = strlen(arg->desc);
@@ -472,14 +474,14 @@ yield_usg(const struct usg_s *arg)
 	}
 	if (arg->cmd != NULL) {
 		curr_cmd = arg->cmd;
-		fprintf(outf, "\nyuck_add_command([%s])\n", arg->cmd);
+		fprintf(outf, "\nyuck_add_command([%s], [%s])\n", arg->cmd, parg);
 		if (arg->desc != NULL) {
 			fprintf(outf, "yuck_set_command_desc([%s], [%s])\n",
 				arg->cmd, arg->desc);
 		}
 	} else if (arg->umb != NULL) {
 		curr_umb = arg->umb;
-		fprintf(outf, "\nyuck_set_umbrella([%s])\n", arg->umb);
+		fprintf(outf, "\nyuck_set_umbrella([%s], [%s])\n", arg->umb, parg);
 		if (arg->desc != NULL) {
 			fprintf(outf, "yuck_set_umbrella_desc([%s], [%s])\n",
 				arg->umb, arg->desc);
