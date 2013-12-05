@@ -25,6 +25,18 @@ struct yuck_s {
 	size_t nargs;
 	char *const *args;
 
+define([yuck_slot_decl], [dnl
+yuck_iftype([$1], [$2],
+	[flag], [unsigned int ],
+	[arg], [const char *],
+	[arg,opt], [const char *],
+	[arg,mul], [const char **],
+	[arg,mul,opt], [const char **],
+	[auto], [unsigned int ],
+	[], [], [void ])dnl
+yuck_slot_identifier([$1], [$2])dnl
+ifelse(yuck_type([$1], [$2]), [auto], [[[0U]]])dnl
+])dnl
 	foreachq([slot], yuck_idents(), [yuck_slot_decl(slot);
 	])
 	/* depending on CMD at most one of the following structs is filled in

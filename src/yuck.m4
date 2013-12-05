@@ -151,31 +151,6 @@ define([yuck_arg_name], [second(defn([YUCK.$2.$1.type]))])
 ## yuck_arg_suf([opt], [[cmd]])
 define([yuck_arg_suf], [thirds(defn([YUCK.$2.$1.type]))])
 
-## yuck_slot_decl([option], [[cmd]])
-define([yuck_slot_decl], [dnl
-pushdef([opt], [$1])dnl
-pushdef([cmd], [$2])dnl
-pushdef([type], yuck_type(defn([opt]), defn([cmd])))dnl
-dnl
-pushdef([ctype],
-	ifelse(
-		defn([type]), [flag], [unsigned int ],
-		defn([type]), [arg], [const char *],
-		defn([type]), [marg], [const char **],
-		defn([type]), [auto], [unsigned int ],
-		[], [], [void ]))dnl
-pushdef([cpost],
-	ifelse(defn([type]), [auto], [[[0U]]]))dnl
-dnl
-defn([ctype])[]yuck_slot_identifier(defn([opt]), defn([cmd]))[]defn([cpost])[]dnl
-dnl
-popdef([cpost])dnl
-popdef([ctype])dnl
-popdef([type])dnl
-popdef([cmd])dnl
-popdef([opt])dnl
-])
-
 ## yuck_slot_identifier([option], [[cmd]])
 define([yuck_slot_identifier], [dnl
 pushdef([opt], [$1])dnl
