@@ -4,6 +4,8 @@
 
 #include <stddef.h>
 
+#define YUCK_OPTARG_NONE	((void*)0x1U)
+
 enum yuck_cmds_e {
 pushdef([last], yuck_cmd())pushdef([first], defn([last]))[]dnl
 	/* value used when no command was specified */
