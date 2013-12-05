@@ -75,6 +75,7 @@
 struct usg_s {
 	char *umb;
 	char *cmd;
+	char *parg;
 	char *desc;
 };
 
@@ -230,6 +231,7 @@ usagep(const char *line, size_t llen)
 	static struct usg_s cur_usg;
 	static bbuf_t umb[1U];
 	static bbuf_t cmd[1U];
+	static bbuf_t parg[1U];
 	static bbuf_t desc[1U];
 	static bool cur_usg_ylddp;
 	const char *sp;
@@ -273,9 +275,18 @@ usagep(const char *line, size_t llen)
 		cur_usg.umb = bbuf_cpy(umb, up, sp - up);
 	}
 
-	/* overread more whitespace then */
-	for (; sp < ep && isspace(*sp); sp++);
-	/* time for the command innit */
+	/* overread more whitespace and [--BLA] decls then */
+	do {
+		for (; sp < ep && isspace(*sp); sp++);
+		/* we might be strafed with option decls here */
+		if (*sp != '[') {
+			break;
+		}
+		for (sp++; sp < ep && *sp++ != ']';);
+		for (sp++; sp < ep && *sp == '.'; sp++);
+	} while (1);
+
+	/* now it's time for the command innit */
 	for (cp = sp; sp < ep && !isspace(*sp); sp++);
 
 	if (cur_usg.cmd && !strncasecmp(cur_usg.cmd, cp, sp - cp)) {
@@ -288,6 +299,14 @@ usagep(const char *line, size_t llen)
 	} else {
 		cur_usg.cmd = bbuf_cpy(cmd, cp, sp - cp);
 	}
+
+	/* now there might be positional args, snarf them */
+	with (const char *pp) {
+		for (; sp < ep && isspace(*sp); sp++);
+		for (pp = sp; sp < ep && !isspace(*sp); sp++);
+		cur_usg.parg = bbuf_cpy(parg, pp, sp - pp);
+	}
+
 	cur_usg_ylddp = false;
 	return 1;
 }
@@ -444,6 +463,8 @@ output version information and exit])\n", cmd);
 static void
 yield_usg(const struct usg_s *arg)
 {
+	const char *parg = arg->parg ?: nul_str;
+
 	if (arg->desc != NULL) {
 		/* kick last newline */
 		size_t z = strlen(arg->desc);
@@ -453,14 +474,14 @@ yield_usg(const struct usg_s *arg)
 	}
 	if (arg->cmd != NULL) {
 		curr_cmd = arg->cmd;
-		fprintf(outf, "\nyuck_add_command([%s])\n", arg->cmd);
+		fprintf(outf, "\nyuck_add_command([%s], [%s])\n", arg->cmd, parg);
 		if (arg->desc != NULL) {
 			fprintf(outf, "yuck_set_command_desc([%s], [%s])\n",
 				arg->cmd, arg->desc);
 		}
 	} else if (arg->umb != NULL) {
 		curr_umb = arg->umb;
-		fprintf(outf, "\nyuck_set_umbrella([%s])\n", arg->umb);
+		fprintf(outf, "\nyuck_set_umbrella([%s], [%s])\n", arg->umb, parg);
 		if (arg->desc != NULL) {
 			fprintf(outf, "yuck_set_umbrella_desc([%s], [%s])\n",
 				arg->umb, arg->desc);

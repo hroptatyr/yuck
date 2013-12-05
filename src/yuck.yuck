@@ -1,9 +1,9 @@
-Usage: yuck COMMAND [OPTION...]
+Usage: yuck COMMAND [ARG]...
 
 Generate command line option parsers for umbrella commands.
 
 ## Usages of the single commands
-Usage: yuck gen [FILE...]
+Usage: yuck [OPTION]... gen [FILE]...
 
 Generate a parser with definitions from FILE, or stdin if omitted.
 

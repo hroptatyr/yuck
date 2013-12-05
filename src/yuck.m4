@@ -43,9 +43,11 @@ define([yuck_set_version], [dnl
 	define([YUCK_VER], [$1])
 ])
 
+## yuck_set_umbrella([UMB], [[POSARG]])
 define([yuck_set_umbrella], [dnl
 	define([YUCK_UMB], [$1])
 	define([YUCK_UMC], make_c_ident([$1]))
+	define([YUCK_UMB.POSARG], [$2])
 ])
 
 define([yuck_set_umbrella_desc], [dnl
@@ -58,12 +60,12 @@ define([yuck_set_umbrella_desc], [dnl
 	popdef([desc])
 ])
 
+## yuck_add_command([CMD], [[POSARG]])
 define([yuck_add_command], [dnl
 	pushdef([cmd], make_c_ident([$1]))
-	pushdef([str], ifelse([$2], [], [$1], defn([cmd])))
 	append_nene([YUCK_CMD], defn([cmd]), [,])
-	define([YUCK_STR.]defn([cmd]), defn([str]))
-	popdef([str])
+	define([YUCK_STR.]defn([cmd]), [$1])
+	define([YUCK_POSARG.]defn([cmd]), [$2])
 	popdef([cmd])
 ])
 
@@ -221,6 +223,9 @@ define([yuck_cmd], [YUCK_UMC[_]ifelse([$1], [], [NONE], [$1])])
 
 ## yuck_cmd_string
 define([yuck_cmd_string], [defn([YUCK_STR.]$1)])
+
+## yuck_cmd_posarg
+define([yuck_cmd_posarg], [defn([YUCK_POSARG.]$1)])
 
 ## yuck_umb_desc([[umb]]) getter for the umbrella description
 define([yuck_umb_desc], [defn([YUCK_UMB.]ifelse([$1], [], defn([YUCK_UMB]), [$1])[.desc])])
