@@ -29,8 +29,7 @@ define([_thirds], [quote(shift(shift($@)))])
 
 define([quote], [ifelse([$#], [0], [], [[$*]])])
 define([dquote], [[$@]])
-define([equote], [_equote($*)])
-define([_equote], [[$@]])
+define([equote], [dquote($*)])
 
 define([_splice], [ifelse(eval([$#] > [3]), [0], [[$1], [$2], [$3]], [[$1], [$2], [$3], _splice([$1], shift(shift(shift($@))))])])
 
