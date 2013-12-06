@@ -904,7 +904,7 @@ bollocks:
 #include "yuck.yucc"
 
 static int
-cmd_gen(struct yuck_s argi[static 1U])
+cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 {
 	static const char deffn[] = "yuck.m4i";
 	int rc = 0;
@@ -942,8 +942,8 @@ divert([-1])\n", outf);
 		fclose(yf);
 	}
 	/* special directive for the header */
-	if (argi->gen.header_arg != NULL) {
-		const char *hdr = argi->gen.header_arg;
+	if (argi->header_arg != NULL) {
+		const char *hdr = argi->header_arg;
 
 		/* massage the hdr bit a bit */
 		if (strcmp(hdr, "/dev/null")) {
@@ -973,8 +973,8 @@ divert[]dnl\n", outf);
 		goto out;
 	}
 	/* now route that stuff through m4 */
-	with (const char *outfn = argi->gen.output_arg, *hdrfn) {
-		if ((hdrfn = argi->gen.header_arg) != NULL) {
+	with (const char *outfn = argi->output_arg, *hdrfn) {
+		if ((hdrfn = argi->header_arg) != NULL) {
 			/* run a special one for the header */
 			if ((rc = run_m4(hdrfn, deffn, genhfn, NULL))) {
 				break;
@@ -1012,7 +1012,7 @@ See --help to obtain a list of available commands.\n", stderr);
 		rc = 1;
 		goto out;
 	case yuck_gen:
-		if ((rc = cmd_gen(argi)) < 0) {
+		if ((rc = cmd_gen((const void*)argi)) < 0) {
 			rc = 1;
 		}
 		break;
