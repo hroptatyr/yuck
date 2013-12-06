@@ -1098,55 +1098,46 @@ out:
 }
 
 
-#if defined __INTEL_COMPILER
-# pragma warning (disable:593)
-# pragma warning (disable:181)
-#endif	/* __INTEL_COMPILER */
-#include "clitoris.xh"
-#include "clitoris.x"
-#if defined __INTEL_COMPILER
-# pragma warning (default:593)
-# pragma warning (default:181)
-#endif	/* __INTEL_COMPILER */
+#include "clitoris.yucc"
 
 int
 main(int argc, char *argv[])
 {
-	struct gengetopt_args_info argi[1];
+	struct yuck_s argi[1U];
 	int rc = 99;
 
-	if (cmdline_parser(argc, argv, argi)) {
+	if (yuck_parse(argi, argc, argv)) {
 		goto out;
-	} else if (argi->inputs_num != 1) {
-		print_help_common();
+	} else if (argi->nargs != 1U) {
+		yuck_auto_help(YUCK_NONE);
 		goto out;
 	}
 
-	if (argi->builddir_given) {
+	if (argi->builddir_arg) {
 		setenv("builddir", argi->builddir_arg, 1);
 	}
-	if (argi->srcdir_given) {
+	if (argi->srcdir_arg) {
 		setenv("srcdir", argi->srcdir_arg, 1);
 	}
-	if (argi->hash_given) {
+	if (argi->hash_arg) {
 		setenv("hash", argi->hash_arg, 1);
 	}
-	if (argi->husk_given) {
+	if (argi->husk_arg) {
 		setenv("husk", argi->husk_arg, 1);
 	}
-	if (argi->verbose_given) {
-		verbosep = 1;
+	if (argi->verbose_flag) {
+		verbosep = 1U;
 	}
-	if (argi->pseudo_tty_given) {
-		ptyp = 1;
+	if (argi->pseudo_tty_flag) {
+		ptyp = 1U;
 	}
-	if (argi->timeout_given) {
-		timeo = argi->timeout_arg;
+	if (argi->timeout_arg) {
+		timeo = strtoul(argi->timeout_arg, NULL, 10);
 	}
-	if (argi->keep_going_given) {
-		keep_going_p = 1;
+	if (argi->keep_going_flag) {
+		keep_going_p = 1U;
 	}
-	if (argi->diff_given) {
+	if (argi->diff_arg) {
 		cmd_diff = argi->diff_arg;
 	} else if (getenv("DIFF") != NULL) {
 		cmd_diff = getenv("DIFF");
@@ -1175,14 +1166,14 @@ main(int argc, char *argv[])
 	setenv("endian", "little", 1);
 #endif	/* WORDS_BIGENDIAN */
 
-	if ((rc = test(argi->inputs[0])) < 0) {
+	if ((rc = test(argi->args[0U])) < 0) {
 		rc = 99;
 	}
 
 	/* resource freeing */
 	free_path();
 out:
-	cmdline_parser_free(argi);
+	yuck_free(argi);
 	return rc;
 }
 
