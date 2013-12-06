@@ -303,11 +303,8 @@ usagep(const char *line, size_t llen)
 	}
 
 	/* now there might be positional args, snarf them */
-	with (const char *pp) {
-		for (; sp < ep && isspace(*sp); sp++);
-		for (pp = sp; sp < ep && !isspace(*sp); sp++);
-		cur_usg.parg = bbuf_cpy(parg, pp, sp - pp);
-	}
+	for (; sp < ep && isspace(*sp); sp++);
+	cur_usg.parg = bbuf_cpy(parg, sp, llen - (sp - line) - 1U);
 
 	cur_usg_ylddp = false;
 	return 1;
