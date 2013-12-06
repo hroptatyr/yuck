@@ -268,7 +268,7 @@ pushdef([desc], patsubst(yuck_option_desc([$1], [$2]), [
 ], [
                         ]))dnl
 ifelse(eval(len(defn([lhs])) >= 24), [0], [dnl
-format([[%-22s  %s]], defn([lhs]), defn([desc]))], [dnl
+format([[[%-22s  %s]]], defn([lhs]), defn([desc]))], [dnl
 defn([lhs])[]
                         defn([desc])[]dnl
 ])
@@ -277,11 +277,14 @@ popdef([desc])dnl
 ])
 
 ## \ -> \\, " -> \" and literal \n -> \\n\\
-define([yuck_C_literal], [dnl
+define([_yuck_C_literal], [dnl
 patsubst(patsubst(patsubst([[[[$1]]]], [\\], [\\\\]), ["], [\\"]), [
 ], [\\n\\
 ])dnl
 ])
+define([yuck_C_literal], [dnl
+translit(_yuck_C_literal([$1]), LBRACK[]RBRACK, [[]])dnl
+])dnl
 
 
 ## coroutine stuff
