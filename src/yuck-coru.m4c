@@ -73,14 +73,14 @@ static void yuck_auto_help(enum yuck_cmds_e cmd)
 {
 	yuck_auto_usage(cmd);
 
-	/* some description innit? */
-
-	if (YUCK_NCMDS && cmd == YUCK_NONE) {
+ifelse(yuck_cmds(), [], [], [dnl
+	if (cmd == YUCK_NONE) {
 		/* also output a list of commands */
 		puts("\nCOMMAND may be one of:\n\
 foreachq([C], yuck_cmds(), [  yuck_cmd_string(C)\n\
 ])");
 	}
+])dnl
 
 	switch (cmd) {
 	default:foreachq([C], yuck_umbcmds(), [
