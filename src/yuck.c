@@ -564,11 +564,11 @@ yield_opt(const struct opt_s *arg)
 			sopt, opt, cmd);
 	} else {
 		const char *asufs[] = {
-			nul_str, ",[opt]", ",[mul]", ",[mul],[opt]"
+			nul_str, ", opt", ", mul", ", mul, opt"
 		};
 		const char *asuf = asufs[arg->oarg | arg->marg << 1U];
 		fprintf(outf,
-			"yuck_add_option([%s], [%s], [arg,[%s]%s], [%s]);\n",
+			"yuck_add_option([%s], [%s], [arg, %s%s], [%s]);\n",
 			sopt, opt, arg->larg, asuf, cmd);
 	}
 	if (arg->desc != NULL) {
