@@ -182,6 +182,21 @@ only_whitespace_p(const char *line, size_t llen)
 	return true;
 }
 
+static bool
+isdashdash(const char c)
+{
+	switch (c) {
+	default:
+		return true;
+	case '=':
+	case '[':
+	case ']':
+	case '.':
+	case '\0' ... ' ':
+		return false;
+	}
+}
+
 
 /* bang buffers */
 typedef struct {
@@ -278,15 +293,33 @@ usagep(const char *line, size_t llen)
 	}
 
 	/* overread more whitespace and [--BLA] decls then */
-	do {
-		for (; sp < ep && isspace(*sp); sp++);
-		/* we might be strafed with option decls here */
-		if (*sp != '[') {
+overread:
+	for (; sp < ep && isspace(*sp); sp++);
+	/* we might be strafed with option decls here */
+	switch (*sp) {
+	case '-':
+		for (sp++; sp < ep && isdashdash(*sp); sp++);
+		goto overread;
+	case '[':
+		if (sp[1U] == '-') {
+			/* might be option spec [-x], read on */
+			;
+		} else if (STREQLITP(sp + 1U, "OPTION")) {
+			/* definitely an option marker innit? */
+			;
+		} else {
+			/* could be posarg, better exit here */
 			break;
 		}
+		/* otherwise read till closing bracket */
 		for (sp++; sp < ep && *sp++ != ']';);
+		/* and also read over `...' */
 		for (sp++; sp < ep && *sp == '.'; sp++);
-	} while (1);
+		goto overread;
+	default:
+		/* best leave the loop */
+		break;
+	}
 
 	/* now it's time for the command innit */
 	for (cp = sp; sp < ep && !isspace(*sp); sp++);
@@ -298,34 +331,21 @@ usagep(const char *line, size_t llen)
 		   !strncasecmp(cp, "command", sp - cp)) {
 		/* special command COMMAND or <command> */
 		cur_usg.cmd = NULL;
-	} else {
+	} else if (*cp >= 'a' && *cp <= 'z') {
+		/* we mandate commands start with a lower case alpha char */
 		cur_usg.cmd = bbuf_cpy(cmd, cp, sp - cp);
+	} else {
+		/* not a command, could be posarg innit, so rewind */
+		sp = cp;
 	}
 
 	/* now there might be positional args, snarf them */
-	with (const char *pp) {
-		for (; sp < ep && isspace(*sp); sp++);
-		for (pp = sp; sp < ep && !isspace(*sp); sp++);
-		cur_usg.parg = bbuf_cpy(parg, pp, sp - pp);
+	for (; sp < ep && isspace(*sp); sp++);
+	if (sp < ep) {
+		cur_usg.parg = bbuf_cpy(parg, sp, ep - sp - 1U);
 	}
-
 	cur_usg_ylddp = false;
 	return 1;
-}
-
-static bool
-isdashdash(const char c)
-{
-	switch (c) {
-	default:
-		return true;
-	case '=':
-	case '[':
-	case ']':
-	case '.':
-	case '\0' ... ' ':
-		return false;
-	}
 }
 
 static int
