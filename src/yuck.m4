@@ -29,6 +29,8 @@ define([_thirds], [quote(shift(shift($@)))])
 
 define([quote], [ifelse([$#], [0], [], [[$*]])])
 define([dquote], [[$@]])
+define([equote], [_equote($*)])
+define([_equote], [[$@]])
 
 define([_splice], [ifelse(eval([$#] > [3]), [0], [[$1], [$2], [$3]], [[$1], [$2], [$3], _splice([$1], shift(shift(shift($@))))])])
 
@@ -83,9 +85,11 @@ define([yuck_set_command_desc], [dnl
 
 ## yuck_add_option(short, long, type, [CMD])
 define([yuck_add_option], [dnl
+	## quote the elements of the type arg first
+	## before any possible expansion is in scope
+	pushdef([type], equote([$3]))
 	pushdef([short], [$1])
 	pushdef([long], [$2])
-	pushdef([type], [$3])
 	pushdef([cmd], make_c_ident([$4]))
 
 	pushdef([ident], ifelse(defn([long]), [],
