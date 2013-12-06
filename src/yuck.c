@@ -197,6 +197,32 @@ isdashdash(const char c)
 	}
 }
 
+static void
+massage_desc(char *str)
+{
+/* kick final newline and escape m4 quoting characters */
+	char *sp;
+
+	for (sp = str; *sp; sp++) {
+		switch (*sp) {
+		default:
+			break;
+		case '[':
+			/* map to STX (start of text) */
+			*sp = '\002';
+			break;
+		case ']':
+			/* map to ETX (end of text) */
+			*sp = '\003';
+			break;
+		}
+	}
+	if (sp > str && sp[-1] == '\n') {
+		*--sp = '\0';
+	}
+	return;
+}
+
 
 /* bang buffers */
 typedef struct {
@@ -526,10 +552,7 @@ yield_usg(const struct usg_s *arg)
 
 	if (arg->desc != NULL) {
 		/* kick last newline */
-		size_t z = strlen(arg->desc);
-		if (arg->desc[z - 1U] == '\n') {
-			arg->desc[z - 1U] = '\0';
-		}
+		massage_desc(arg->desc);
 	}
 	if (arg->cmd != NULL) {
 		curr_cmd = arg->cmd;
@@ -572,11 +595,7 @@ yield_opt(const struct opt_s *arg)
 			sopt, opt, arg->larg, asuf, cmd);
 	}
 	if (arg->desc != NULL) {
-		/* kick last newline */
-		size_t z = strlen(arg->desc);
-		if (arg->desc[z - 1U] == '\n') {
-			arg->desc[z - 1U] = '\0';
-		}
+		massage_desc(arg->desc);
 		fprintf(outf, "yuck_set_option_desc([%s], [%s], [%s], [%s])\n",
 			sopt, opt, cmd, arg->desc);
 	}

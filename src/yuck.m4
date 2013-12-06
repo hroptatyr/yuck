@@ -3,6 +3,11 @@ divert([-1])
 
 ## this is a little domain language for the yuck processor
 
+## our own version of [ and ] (the quoting characters)
+## must be in sync with yuck.c
+define([LBRACK], format([%c], 2))
+define([RBRACK], format([%c], 3))
+
 # foreachq(x, [item_1, item_2, ..., item_n], stmt)
 #   quoted list, alternate improved version
 define([foreachq], [ifelse([$2], [], [],
@@ -29,8 +34,7 @@ define([_thirds], [quote(shift(shift($@)))])
 
 define([quote], [ifelse([$#], [0], [], [[$*]])])
 define([dquote], [[$@]])
-define([equote], [_equote($*)])
-define([_equote], [[$@]])
+define([equote], [dquote($*)])
 
 define([_splice], [ifelse(eval([$#] > [3]), [0], [[$1], [$2], [$3]], [[$1], [$2], [$3], _splice([$1], shift(shift(shift($@))))])])
 
@@ -239,10 +243,16 @@ define([yuck_option_help_lhs], [dnl
 pushdef([s], yuck_short([$1], [$2]))dnl
 pushdef([l], yuck_long([$1], [$2]))dnl
 pushdef([an], yuck_arg_name([$1], [$2]))dnl
+pushdef([as], yuck_arg_suf([$1], [$2]))dnl
+pushdef([optp], ifelse(defn([as]), [], [0], defn([as]), [mul], [0], [1]))dnl
+pushdef([oo], ifelse(optp, [0], [], LBRACK))dnl
+pushdef([oc], ifelse(optp, [0], [], RBRACK))dnl
 pushdef([ds], ifelse(defn([s]), [], [  ],
-	[-]defn([s])[]ifelse(defn([an]), [], [], l, [], [ ]defn([an]))))dnl
+	[-]defn([s])[]ifelse(defn([an]), [], [], l, [],
+	[ ]defn([oo])defn([an])defn([oc]))))dnl
 pushdef([dl], ifelse(defn([l]), [], [],
-	[--]defn([l])[]ifelse(defn([an]), [], [], [=]defn([an]))))dnl
+	[--]defn([l])[]ifelse(defn([an]), [], [],
+	defn([oo])[=]defn([an])defn([oc]))))dnl
 [  ]ds[]ifelse(defn([s]), [], [  ], defn([l]), [], [], [[, ]])defn([dl])[]dnl
 popdef([s])dnl
 popdef([l])dnl
@@ -258,7 +268,7 @@ pushdef([desc], patsubst(yuck_option_desc([$1], [$2]), [
 ], [
                         ]))dnl
 ifelse(eval(len(defn([lhs])) >= 24), [0], [dnl
-format([[%-22s  %s]], defn([lhs]), defn([desc]))], [dnl
+format([[[%-22s  %s]]], defn([lhs]), defn([desc]))], [dnl
 defn([lhs])[]
                         defn([desc])[]dnl
 ])
@@ -266,11 +276,15 @@ popdef([lhs])dnl
 popdef([desc])dnl
 ])
 
-define([yuck_C_literal], [dnl
-patsubst([$1], [
+## \ -> \\, " -> \" and literal \n -> \\n\\
+define([_yuck_C_literal], [dnl
+patsubst(patsubst(patsubst([[[[$1]]]], [\\], [\\\\]), ["], [\\"]), [
 ], [\\n\\
 ])dnl
 ])
+define([yuck_C_literal], [dnl
+translit(_yuck_C_literal([$1]), LBRACK[]RBRACK, [[]])dnl
+])dnl
 
 
 ## coroutine stuff
