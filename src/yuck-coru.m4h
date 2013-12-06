@@ -20,13 +20,6 @@ pushdef([last], yuck_cmd())pushdef([first], defn([last]))[]dnl
 popdef([last])popdef([first])[]dnl
 };
 
-struct yuck_s {
-	enum yuck_cmds_e cmd;
-
-	/* left-over arguments, the command string is never a part of this */
-	size_t nargs;
-	char *const *args;
-
 define([yuck_slot_decl], [dnl
 yuck_iftype([$1], [$2],
 	[flag], [unsigned int ],
@@ -39,6 +32,14 @@ yuck_iftype([$1], [$2],
 yuck_slot_identifier([$1], [$2])dnl
 ifelse(yuck_type([$1], [$2]), [auto], [[[0U]]])dnl
 ])dnl
+
+struct yuck_s {
+	enum yuck_cmds_e cmd;
+
+	/* left-over arguments, the command string is never a part of this */
+	size_t nargs;
+	char *const *args;
+
 	foreachq([slot], yuck_idents(), [yuck_slot_decl(slot);
 	])
 	/* depending on CMD at most one of the following structs is filled in
@@ -51,6 +52,20 @@ ifelse(yuck_type([$1], [$2]), [auto], [[[0U]]])dnl
 	])};
 };
 
+foreachq([cmd], yuck_cmds(), [dnl
+/* convenience structure for `cmd' */
+struct yuck_cmd_[]cmd[]_s {
+	enum yuck_cmds_e cmd;
+
+	/* left-over arguments, the command string is never a part of this */
+	size_t nargs;
+	char *const *args;
+	foreachq([slot], yuck_idents(), [
+	yuck_slot_decl(slot);])
+	foreachq([slot], yuck_idents(cmd), [
+	yuck_slot_decl(slot, cmd);])
+};
+])
 
 pushdef([DECLF], ifdef([YUCK_HEADER], [extern], [static]))[]dnl
 DECLF int yuck_parse(struct yuck_s *restrict, int argc, char *const argv[[]]);
