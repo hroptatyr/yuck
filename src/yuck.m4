@@ -265,8 +265,9 @@ popdef([lhs])dnl
 popdef([desc])dnl
 ])
 
+## \ -> \\, " -> \" and literal \n -> \\n\\
 define([yuck_C_literal], [dnl
-patsubst([$1], [
+patsubst(patsubst(patsubst([[[[$1]]]], [\\], [\\\\]), ["], [\\"]), [
 ], [\\n\\
 ])dnl
 ])
