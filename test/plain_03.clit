@@ -1,0 +1,17 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ yuck-bootstrap "${srcdir}/plain_03.yuck"
+changequote([,])dnl
+divert([-1])
+
+yuck_set_umbrella([plain], [FILE...])
+yuck_add_option([h], [help], [auto], [])
+yuck_set_option_desc([h], [help], [], [display this help and exit])
+yuck_add_option([V], [version], [auto], [])
+yuck_set_option_desc([V], [version], [], [output version information and exit])
+
+changecom([//])
+divert[]dnl
+$
+
+## plain_03.clit ends here

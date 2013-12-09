@@ -1,0 +1,21 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ yuck-bootstrap "${srcdir}/subcmd_02.yuck"
+changequote([,])dnl
+divert([-1])
+
+yuck_set_umbrella([plain], [FILE...])
+yuck_add_option([h], [help], [auto], [])
+yuck_set_option_desc([h], [help], [], [display this help and exit])
+yuck_add_option([V], [version], [auto], [])
+yuck_set_option_desc([V], [version], [], [output version information and exit])
+
+yuck_add_command([foo], [FILE...])
+
+yuck_add_command([bar], [FILE...])
+
+changecom([//])
+divert[]dnl
+$
+
+## subcmd_02.clit ends here

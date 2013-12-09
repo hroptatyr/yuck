@@ -1,0 +1,11 @@
+Usage: plain COMMAND
+
+Run plain tool.
+
+Usage: plain foo
+
+Run plain tool in foo mode.
+
+Usage: plain bar
+
+Run plain tool in bar mode.

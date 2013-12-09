@@ -1,0 +1,11 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ yuck-bootstrap "${srcdir}/plain_04.yuck"
+changequote([,])dnl
+divert([-1])
+
+changecom([//])
+divert[]dnl
+$
+
+## plain_04.clit ends here
