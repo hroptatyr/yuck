@@ -10,11 +10,11 @@ AM_CFLAGS = $(EXTRA_CFLAGS)
 AM_CPPFLAGS = -D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=600 -D_BSD_SOURCE
 
 EXTRA_DIST = $(TESTS)
-EXTRA_DIST += $(BUILT_SOURCES)
 check_PROGRAMS =
 TESTS =
 TEST_EXTENSIONS =
 BUILT_SOURCES =
+CLEANFILES =
 
 EXTRA_DIST += xmpl.c xmpl.yuck
 
@@ -30,6 +30,7 @@ clitoris_SOURCES = clitoris.c clitoris.yuck
 clitoris_CPPFLAGS = $(AM_CPPFLAGS) -D_GNU_SOURCE
 clitoris_LDFLAGS = -static
 BUILT_SOURCES += clitoris.yucc
+CLEANFILES += $(BUILT_SOURCES)
 
 TESTS += plain_01.clit
 TESTS += plain_02.clit
