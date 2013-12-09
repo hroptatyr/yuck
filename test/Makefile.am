@@ -40,6 +40,14 @@ EXTRA_DIST += plain_02.yuck
 EXTRA_DIST += plain_03.yuck
 EXTRA_DIST += plain_04.yuck
 
+TESTS += subcmd_01.clit
+EXTRA_DIST += subcmd_01.yuck
+TESTS += subcmd_02.clit
+EXTRA_DIST += subcmd_02.yuck
+TESTS += subcmd_03.clit
+EXTRA_DIST += subcmd_03.yuck
+TESTS += subcmd_04.clit
+EXTRA_DIST += subcmd_04.yuck
 
 ## yuck rule
 %.yucc: %.yuck $(top_builddir)/src/yuck
