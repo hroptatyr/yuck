@@ -37,6 +37,7 @@ BUILT_SOURCES += yuck.yucc
 pkgdata_DATA += yuck.m4
 pkgdata_DATA += yuck-coru.m4c
 pkgdata_DATA += yuck-coru.m4h
+EXTRA_DIST += $(pkgdata_DATA)
 
 
 ## bootstrapping rules
