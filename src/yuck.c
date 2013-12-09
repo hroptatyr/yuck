@@ -430,8 +430,12 @@ yield:
 		/* start over with the new option */
 		sp++;
 		cur_opt.sopt = sopt;
-		if (isspace(*sp)) {
+		if (*sp == '\0') {
+			/* just the short option then innit? */
+			return 1;
+		} else if (isspace(*sp)) {
 			/* no arg name, no longopt */
+			;
 		} else if (*sp == '-') {
 			/* must be a --long now, maybe */
 			sp++;
@@ -493,7 +497,9 @@ yield:
 	desc->z = 0U;
 desc:
 	with (size_t sz = llen - (sp - line)) {
-		cur_opt.desc = bbuf_cat(desc, sp, sz);
+		if (LIKELY(sz > 0U)) {
+			cur_opt.desc = bbuf_cat(desc, sp, sz);
+		}
 	}
 	return 1;
 }
