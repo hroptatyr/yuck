@@ -33,6 +33,7 @@ yuck_bootstrap_CPPFLAGS += -DBOOTSTRAP
 bin_PROGRAMS += yuck
 yuck_SOURCES = yuck.c yuck.yuck
 BUILT_SOURCES += yuck.yucc
+CLEANFILES += yuck.m4i yuck.yucc
 
 pkgdata_DATA += yuck.m4
 pkgdata_DATA += yuck-coru.m4c
