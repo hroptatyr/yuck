@@ -49,6 +49,24 @@ EXTRA_DIST += subcmd_03.yuck
 TESTS += subcmd_04.clit
 EXTRA_DIST += subcmd_04.yuck
 
+TESTS += option_01.clit
+EXTRA_DIST += option_01.yuck
+TESTS += option_02.clit
+EXTRA_DIST += option_02.yuck
+TESTS += option_03.clit
+EXTRA_DIST += option_03.yuck
+TESTS += option_04.clit
+EXTRA_DIST += option_04.yuck
+TESTS += option_05.clit
+EXTRA_DIST += option_05.yuck
+TESTS += option_06.clit
+EXTRA_DIST += option_06.yuck
+TESTS += option_07.clit
+EXTRA_DIST += option_07.yuck
+TESTS += option_08.clit
+EXTRA_DIST += option_08.yuck
+
+
 ## yuck rule
 %.yucc: %.yuck $(top_builddir)/src/yuck
 	$(AM_V_GEN) $(TESTS_ENVIRONMENT) $(top_builddir)/src/yuck gen $< > $@
