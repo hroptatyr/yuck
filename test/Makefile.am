@@ -31,6 +31,16 @@ clitoris_CPPFLAGS = $(AM_CPPFLAGS) -D_GNU_SOURCE
 clitoris_LDFLAGS = -static
 BUILT_SOURCES += clitoris.yucc
 
+TESTS += plain_01.clit
+TESTS += plain_02.clit
+TESTS += plain_03.clit
+TESTS += plain_04.clit
+EXTRA_DIST += plain_01.yuck
+EXTRA_DIST += plain_02.yuck
+EXTRA_DIST += plain_03.yuck
+EXTRA_DIST += plain_04.yuck
+
+
 ## yuck rule
 %.yucc: %.yuck $(top_builddir)/src/yuck
 	$(AM_V_GEN) $(TESTS_ENVIRONMENT) $(top_builddir)/src/yuck gen $< > $@
