@@ -15,6 +15,7 @@ comes with all the knickknackery and whatnots:
 + condensable short options (`-xab` for `-x -a -b`)
 + optional arguments to long and short options (--foo[=BAR])
 + multiple occurrence of options (-vvv)
++ does *not* depend on libc's getopt() nor getopt_long()
 
 yuck can also generate parsers for umbrella tools, i.e. tools that take
 a command as argument (think git(1), ip(8), etc.).
@@ -22,11 +23,14 @@ a command as argument (think git(1), ip(8), etc.).
 yuck comes along with a DSL written in m4 and a simple parser that takes
 free text that looks like the `--help` output and returns m4-directives.
 
-yuck has no build or run time dependencies except for a C99 compiler and
-the m4 macro processor.
+yuck has no exotic build time or run time dependencies, a C99 compiler and
+the m4 macro processor is enough.
 
 yuck can be used in other projects by copying 4 files and setting up
 a simple Makefile rule.
+
+yuck can generate man pages based on the definition files, much like
+[help2man](http://www.gnu.org/s/help2man/).
 
 
 But why?
@@ -42,6 +46,18 @@ the parser in question.  You expect your users to grasp your `--help`
 output?  Well, there you go, if your users can understand it so can you!
 Just type up what you'd like to see in your `--help` output and yuck
 will generate a parser that does exactly that.
+
+
+No, the other why?
+------------------
+yuck has been crafted by a heavy gengetopt user, so both the procedure
+and the handling is quite similar to the ggo workflow.
+
+While gengetopt does a great job most of the time, it becomes annoying
+in some corner cases, is largely undermaintained, counts on libc for the
+actual getopt()'ing, is GPL licensed but first and foremost it is
+certainly not the right tool for the job if the job is parsing options
+for umbrella programs.
 
 
 Example
@@ -91,3 +107,12 @@ And that's it.  Some example calls:
     $ xmpl -x
     BLING BLING!
     $
+
+
+<!--
+  Local variables:
+  mode: auto-fill
+  fill-column: 72
+  filladapt-mode: t
+  End:
+-->
