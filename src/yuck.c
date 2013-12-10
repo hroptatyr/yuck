@@ -920,6 +920,44 @@ run_m4(const char *outfn, ...)
 bollocks:
 	_exit(EXIT_FAILURE);
 }
+
+static int
+wr_intermediary(const char *const args[], size_t nargs)
+{
+	int rc = 0;
+
+	fputs("\
+changequote([,])dnl\n\
+divert([-1])\n", outf);
+
+	if (nargs == 0U) {
+		if (snarf_f(stdin) < 0) {
+			error("cannot interpret directives on stdin");
+			rc = 1;
+		}
+	}
+	for (unsigned int i = 0U; i < nargs && rc == 0; i++) {
+		const char *fn = args[i];
+		FILE *yf;
+
+		if (UNLIKELY((yf = fopen(fn, "r")) == NULL)) {
+			error("cannot open file `%s'", fn);
+			rc = 1;
+			break;
+		} else if (snarf_f(yf) < 0) {
+			error("cannot interpret directives from `%s'", fn);
+			rc = 1;
+		}
+
+		/* clean up */
+		fclose(yf);
+	}
+	/* make sure we close the outfile */
+	fputs("\n\
+changecom([//])\n\
+divert[]dnl\n", outf);
+	return rc;
+}
 #endif	/* !BOOTSTRAP */
 
 
@@ -939,34 +977,10 @@ cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 		error("cannot open intermediate file `%s'", deffn);
 		return -1;
 	}
+	/* write up our findings in DSL language */
+	rc = wr_intermediary(argi->args, argi->nargs);
 
-	fputs("\
-changequote([,])dnl\n\
-divert([-1])\n", outf);
-
-	if (argi->nargs == 0U) {
-		if (snarf_f(stdin) < 0) {
-			error("gen command failed on stdin");
-			rc = 1;
-		}
-	}
-	for (unsigned int i = 0U; i < argi->nargs && rc == 0; i++) {
-		const char *fn = argi->args[i];
-		FILE *yf;
-
-		if (UNLIKELY((yf = fopen(fn, "r")) == NULL)) {
-			error("cannot open file `%s'", fn);
-			rc = 1;
-			break;
-		} else if (snarf_f(yf) < 0) {
-			error("gen command failed on `%s'", fn);
-			rc = 1;
-		}
-
-		/* clean up */
-		fclose(yf);
-	}
-	/* special directive for the header */
+	/* special directive for the header or is it */
 	if (argi->header_arg != NULL) {
 		const char *hdr = argi->header_arg;
 
@@ -980,14 +994,17 @@ divert([-1])\n", outf);
 			} else {
 				hp++;
 			};
-			fprintf(outf, "\ndefine([YUCK_HEADER], [%s])\n", hp);
+			fprintf(outf, "\
+divert([-1])\n\
+\n\
+define([YUCK_HEADER], [%s])\n\
+\n\
+divert[]dnl\n", hp);
 		}
 	}
 	/* make sure we close the outfile */
-	fputs("\n\
-changecom([//])\n\
-divert[]dnl\n", outf);
 	fclose(outf);
+
 	/* only proceed if there has been no error yet */
 	if (rc) {
 		goto out;
@@ -1035,38 +1052,10 @@ cmd_genman(const struct yuck_cmd_genman_s argi[static 1U])
 		error("cannot open intermediate file `%s'", deffn);
 		return -1;
 	}
-
-	fputs("\
-changequote([,])dnl\n\
-divert([-1])\n", outf);
-
-	if (argi->nargs == 0U) {
-		if (snarf_f(stdin) < 0) {
-			error("gen command failed on stdin");
-			rc = 1;
-		}
-	}
-	for (unsigned int i = 0U; i < argi->nargs && rc == 0; i++) {
-		const char *fn = argi->args[i];
-		FILE *yf;
-
-		if (UNLIKELY((yf = fopen(fn, "r")) == NULL)) {
-			error("cannot open file `%s'", fn);
-			rc = 1;
-			break;
-		} else if (snarf_f(yf) < 0) {
-			error("gen command failed on `%s'", fn);
-			rc = 1;
-		}
-
-		/* clean up */
-		fclose(yf);
-	}
-	/* make sure we close the outfile */
-	fputs("\n\
-changecom([//])\n\
-divert[]dnl\n", outf);
+	/* write up our findings in DSL language */
+	rc = wr_intermediary(argi->args, argi->nargs);
 	fclose(outf);
+
 	/* only proceed if there has been no error yet */
 	if (rc) {
 		goto out;
@@ -1095,42 +1084,9 @@ out:
 static int
 cmd_gendsl(const struct yuck_cmd_gendsl_s argi[static 1U])
 {
-	int rc = 0;
-
 	/* bang to stdout */
 	outf = stdout;
-
-	fputs("\
-changequote([,])dnl\n\
-divert([-1])\n", outf);
-
-	if (argi->nargs == 0U) {
-		if (snarf_f(stdin) < 0) {
-			error("gendsl command failed on stdin");
-			rc = 1;
-		}
-	}
-	for (unsigned int i = 0U; i < argi->nargs && rc == 0; i++) {
-		const char *fn = argi->args[i];
-		FILE *yf;
-
-		if (UNLIKELY((yf = fopen(fn, "r")) == NULL)) {
-			error("cannot open file `%s'", fn);
-			rc = 1;
-			break;
-		} else if (snarf_f(yf) < 0) {
-			error("gendsl command failed on `%s'", fn);
-			rc = 1;
-		}
-
-		/* clean up */
-		fclose(yf);
-	}
-	/* make sure we close the outfile */
-	fputs("\n\
-changecom([//])\n\
-divert[]dnl\n", outf);
-	return rc;
+	return wr_intermediary(argi->args, argi->nargs);
 }
 
 int
