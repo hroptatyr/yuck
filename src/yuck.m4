@@ -120,7 +120,6 @@ define([yuck_add_option], [dnl
 	])
 
 	popdef([ident])
-	popdef([slot])
 	popdef([cmd])
 	popdef([type])
 	popdef([long])
@@ -140,6 +139,7 @@ define([yuck_set_option_desc], [dnl
 
 	define([YUCK.]defn([cmd])[.]defn([ident])[.desc], defn([desc]))
 
+	popdef([ident])
 	popdef([short])
 	popdef([long])
 	popdef([cmd])
