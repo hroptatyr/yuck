@@ -453,6 +453,14 @@ yield:
 			}
 			for (ap = sp; sp < ep && isdashdash(*sp); sp++);
 			cur_opt.larg = bbuf_cpy(larg, ap, sp - ap);
+			if (*sp == '.') {
+				/* could be mularg */
+				if (sp[1U] == '.' && sp[2U] == '.') {
+					/* yay, 3 dots, read over dots */
+					for (sp += 3U; *sp == '.'; sp++);
+					cur_opt.marg = 1U;
+				}
+			}
 		}
 	} else if (*sp == '-') {
 		/* --option */
@@ -485,6 +493,14 @@ yield:
 			if (cur_opt.oarg && *sp++ != ']') {
 				/* maybe not an optarg? */
 				;
+			}
+			if (*sp == '.') {
+				/* could be mularg */
+				if (sp[1U] == '.' && sp[2U] == '.') {
+					/* yay, 3 dots, read over dots */
+					for (sp += 3U; *sp == '.'; sp++);
+					cur_opt.marg = 1U;
+				}
 			}
 		default:
 			break;
