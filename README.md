@@ -86,3 +86,12 @@ And that's it.  Some example calls:
     $ xmpl -x
     BLING BLING!
     $
+
+
+<!--
+  Local variables:
+  mode: auto-fill
+  fill-column: 72
+  filladapt-mode: t
+  End:
+-->
