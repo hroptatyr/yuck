@@ -116,6 +116,17 @@ ifdef([YUCK_VER], [dnl
 	return;
 }
 
+/* for multi-args */
+static const char **yuck_append(const char **prev, size_t n, const char *val)
+{
+	if (!(n % 16U)) {
+		/* resize */
+		prev = realloc(prev, (n + 16U) * sizeof(*prev));
+	}
+	prev[[n]] = val;
+	return prev;
+}
+
 
 int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 {
