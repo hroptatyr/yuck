@@ -5,7 +5,7 @@ Generate command line option parsers for umbrella commands.
 ## Usages of the single commands
 Usage: yuck [OPTION]... gen [FILE]...
 
-Generate a parser with definitions from FILE, or stdin if omitted.
+Generate a parser from definitions in FILE, or stdin if omitted.
 
   -H, --header=FILE  Also generate a header file.
   -o, --output=FILE  Output goes into FILE instead of stdout.
