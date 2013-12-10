@@ -67,6 +67,15 @@ EXTRA_DIST += option_07.yuck
 TESTS += option_08.clit
 EXTRA_DIST += option_08.yuck
 
+TESTS += optarg_01.clit
+EXTRA_DIST += optarg_01.yuck
+TESTS += optarg_02.clit
+EXTRA_DIST += optarg_02.yuck
+TESTS += optarg_03.clit
+EXTRA_DIST += optarg_03.yuck
+TESTS += optarg_04.clit
+EXTRA_DIST += optarg_04.yuck
+
 
 ## yuck rule
 %.yucc: %.yuck $(top_builddir)/src/yuck
