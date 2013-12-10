@@ -28,6 +28,18 @@ yuck_streqp(const char *s1, const char *s2)
 	return !strcmp(s1, s2);
 }
 
+/* for multi-args */
+static inline const char**
+yuck_append(const char **array, size_t n, const char *val)
+{
+	if (!(n % 16U)) {
+		/* resize */
+		array = realloc(array, (n + 16U) * sizeof(*array));
+	}
+	array[[n]] = val;
+	return array;
+}
+
 static enum yuck_cmds_e yuck_parse_cmd(const char *cmd)
 {
 	if (0) {
@@ -115,17 +127,6 @@ ifdef([YUCK_VER], [dnl
 		break;
 	}
 	return;
-}
-
-/* for multi-args */
-static const char **yuck_append(const char **prev, size_t n, const char *val)
-{
-	if (!(n % 16U)) {
-		/* resize */
-		prev = realloc(prev, (n + 16U) * sizeof(*prev));
-	}
-	prev[[n]] = val;
-	return prev;
 }
 
 
