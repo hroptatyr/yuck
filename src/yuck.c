@@ -750,8 +750,6 @@ divert[]dnl\n", outf);
 # define PATH_MAX	(256U)
 #endif	/* !PATH_MAX */
 static char dslfn[PATH_MAX];
-static char gencfn[PATH_MAX];
-static char genhfn[PATH_MAX];
 
 static bool
 aux_in_path_p(const char *aux, const char *path, size_t pathz)
@@ -859,14 +857,9 @@ bang:
 }
 
 static int
-find_auxs(void)
+find_dsl(void)
 {
-	int rc = 0;
-
-	rc += find_aux(dslfn, sizeof(dslfn), "yuck.m4");
-	rc += find_aux(gencfn, sizeof(gencfn), "yuck-coru.m4c");
-	rc += find_aux(genhfn, sizeof(genhfn), "yuck-coru.m4h");
-	return rc;
+	return find_aux(dslfn, sizeof(dslfn), "yuck.m4");
 }
 
 static __attribute__((noinline)) int
@@ -937,6 +930,8 @@ static int
 cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 {
 	static const char deffn[] = "yuck.m4i";
+	static char gencfn[PATH_MAX];
+	static char genhfn[PATH_MAX];
 	int rc = 0;
 
 	/* deal with the output first */
@@ -996,9 +991,14 @@ divert[]dnl\n", outf);
 	/* only proceed if there has been no error yet */
 	if (rc) {
 		goto out;
-	} else if (find_auxs() < 0) {
+	} else if (find_dsl() < 0) {
 		/* error whilst finding our DSL and things */
-		error("cannot find yuck dsl and template files");
+		error("cannot find yuck dsl file");
+		rc = 2;
+		goto out;
+	} else if (find_aux(gencfn, sizeof(gencfn), "yuck-coru.m4c") < 0 ||
+		   find_aux(genhfn, sizeof(genhfn), "yuck-coru.m4h") < 0) {
+		error("cannot find yuck template files");
 		rc = 2;
 		goto out;
 	}
@@ -1070,7 +1070,7 @@ divert[]dnl\n", outf);
 	/* only proceed if there has been no error yet */
 	if (rc) {
 		goto out;
-	} else if (find_auxs() < 0) {
+	} else if (find_dsl() < 0) {
 		/* error whilst finding our DSL and things */
 		error("cannot find yuck dsl and template files");
 		rc = 2;
