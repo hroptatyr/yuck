@@ -85,6 +85,15 @@ EXTRA_DIST += mularg_03.yuck
 TESTS += mularg_04.clit
 EXTRA_DIST += mularg_04.yuck
 
+TESTS += muloptarg_01.clit
+EXTRA_DIST += muloptarg_01.yuck
+TESTS += muloptarg_02.clit
+EXTRA_DIST += muloptarg_02.yuck
+TESTS += muloptarg_03.clit
+EXTRA_DIST += muloptarg_03.yuck
+TESTS += muloptarg_04.clit
+EXTRA_DIST += muloptarg_04.yuck
+
 
 ## yuck rule
 %.yucc: %.yuck $(top_builddir)/src/yuck
