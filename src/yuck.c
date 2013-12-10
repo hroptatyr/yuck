@@ -1024,6 +1024,75 @@ out:
 }
 
 static int
+cmd_genman(const struct yuck_cmd_genman_s argi[static 1U])
+{
+	static const char deffn[] = "yuck.m4i";
+	static char genmfn[PATH_MAX];
+	int rc = 0;
+
+	/* deal with the output first */
+	if (UNLIKELY((outf = fopen(deffn, "w")) == NULL)) {
+		error("cannot open intermediate file `%s'", deffn);
+		return -1;
+	}
+
+	fputs("\
+changequote([,])dnl\n\
+divert([-1])\n", outf);
+
+	if (argi->nargs == 0U) {
+		if (snarf_f(stdin) < 0) {
+			error("gen command failed on stdin");
+			rc = 1;
+		}
+	}
+	for (unsigned int i = 0U; i < argi->nargs && rc == 0; i++) {
+		const char *fn = argi->args[i];
+		FILE *yf;
+
+		if (UNLIKELY((yf = fopen(fn, "r")) == NULL)) {
+			error("cannot open file `%s'", fn);
+			rc = 1;
+			break;
+		} else if (snarf_f(yf) < 0) {
+			error("gen command failed on `%s'", fn);
+			rc = 1;
+		}
+
+		/* clean up */
+		fclose(yf);
+	}
+	/* make sure we close the outfile */
+	fputs("\n\
+changecom([//])\n\
+divert[]dnl\n", outf);
+	fclose(outf);
+	/* only proceed if there has been no error yet */
+	if (rc) {
+		goto out;
+	} else if (find_auxs() < 0) {
+		/* error whilst finding our DSL and things */
+		error("cannot find yuck dsl and template files");
+		rc = 2;
+		goto out;
+	} else if (find_aux(genmfn, sizeof(genmfn), "yuck.m4man") < 0) {
+		error("cannot find yuck template for man pages");
+		rc = 2;
+		goto out;
+	}
+	/* now route that stuff through m4 */
+	with (const char *outfn = argi->output_arg) {
+		/* standard case: pipe directives, then header, then code */
+		rc = run_m4(outfn, deffn, genmfn, NULL);
+	}
+out:
+	if (!0/*argi->keep_intermediate*/) {
+		unlink(deffn);
+	}
+	return rc;
+}
+
+static int
 cmd_gendsl(const struct yuck_cmd_gendsl_s argi[static 1U])
 {
 	int rc = 0;
@@ -1089,6 +1158,11 @@ See --help to obtain a list of available commands.\n", stderr);
 		break;
 	case yuck_gendsl:
 		if ((rc = cmd_gendsl((const void*)argi)) < 0) {
+			rc = 1;
+		}
+		break;
+	case yuck_genman:
+		if ((rc = cmd_genman((const void*)argi)) < 0) {
 			rc = 1;
 		}
 		break;
