@@ -903,6 +903,7 @@ run_m4(const char *outfn, ...)
 		int rc;
 		int st;
 
+		rc = 2;
 		while (waitpid(m4p, &st, 0) != m4p);
 		if (WIFEXITED(st)) {
 			rc = WEXITSTATUS(st);
@@ -943,7 +944,7 @@ bollocks:
 }
 
 static int
-wr_intermediary(const char *const args[], size_t nargs)
+wr_intermediary(char *const args[], size_t nargs)
 {
 	int rc = 0;
 
