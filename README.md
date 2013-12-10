@@ -9,6 +9,7 @@ comes with all the knickknackery and whatnots:
 + condensable short options (`-xab` for `-x -a -b`)
 + optional arguments to long and short options (--foo[=BAR])
 + multiple occurrence of options (-vvv)
++ does *not* depend on libc's getopt() nor getopt_long()
 
 yuck can also generate parsers for umbrella tools, i.e. tools that take
 a command as argument (think git(1), ip(8), etc.).
@@ -36,6 +37,18 @@ the parser in question.  You expect your users to grasp your `--help`
 output?  Well, there you go, if your users can understand it so can you!
 Just type up what you'd like to see in your `--help` output and yuck
 will generate a parser that does exactly that.
+
+
+No, the other why?
+------------------
+yuck has been crafted by a heavy gengetopt user, so both the procedure
+and the handling is quite similar to the ggo workflow.
+
+While gengetopt does a great job most of the time, it becomes annoying
+in some corner cases, is largely undermaintained, counts on libc for the
+actual getopt()'ing, is GPL licensed but first and foremost it is
+certainly not the right tool for the job if the job is parsing options
+for umbrella programs.
 
 
 Example
@@ -85,3 +98,12 @@ And that's it.  Some example calls:
     $ xmpl -x
     BLING BLING!
     $
+
+
+<!--
+  Local variables:
+  mode: auto-fill
+  fill-column: 72
+  filladapt-mode: t
+  End:
+-->
