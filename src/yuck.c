@@ -961,6 +961,24 @@ divert[]dnl\n", outf);
 }
 
 static int
+wr_header(const char hdr[static 1U])
+{
+	/* massage the hdr bit a bit */
+	if (strcmp(hdr, "/dev/null")) {
+		/* /dev/null just means ignore the header aye? */
+		const char *hp;
+
+		if ((hp = strrchr(hdr, '/')) == NULL) {
+			hp = hdr;
+		} else {
+			hp++;
+		};
+		fprintf(outf, "define([YUCK_HEADER], [%s])dnl\n", hp);
+	}
+	return 0;
+}
+
+static int
 wr_man_date(void)
 {
 	time_t now;
@@ -1000,30 +1018,11 @@ cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 	}
 	/* write up our findings in DSL language */
 	rc = wr_intermediary(argi->args, argi->nargs);
-
 	/* special directive for the header or is it */
 	if (argi->header_arg != NULL) {
-		const char *hdr = argi->header_arg;
-
-		/* massage the hdr bit a bit */
-		if (strcmp(hdr, "/dev/null")) {
-			/* /dev/null just means ignore the header aye? */
-			const char *hp;
-
-			if ((hp = strrchr(hdr, '/')) == NULL) {
-				hp = hdr;
-			} else {
-				hp++;
-			};
-			fprintf(outf, "\
-divert([-1])\n\
-\n\
-define([YUCK_HEADER], [%s])\n\
-\n\
-divert[]dnl\n", hp);
-		}
+		rc += wr_header(argi->header_arg);
 	}
-	/* make sure we close the outfile */
+	/* and we're finished with the intermediary */
 	fclose(outf);
 
 	/* only proceed if there has been no error yet */
