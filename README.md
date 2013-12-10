@@ -17,11 +17,14 @@ a command as argument (think git(1), ip(8), etc.).
 yuck comes along with a DSL written in m4 and a simple parser that takes
 free text that looks like the `--help` output and returns m4-directives.
 
-yuck has no build or run time dependencies except for a C99 compiler and
-the m4 macro processor.
+yuck has no exotic build time or run time dependencies, a C99 compiler and
+the m4 macro processor is enough.
 
 yuck can be used in other projects by copying 4 files and setting up
 a simple Makefile rule.
+
+yuck can generate man pages based on the definition files, much like
+[help2man](http://www.gnu.org/s/help2man/).
 
 
 But why?
