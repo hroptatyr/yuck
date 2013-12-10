@@ -18,6 +18,7 @@ ifdef([YUCK_HEADER], [#include "YUCK_HEADER"
 # endif	 /* GCC version */
 # pragma GCC diagnostic ignored "-Wunused-label"
 # pragma GCC diagnostic ignored "-Wunused-variable"
+# pragma GCC diagnostic ignored "-Wunused-function"
 #endif	/* __INTEL_COMPILER */
 
 
