@@ -20,7 +20,18 @@ pushdef([last], yuck_cmd())pushdef([first], defn([last]))[]dnl
 popdef([last])popdef([first])[]dnl
 };
 
+define([yuck_slot_predecl], [dnl
+yuck_iftype([$1], [$2],
+	[arg,mul], [size_t ]yuck_canon([$1], [$2])[_nargs],
+	[arg,mul,opt], [size_t ]yuck_canon([$1], [$2])[_nargs]
+)dnl
+])dnl
+
 define([yuck_slot_decl], [dnl
+yuck_iftype([$1], [$2],
+	[arg,mul], [yuck_slot_predecl([$1], [$2]); ],
+	[arg,mul,opt], [yuck_slot_predecl([$1], [$2])]
+)dnl
 yuck_iftype([$1], [$2],
 	[flag], [unsigned int ],
 	[arg], [const char *],
@@ -30,7 +41,7 @@ yuck_iftype([$1], [$2],
 	[auto], [unsigned int ],
 	[], [], [void ])dnl
 yuck_slot_identifier([$1], [$2])dnl
-ifelse(yuck_type([$1], [$2]), [auto], [[[0U]]])dnl
+yuck_iftype([$1], [$2], [auto], [[[0U]]])dnl
 ])dnl
 
 struct yuck_s {
