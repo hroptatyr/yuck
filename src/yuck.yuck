@@ -9,3 +9,9 @@ Generate a parser from definitions in FILE, or stdin if omitted.
 
   -H, --header=FILE  Also generate a header file.
   -o, --output=FILE  Output goes into FILE instead of stdout.
+
+## GENDSL
+Usage: yuck gendsl [FILE]...
+
+Generate the intermediary description of definitions from FILE, or stdin
+if omitted.

@@ -1023,6 +1023,47 @@ out:
 	return rc;
 }
 
+static int
+cmd_gendsl(const struct yuck_cmd_gendsl_s argi[static 1U])
+{
+	int rc = 0;
+
+	/* bang to stdout */
+	outf = stdout;
+
+	fputs("\
+changequote([,])dnl\n\
+divert([-1])\n", outf);
+
+	if (argi->nargs == 0U) {
+		if (snarf_f(stdin) < 0) {
+			error("gendsl command failed on stdin");
+			rc = 1;
+		}
+	}
+	for (unsigned int i = 0U; i < argi->nargs && rc == 0; i++) {
+		const char *fn = argi->args[i];
+		FILE *yf;
+
+		if (UNLIKELY((yf = fopen(fn, "r")) == NULL)) {
+			error("cannot open file `%s'", fn);
+			rc = 1;
+			break;
+		} else if (snarf_f(yf) < 0) {
+			error("gendsl command failed on `%s'", fn);
+			rc = 1;
+		}
+
+		/* clean up */
+		fclose(yf);
+	}
+	/* make sure we close the outfile */
+	fputs("\n\
+changecom([//])\n\
+divert[]dnl\n", outf);
+	return rc;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -1043,6 +1084,11 @@ See --help to obtain a list of available commands.\n", stderr);
 		goto out;
 	case yuck_gen:
 		if ((rc = cmd_gen((const void*)argi)) < 0) {
+			rc = 1;
+		}
+		break;
+	case yuck_gendsl:
+		if ((rc = cmd_gendsl((const void*)argi)) < 0) {
 			rc = 1;
 		}
 		break;
