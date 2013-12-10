@@ -900,7 +900,7 @@ run_m4(const char *outfn, ...)
 
 	default:;
 		/* i am the parent */
-		int rc;
+		int rc = 2;
 		int st;
 
 		while (waitpid(m4p, &st, 0) != m4p);
