@@ -264,7 +264,7 @@ popdef([dl])dnl
 ## yuck_option_help_line([ident], [[cmd]])
 define([yuck_option_help_line], [dnl
 pushdef([lhs], yuck_option_help_lhs([$1], [$2]))dnl
-pushdef([desc], patsubst(yuck_option_desc([$1], [$2]), [
+pushdef([desc], patsubst([yuck_option_desc([$1], [$2])], [
 ], [
                         ]))dnl
 ifelse(eval(len(defn([lhs])) >= 24), [0], [dnl
