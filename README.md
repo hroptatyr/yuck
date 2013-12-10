@@ -9,6 +9,7 @@ comes with all the knickknackery and whatnots:
 + condensable short options (`-xab` for `-x -a -b`)
 + optional arguments to long and short options (--foo[=BAR])
 + multiple occurrence of options (-vvv)
++ does *not* depend on libc's getopt() nor getopt_long()
 
 yuck can also generate parsers for umbrella tools, i.e. tools that take
 a command as argument (think git(1), ip(8), etc.).
