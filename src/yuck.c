@@ -943,7 +943,7 @@ bollocks:
 }
 
 static int
-wr_intermediary(const char *const args[], size_t nargs)
+wr_intermediary(char *const args[], size_t nargs)
 {
 	int rc = 0;
 
