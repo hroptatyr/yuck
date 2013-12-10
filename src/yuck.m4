@@ -120,7 +120,6 @@ define([yuck_add_option], [dnl
 	])
 
 	popdef([ident])
-	popdef([slot])
 	popdef([cmd])
 	popdef([type])
 	popdef([long])
@@ -140,6 +139,7 @@ define([yuck_set_option_desc], [dnl
 
 	define([YUCK.]defn([cmd])[.]defn([ident])[.desc], defn([desc]))
 
+	popdef([ident])
 	popdef([short])
 	popdef([long])
 	popdef([cmd])
@@ -200,7 +200,7 @@ popdef([type])dnl
 ])
 
 ## yuck_umbcmds(), umbrella + commands
-define([yuck_umbcmds], [ifdef([YUCK_CMD], [[,defn([YUCK_CMD])]], dquote([[]]))])
+define([yuck_umbcmds], [ifdef([YUCK_CMD], [[,]defn([YUCK_CMD])], dquote([[]]))])
 
 ## yuck_cmds(), just the commands
 define([yuck_cmds], [defn([YUCK_CMD])])
@@ -264,7 +264,7 @@ popdef([dl])dnl
 ## yuck_option_help_line([ident], [[cmd]])
 define([yuck_option_help_line], [dnl
 pushdef([lhs], yuck_option_help_lhs([$1], [$2]))dnl
-pushdef([desc], patsubst(yuck_option_desc([$1], [$2]), [
+pushdef([desc], patsubst([yuck_option_desc([$1], [$2])], [
 ], [
                         ]))dnl
 ifelse(eval(len(defn([lhs])) >= 24), [0], [dnl
