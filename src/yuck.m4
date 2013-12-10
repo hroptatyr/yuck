@@ -173,17 +173,25 @@ popdef([canon])dnl
 popdef([type])dnl
 ])
 
+## yuck_cnt_slot([option], [[cmd]])
+define([yuck_cnt_slot], [dnl
+pushdef([idn], yuck_canon([$1], [$2])[_nargs])dnl
+pushdef([res], ifelse([$2], [], defn([idn]), [$2.]defn([idn])))dnl
+yuck_iftype([$1], [$2],
+	[arg,mul], [defn([res])],
+	[arg,mul,opt], [defn([res])],
+)dnl
+popdef([idn])dnl
+popdef([res])dnl
+])
+
 ## yuck_slot([option], [[cmd]])
 define([yuck_slot], [dnl
-pushdef([opt], [$1])dnl
-pushdef([cmd], [$2])dnl
-pushdef([idn], yuck_slot_identifier(defn([opt]), defn([cmd])))dnl
+pushdef([idn], yuck_slot_identifier([$1], [$2]))dnl
 dnl
-ifelse(defn([cmd]), [], defn([idn]), defn([cmd])[.]defn([idn]))[]dnl
+ifelse([$2], [], defn([idn]), [$2.]defn([idn]))[]dnl
 dnl
 popdef([idn])dnl
-popdef([cmd])dnl
-popdef([opt])dnl
 ])
 
 ## yuck_iftype([opt], [cmd], [type], [body], [[type], [body]]...)
