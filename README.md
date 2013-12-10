@@ -39,6 +39,18 @@ Just type up what you'd like to see in your `--help` output and yuck
 will generate a parser that does exactly that.
 
 
+No, the other why?
+------------------
+yuck has been crafted by a heavy gengetopt user, so both the procedure
+and the handling is quite similar to the ggo workflow.
+
+While gengetopt does a great job most of the time, it becomes annoying
+in some corner cases, is largely undermaintained, counts on libc for the
+actual getopt()'ing, is GPL licensed but first and foremost it is
+certainly not the right tool for the job if the job is parsing options
+for umbrella programs.
+
+
 Example
 -------
 Consider the following .yuck file:
