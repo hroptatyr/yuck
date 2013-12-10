@@ -105,7 +105,9 @@ ifdef([YUCK_VER], [dnl
 ], [dnl
 #if defined PACKAGE_VERSION
 		puts(PACKAGE_VERSION);
-#else
+#elif defined VERSION
+		puts("YUCK_UMB " VERSION);
+#else  /* !PACKAGE_VERSION, !VERSION */
 		puts("YUCK_UMB unknown version");
 #endif	/* PACKAGE_VERSION */
 ])dnl
