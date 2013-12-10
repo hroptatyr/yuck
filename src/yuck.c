@@ -49,6 +49,7 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect((_x), 1)
@@ -958,6 +959,26 @@ changecom([//])\n\
 divert[]dnl\n", outf);
 	return rc;
 }
+
+static int
+wr_man_date(void)
+{
+	time_t now;
+	const struct tm *tp;
+	char buf[32U];
+	int rc = 0;
+
+	if ((now = time(NULL)) == (time_t)-1) {
+		rc = -1;
+	} else if ((tp = gmtime(&now)) == NULL) {
+		rc = -1;
+	} else if (!strftime(buf, sizeof(buf), "%B %Y", tp)) {
+		rc = -1;
+	} else {
+		fprintf(outf, "define([YUCK_MAN_DATE], [%s])dnl\n", buf);
+	}
+	return rc;
+}
 #endif	/* !BOOTSTRAP */
 
 
@@ -1054,6 +1075,8 @@ cmd_genman(const struct yuck_cmd_genman_s argi[static 1U])
 	}
 	/* write up our findings in DSL language */
 	rc = wr_intermediary(argi->args, argi->nargs);
+	/* at least give the man page template an idea for YUCK_MAN_DATE */
+	wr_man_date();
 	fclose(outf);
 
 	/* only proceed if there has been no error yet */
