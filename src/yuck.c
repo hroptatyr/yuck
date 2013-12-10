@@ -453,6 +453,10 @@ yield:
 			}
 			for (ap = sp; sp < ep && isdashdash(*sp); sp++);
 			cur_opt.larg = bbuf_cpy(larg, ap, sp - ap);
+			if (cur_opt.oarg && *sp++ != ']') {
+				/* maybe not an optarg? */
+				;
+			}
 			if (*sp == '.') {
 				/* could be mularg */
 				if (sp[1U] == '.' && sp[2U] == '.') {
