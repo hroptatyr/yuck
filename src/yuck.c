@@ -553,14 +553,21 @@ interp(const char *line, size_t llen)
 static const char *UNUSED(curr_umb);
 static const char *curr_cmd;
 static const char nul_str[] = "";
+static const char *const auto_types[] = {"auto", "flag"};
 static FILE *outf;
+
+static struct {
+	unsigned int no_auto_flags:1U;
+	unsigned int no_auto_action:1U;
+} tweaks;
 
 static void
 yield_help(void)
 {
 	const char *cmd = curr_cmd ?: nul_str;
+	const char *type = auto_types[tweaks.no_auto_action];
 
-	fprintf(outf, "yuck_add_option([h], [help], [auto], [%s])\n", cmd);
+	fprintf(outf, "yuck_add_option([h], [help], [%s], [%s])\n", type, cmd);
 	fprintf(outf, "yuck_set_option_desc([h], [help], [%s], [\
 display this help and exit])\n", cmd);
 	return;
@@ -570,8 +577,9 @@ static void
 yield_version(void)
 {
 	const char *cmd = curr_cmd ?: nul_str;
+	const char *type = auto_types[tweaks.no_auto_action];
 
-	fprintf(outf, "yuck_add_option([V], [version], [auto], [%s])\n", cmd);
+	fprintf(outf, "yuck_add_option([V], [version], [%s], [%s])\n", type, cmd);
 	fprintf(outf, "yuck_set_option_desc([V], [version], [%s], [\
 output version information and exit])\n", cmd);
 	return;
@@ -1031,6 +1039,10 @@ cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 	static char gencfn[PATH_MAX];
 	static char genhfn[PATH_MAX];
 	int rc = 0;
+
+	if (argi->no_auto_actions_flag) {
+		tweaks.no_auto_action = 1U;
+	}
 
 	/* deal with the output first */
 	if (UNLIKELY((outf = fopen(deffn, "w")) == NULL)) {
