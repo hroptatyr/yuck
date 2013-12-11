@@ -9,6 +9,7 @@ Generate a parser from definitions in FILE, or stdin if omitted.
 
   -H, --header=FILE  Also generate a header file.
   -o, --output=FILE  Output goes into FILE instead of stdout.
+  --no-auto-flags    Do not add auto flags (--help, --version).
   --no-auto-actions  Do not automatically handle auto flags.
 
 ## GENMAN
@@ -24,4 +25,5 @@ Usage: yuck gendsl [FILE]...
 Generate the intermediary description of definitions from FILE, or stdin
 if omitted.
 
+  --no-auto-flags    Do not add auto flags (--help, --version).
   --no-auto-actions  Do not automatically handle auto flags.
