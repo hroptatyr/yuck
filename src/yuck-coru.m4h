@@ -28,21 +28,21 @@ yuck_iftype([$1], [$2],
 ])dnl
 
 define([yuck_slot_decl], [dnl
+pushdef([pre],dnl
 yuck_iftype([$1], [$2],
 	[arg,mul], [yuck_slot_predecl([$1], [$2]); ],
 	[arg,mul,opt], [yuck_slot_predecl([$1], [$2]); ],
-)dnl
+))dnl
+pushdef([decl],dnl
 yuck_iftype([$1], [$2],
 	[flag], [unsigned int ],
 	[arg], [const char *],
 	[arg,opt], [const char *],
 	[arg,mul], [const char **],
 	[arg,mul,opt], [const char **],
-	[auto], [unsigned int ],
-	[], [], [void ])dnl
-yuck_slot_identifier([$1], [$2])dnl
-yuck_iftype([$1], [$2], [auto], [[[0U]]])dnl
-])dnl
+))dnl
+ifelse(decl, [], [], [pre[]decl[]yuck_slot_identifier([$1], [$2]);
+])])dnl
 
 struct yuck_s {
 	enum yuck_cmds_e cmd;
@@ -51,16 +51,17 @@ struct yuck_s {
 	size_t nargs;
 	char *const *args;
 
-	foreachq([slot], yuck_idents(), [yuck_slot_decl(slot);
-	])
+	foreachq([slot], yuck_idents(), [dnl
+	yuck_slot_decl(slot)])
 	/* depending on CMD at most one of the following structs is filled in
 	 * if CMD is YUCK_NONE no slots of this union must be accessed */
 	union {foreachq([cmd], yuck_cmds(), [
 		/* for the cmd command */
-		struct {foreachq([slot], yuck_idents(cmd), [
-			yuck_slot_decl(slot, cmd);])
+		struct {
+foreachq([slot], yuck_idents(cmd), [dnl
+			yuck_slot_decl(slot, cmd)])[]dnl
 		} cmd;
-	])};
+])};
 };
 
 foreachq([cmd], yuck_cmds(), [dnl
@@ -71,10 +72,10 @@ struct yuck_cmd_[]cmd[]_s {
 	/* left-over arguments, the command string is never a part of this */
 	size_t nargs;
 	char *const *args;
-	foreachq([slot], yuck_idents(), [
-	yuck_slot_decl(slot);])
-	foreachq([slot], yuck_idents(cmd), [
-	yuck_slot_decl(slot, cmd);])
+	foreachq([slot], yuck_idents(), [dnl
+	yuck_slot_decl(slot)])
+	foreachq([slot], yuck_idents(cmd), [dnl
+	yuck_slot_decl(slot, cmd)])
 };
 ])
 
