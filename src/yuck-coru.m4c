@@ -326,6 +326,27 @@ void yuck_free(struct yuck_s *restrict tgt)
 		/* free despite const qualifier */
 		free((char*)NULL + ((const char*)tgt->args - (char*)NULL));
 	}
+	/* free mulargs */
+	switch (tgt->cmd) {
+		void *ptr;
+	default:
+		break;
+foreachq([C], yuck_umbcmds(), [dnl
+	case yuck_cmd(C):
+foreachq([slot], yuck_idents(C), [dnl
+pushdef([action], [dnl
+		ptr = (char*)NULL + ((const char*)tgt->[]slot[] - (char*)NULL);
+		if (ptr != NULL) {
+			free(ptr);
+		}
+])dnl
+yuck_iftype(slot,C,
+	    [arg,mul], [action],
+	    [arg,mul,opt], [action])[]dnl
+popdef([action])])dnl
+		break;
+])
+	}
 	return;
 }
 
