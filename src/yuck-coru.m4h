@@ -61,10 +61,11 @@ struct yuck_s {
 foreachq([slot], yuck_idents(cmd), [dnl
 			yuck_slot_decl(slot, cmd)])[]dnl
 		} cmd;
-])};
+])[]dnl
+	};
 };
 
-foreachq([cmd], yuck_cmds(), [dnl
+foreachq([cmd], yuck_cmds(), [
 /* convenience structure for `cmd' */
 struct yuck_cmd_[]cmd[]_s {
 	enum yuck_cmds_e cmd;
@@ -72,10 +73,10 @@ struct yuck_cmd_[]cmd[]_s {
 	/* left-over arguments, the command string is never a part of this */
 	size_t nargs;
 	char *const *args;
-	foreachq([slot], yuck_idents(), [dnl
+foreachq([slot], yuck_idents(), [dnl
 	yuck_slot_decl(slot)])
-	foreachq([slot], yuck_idents(cmd), [dnl
-	yuck_slot_decl(slot, cmd)])
+foreachq([slot], yuck_idents(cmd), [dnl
+	yuck_slot_decl(slot, cmd)])[]dnl
 };
 ])
 
