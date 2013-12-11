@@ -119,6 +119,54 @@ And that's it.  Some example calls:
     BLING BLING!
     $
 
+More details, please
+--------------------
+The example above results in an auxiliary struct
+
+    struct yuck_s {
+            enum yuck_cmds_e cmd;
+    
+            /* left-over arguments, the command string is never a part of this */
+            size_t nargs;
+            char *const *args;
+    
+            unsigned int extra_flag;
+            const char *output_arg;
+    
+            /* depending on CMD at most one of the following structs is filled in
+             * if CMD is YUCK_NONE no slots of this union must be accessed */
+            union {};
+    };
+
+which is filled in when `yuck_parse()` is run.  As there are no
+subcommands defined the union at the bottom is underspecified and the
+`cmd` slot at the top will always hold `YUCK_NONE`.
+
+Every occurrence of `-x` or `--extra` on the command line will increase
+the count in `extra_flag`, yuck does not distinguish between optional
+flags (to occur at most once), flags to occur exactly once, or flags
+that can occur multiple times.
+
+Same goes for every occurrence of `-o` or `--output`, however, the
+pointer in `output_arg` will point to the last occurrence on the
+commandline.
+
+Left-over positional arguments will be counted in `nargs` and collected
+into `args`.  It is never an error to pass in positional arguments.  It
+is up to the caller of `yuck_parse()` to check the struct yuck_s
+representation of the command line for integrity.
+
+In a similar fashion, yuck's only types are options with arguments
+(which are mapped to const char* or const char** in case of multi-args)
+and flags (mapped to unsigned int, representing the number of occurences
+on the command line).  Again, it is up to the postprocessing code to
+interpret arguments suitably, e.g. convert integer strings to integers,
+or constrain a HOSTNAME argument to its legal characters, etc.
+
+All const char* objects point straight to members of `argv`, i.e. they
+are not `strdup()`ed.  Changing strings in argv will therefore change
+the strings in the struct yuck_s representation also, and vice versa
+(after by-passing the const qualifier).
 
 <!--
   Local variables:
