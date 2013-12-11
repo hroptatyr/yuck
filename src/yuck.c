@@ -1140,6 +1140,10 @@ out:
 static int
 cmd_gendsl(const struct yuck_cmd_gendsl_s argi[static 1U])
 {
+	if (argi->no_auto_actions_flag) {
+		tweaks.no_auto_action = 1U;
+	}
+
 	/* bang to stdout */
 	outf = stdout;
 	return wr_intermediary(argi->args, argi->nargs);
