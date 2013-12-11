@@ -38,9 +38,24 @@ define([equote], [dquote($*)])
 
 define([_splice], [ifelse(eval([$#] > [3]), [0], [[$1], [$2], [$3]], [[$1], [$2], [$3], _splice([$1], shift(shift(shift($@))))])])
 
+define([cond], [ifelse([$#], [0], [], [$#], [1], [$1], [_$0($@)])])
+define([_cond], [dnl
+ifelse([$1], [$2], [$3],
+	[$#], [3], [],
+	[$#], [4], [$4],
+	[$0([$1], shift(shift(shift($@))))])])
+
 define([make_c_ident], [dnl
 translit([$1], [!"#$%&'()*+,-./:;<=>?@[\]^`{|}~],dnl "
 	[_________________________________])[]dnl
+])
+
+define([downcase], [dnl
+translit([$1], [ABCDEFGHIJKLMNOPQRSTUVWXYZ], [abcdefghijklmnopqrstuvwxyz])[]dnl
+])
+
+define([upcase], [dnl
+translit([$1], [abcdefghijklmnopqrstuvwxyz], [ABCDEFGHIJKLMNOPQRSTUVWXYZ])[]dnl
 ])
 
 ## select a diversion, clearing all other diversions
@@ -285,10 +300,10 @@ popdef([desc])dnl
 define([_yuck_C_literal], [dnl
 patsubst(patsubst(patsubst([[[[$1]]]], [\\], [\\\\]), ["], [\\"]), [
 ], [\\n\\
-])dnl
+])[]dnl
 ])
 define([yuck_C_literal], [dnl
-translit(_yuck_C_literal([$1]), LBRACK[]RBRACK, [[]])dnl
+translit(_yuck_C_literal([$1]), LBRACK[]RBRACK, [[]])[]dnl
 ])dnl
 
 
