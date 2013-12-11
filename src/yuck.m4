@@ -300,10 +300,10 @@ popdef([desc])dnl
 define([_yuck_C_literal], [dnl
 patsubst(patsubst(patsubst([[[[$1]]]], [\\], [\\\\]), ["], [\\"]), [
 ], [\\n\\
-])dnl
+])[]dnl
 ])
 define([yuck_C_literal], [dnl
-translit(_yuck_C_literal([$1]), LBRACK[]RBRACK, [[]])dnl
+translit(_yuck_C_literal([$1]), LBRACK[]RBRACK, [[]])[]dnl
 ])dnl
 
 
