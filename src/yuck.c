@@ -264,7 +264,7 @@ bbuf_cat(bbuf_t b[static 1U], const char *str, size_t ssz)
 
 static void yield_usg(const struct usg_s *arg);
 static void yield_opt(const struct opt_s *arg);
-static void yield_inter(bbuf_t x[static 1U]);
+static void yield_inter(const bbuf_t x[static 1U]);
 
 #define DEBUG(args...)
 
@@ -645,7 +645,7 @@ yield_opt(const struct opt_s *arg)
 }
 
 static void
-yield_inter(bbuf_t x[static 1U])
+yield_inter(const bbuf_t x[static 1U])
 {
 	if (x->z) {
 		if (x->s[x->z - 1U] == '\n') {
