@@ -1,0 +1,17 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ yuck gendsl --no-auto-actions "${srcdir}/noauto_01.yuck"
+changequote([,])dnl
+divert([-1])
+
+yuck_set_umbrella([plain], [])
+yuck_add_option([h], [help], [flag], [])
+yuck_set_option_desc([h], [help], [], [display this help and exit])
+yuck_add_option([V], [version], [flag], [])
+yuck_set_option_desc([V], [version], [], [output version information and exit])
+
+changecom([//])
+divert[]dnl
+$
+
+## noauto_02.clit ends here
