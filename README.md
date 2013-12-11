@@ -54,6 +54,16 @@ certainly not the right tool for the job if the job is parsing options
 for umbrella programs.
 
 
+And what about docopt?
+----------------------
+While [docopt](http://docopt.org/) is based on essentially the same idea
+as yuck, its grammar is formal and doesn't allow for descriptive texts.
+Also, docopt's C parser (yuck's primary target) is not fully functional.
+
+However, if you're currently using docopt and you feel comfortable with
+it, there's no need to switch to yuck.
+
+
 Example
 -------
 Consider the following .yuck file:
