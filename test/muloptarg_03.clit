@@ -1,6 +1,6 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
-$ yuck-bootstrap "${srcdir}/muloptarg_03.yuck"
+$ yuck gendsl "${srcdir}/muloptarg_03.yuck"
 changequote([,])dnl
 divert([-1])
 
