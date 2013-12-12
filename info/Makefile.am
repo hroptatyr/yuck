@@ -17,7 +17,7 @@ BUILT_MANS += yuck.man
 
 
 ## help2man helpers
-%.man: $(top_srcdir)/src/%.yuck $(top_srcdir)/configure $(top_builddir)/version.mk
+%.man: $(top_srcdir)/src/%.yuck $(top_srcdir)/version.m4
 	$(AM_V_GEN) YUCK_TEMPLATE_PATH="$(abs_top_srcdir)/src" \
 		$(top_builddir)/src/yuck genman \
 		-o $@ $<

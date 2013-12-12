@@ -1,7 +1,6 @@
 #!/bin/sh
 
 GVF="none"
-DEF_VER="v0.1.1.GIT"
 TOUCH_GVF="no"
 
 LF='
@@ -19,9 +18,11 @@ then
 	GVF="${2}"
 fi
 
+cd "${srcdir}" || exit 1
+## try and obtain the default version from the version.m4 file
+DEF_VER=`sed 's/.*\[//; s/\].*//' version.m4` || DEF_VER="v0"
 # First see if there is a version file (included in release tarballs),
 # then try git-describe, then default.
-cd "${srcdir}" || exit 1
 if test -f version
 then
 	VN="`cat version`" || VN="${DEF_VER}"

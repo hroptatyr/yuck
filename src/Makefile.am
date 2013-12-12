@@ -22,12 +22,6 @@ BUILT_SOURCES =
 EXTRA_DIST = $(BUILT_SOURCES)
 CLEANFILES =
 
-CLEANFILES += version.c
-EXTRA_DIST += version.c.in
-
-noinst_LIBRARIES += libyuck.a
-libyuck_a_SOURCES = version.c version.h
-
 
 noinst_PROGRAMS += yuck-bootstrap
 yuck_bootstrap_SOURCES = yuck.c
@@ -53,11 +47,6 @@ yuck.m4i: yuck.yuck $(builddir)/yuck-bootstrap
 
 yuck.yucc: yuck.m4 yuck.m4i yuck-coru.m4h yuck-coru.m4c
 	m4 $+ > $@ || rm -f -- $@
-
-
-## generate version.c from .c.in
-version.c: version.c.in $(top_builddir)/version.mk
-	sed -e 's,[@]VERSION[@],$(VERSION),g' <$(srcdir)/$@.in >$@
 
 
 ## for dist or dist check we need binaries, so help2man can work
