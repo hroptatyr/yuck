@@ -44,8 +44,8 @@ static enum yuck_cmds_e yuck_parse_cmd(const char *cmd)
 {
 	if (0) {
 		;
-	}foreachq([C], yuck_cmds(), [ else if (yuck_streqp(cmd, "yuck_cmd_string(C)")) {
-		return yuck_cmd(C);
+	}foreachq([C], yuck_cmds(), [ else if (yuck_streqp(cmd, "yuck_cmd_string(defn([C]))")) {
+		return yuck_cmd(defn([C]));
 	}]) else {
 		/* error here? */
 		fprintf(stderr, "YUCK_UMB: invalid command `%s'\n\
@@ -70,11 +70,11 @@ yuck_C_literal(yuck_umb_desc())");
 ])dnl
 		break;
 foreachq([C], yuck_cmds(), [
-	case yuck_cmd(C):
-		puts("Usage: YUCK_UMB [[OPTION]]... yuck_cmd_string(C) yuck_cmd_posarg(C)");
-ifelse(yuck_cmd_desc(C), [], [], [dnl
+	case yuck_cmd(defn([C])):
+		puts("Usage: YUCK_UMB [[OPTION]]... yuck_cmd_string(defn([C])) yuck_cmd_posarg(defn([C]))");
+ifelse(yuck_cmd_desc(defn([C])), [], [], [dnl
 		puts("\n\
-yuck_C_literal(yuck_cmd_desc(C))");
+yuck_C_literal(yuck_cmd_desc(defn([C])))");
 ])dnl
 		break;
 ])
@@ -90,16 +90,16 @@ ifelse(yuck_cmds(), [], [], [dnl
 	if (cmd == YUCK_NONE) {
 		/* also output a list of commands */
 		puts("\nCOMMAND may be one of:\n\
-foreachq([C], yuck_cmds(), [  yuck_cmd_string(C)\n\
+foreachq([C], yuck_cmds(), [  yuck_cmd_string(defn([C]))\n\
 ])");
 	}
 ])dnl
 
 	switch (cmd) {
 	default:foreachq([C], yuck_umbcmds(), [
-	case yuck_cmd(C):
+	case yuck_cmd(defn([C])):
 		puts("\n\
-foreachq([I], yuck_idents(C), [dnl
+foreachq([I], yuck_idents(defn([C])), [dnl
 yuck_C_literal(yuck_option_help_line(defn([I]), defn([C])))[]dnl
 ])dnl
 ");
@@ -184,34 +184,34 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 		default:
 			yield(yuck_cmd()[_longopt]);
 			break;
-		foreachq([C], yuck_cmds(), [case yuck_cmd(C):
-			yield(yuck_cmd(C)[_longopt]);
+		foreachq([C], yuck_cmds(), [case yuck_cmd(defn([C])):
+			yield(yuck_cmd(defn([C]))[_longopt]);
 			break;
 		])}
 		resume;
 
-		foreachq([C], yuck_umbcmds(), [coroutine(yuck_cmd(C)[_longopt])
+		foreachq([C], yuck_umbcmds(), [coroutine(yuck_cmd(defn([C]))[_longopt])
 		{
 			if (0) {
 				;
-			}foreachq([opt], yuck_longs(C), [ else if (yuck_streqp(op, "opt")) {
-				yuck_iftype(opt, C, 
-					[flag], [tgt->yuck_slot(opt, C)++],
-					[arg], [tgt->yuck_slot(opt, C) = arg ?: argv[[++i]]],
-					[arg,opt], [tgt->yuck_slot(opt, C) = arg ?: YUCK_OPTARG_NONE],
-					[arg,mul], [tgt->yuck_slot(opt, C) =
+			}foreachq([opt], yuck_longs(defn([C])), [ else if (yuck_streqp(op, "defn([opt])")) {
+				yuck_iftype(defn([opt]), defn([C]),
+					[flag], [tgt->yuck_slot(defn([opt]), defn([C]))++],
+					[arg], [tgt->yuck_slot(defn([opt]), defn([C])) = arg ?: argv[[++i]]],
+					[arg,opt], [tgt->yuck_slot(defn([opt]), defn([C])) = arg ?: YUCK_OPTARG_NONE],
+					[arg,mul], [tgt->yuck_slot(defn([opt]), defn([C])) =
 					yuck_append(
-						tgt->yuck_slot(opt, C), tgt->yuck_cnt_slot(opt, C)++,
+						tgt->yuck_slot(defn([opt]), defn([C])), tgt->yuck_cnt_slot(defn([opt]), defn([C]))++,
 						arg ?: argv[[++i]])],
-					[arg,mul,opt], [tgt->yuck_slot(opt, C) =
+					[arg,mul,opt], [tgt->yuck_slot(defn([opt]), defn([C])) =
 					yuck_append(
-						tgt->yuck_slot(opt, C), tgt->yuck_cnt_slot(opt, C)++,
+						tgt->yuck_slot(defn([opt]), defn([C])), tgt->yuck_cnt_slot(defn([opt]), defn([C]))++,
 						arg ?: YUCK_OPTARG_NONE)],
 					[auto], [/* invoke auto action and exit */
-				yuck_auto_[]yuck_canon(opt, C)(tgt->cmd);
+				yuck_auto_[]yuck_canon(defn([opt]), defn([C]))(tgt->cmd);
 				resume_at(success)]);
 			}]) else {
-				ifelse(C, [],
+				ifelse(defn([C]), [],
 				       [/* grml */
 				fprintf(stderr, "YUCK_UMB: unrecognized option `--%s'\n", op);
 				resume_at(failure);],
@@ -230,13 +230,13 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 		default:
 			yield(yuck_cmd()[_shortopt]);
 			break;
-		foreachq([C], yuck_cmds(), [case yuck_cmd(C):
-			yield(yuck_cmd(C)[_shortopt]);
+		foreachq([C], yuck_cmds(), [case yuck_cmd(defn([C])):
+			yield(yuck_cmd(defn([C]))[_shortopt]);
 			break;
 		])}
 		resume;
 
-		foreachq([C], yuck_umbcmds(), [coroutine(yuck_cmd(C)[_shortopt])
+		foreachq([C], yuck_umbcmds(), [coroutine(yuck_cmd(defn([C]))[_shortopt])
 		{
 			switch (*op) {
 			default:
@@ -256,27 +256,27 @@ ifelse(quote(translit(yuck_shorts, [0123465789])), quote(yuck_shorts), [], [
 				resume_at(yuck_cmd()[_shortopt]);
 
 				divert(0);
-				ifelse(C, [], [select_divert(1)], [select_divert(2)])dnl
+				ifelse(defn([C]), [], [select_divert(1)], [select_divert(2)])dnl
 
-			foreachq([opt], yuck_shorts(C), [case 'opt':
-				yuck_iftype(opt, C, 
-					[flag], [tgt->yuck_slot(opt, C)++],
-					[arg], [tgt->yuck_slot(opt, C) = *arg
+			foreachq([opt], yuck_shorts(defn([C])), [case 'defn([opt])':
+				yuck_iftype(defn([opt]), defn([C]),
+					[flag], [tgt->yuck_slot(defn([opt]), defn([C]))++],
+					[arg], [tgt->yuck_slot(defn([opt]), defn([C])) = *arg
 						? (op += strlen(arg), arg)
 						: argv[[++i]]],
-					[arg,opt], [tgt->yuck_slot(opt, C) = *arg
+					[arg,opt], [tgt->yuck_slot(defn([opt]), defn([C])) = *arg
 						? (op += strlen(arg), arg)
 						: YUCK_OPTARG_NONE],
-					[arg,mul], [tgt->yuck_slot(opt, C) =
+					[arg,mul], [tgt->yuck_slot(defn([opt]), defn([C])) =
 					yuck_append(
-						tgt->yuck_slot(opt, C), tgt->yuck_cnt_slot(opt, C)++,
+						tgt->yuck_slot(defn([opt]), defn([C])), tgt->yuck_cnt_slot(defn([opt]), defn([C]))++,
 						*arg ? (op += strlen(arg), arg) : argv[[++i]])],
-					[arg,mul,opt], [tgt->yuck_slot(opt, C) =
+					[arg,mul,opt], [tgt->yuck_slot(defn([opt]), defn([C])) =
 					yuck_append(
-						tgt->yuck_slot(opt, C), tgt->yuck_cnt_slot(opt, C)++,
+						tgt->yuck_slot(defn([opt]), defn([C])), tgt->yuck_cnt_slot(defn([opt]), defn([C]))++,
 						*arg ? (op += strlen(arg), arg) : YUCK_OPTARG_NONE)],
 					[auto], [/* invoke auto action and exit */
-				yuck_auto_[]yuck_canon(opt, C)(tgt->cmd);
+				yuck_auto_[]yuck_canon(defn([opt]), defn([C]))(tgt->cmd);
 				resume_at(success)]);
 				break;
 			])}
@@ -332,15 +332,15 @@ void yuck_free(struct yuck_s *restrict tgt)
 	default:
 		break;
 foreachq([C], yuck_umbcmds(), [dnl
-	case yuck_cmd(C):
-foreachq([slot], yuck_idents(C), [dnl
+	case yuck_cmd(defn([C])):
+foreachq([slot], yuck_idents(defn([C])), [dnl
 pushdef([action], [dnl
-		ptr = (char*)NULL + ((const char*)tgt->[]slot[] - (char*)NULL);
+		ptr = (char*)NULL + ((const char*)tgt->defn([slot]) - (char*)NULL);
 		if (ptr != NULL) {
 			free(ptr);
 		}
 ])dnl
-yuck_iftype(slot,C,
+yuck_iftype(defn([slot]), defn([C]),
 	    [arg,mul], [action],
 	    [arg,mul,opt], [action])[]dnl
 popdef([action])])dnl
