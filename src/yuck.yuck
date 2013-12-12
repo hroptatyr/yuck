@@ -11,6 +11,7 @@ Generate a parser from definitions in FILE, or stdin if omitted.
   -o, --output=FILE  Output goes into FILE instead of stdout.
   --no-auto-flags    Do not add auto flags (--help, --version).
   --no-auto-actions  Do not automatically handle auto flags.
+  --version=VERSION  Hardwire version number.
 
 ## GENMAN
 Usage: yuck [OPTION]... genman [FILE]...

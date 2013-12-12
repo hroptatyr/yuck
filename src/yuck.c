@@ -1063,6 +1063,10 @@ cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 	}
 	/* write up our findings in DSL language */
 	rc = wr_intermediary(argi->args, argi->nargs);
+	/* deal with hard wired version numbers */
+	if (argi->version_arg) {
+		rc += wr_version(argi->version_arg);
+	}
 	/* special directive for the header or is it */
 	if (argi->header_arg != NULL) {
 		rc += wr_header(argi->header_arg);
