@@ -125,9 +125,9 @@ define([yuck_add_option], [dnl
 
 	ifdef([YUCK.]cmd[.]ident[.canon], [], [dnl
 		## process only if new
-		append_ne([YUCK.]defn([cmd])[.S], defn([short]), [,])
-		append_ne([YUCK.]defn([cmd])[.L], defn([long]), [,])
-		append_ne([YUCK.]defn([cmd])[.I], defn([ident]), [,])
+		appendq_ne([YUCK.]defn([cmd])[.S], defn([short]), [,])
+		appendq_ne([YUCK.]defn([cmd])[.L], defn([long]), [,])
+		appendq_ne([YUCK.]defn([cmd])[.I], defn([ident]), [,])
 
 		define([YUCK.]defn([cmd])[.]defn([short])[.canon], defn([ident]))
 		define([YUCK.]defn([cmd])[.]defn([long])[.canon], defn([ident]))
