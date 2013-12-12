@@ -35,7 +35,7 @@ do_subst = ( sed \
 
 yuck.pc: yuck.pc.in
 yuck.pc: yuck.pc.in version.mk
-	$(do_subst) <$< >$@
+	$(AM_V_GEN) $(do_subst) <$< >$@
 
 dist-hook:
 	echo $(VERSION) > $(distdir)/version \
