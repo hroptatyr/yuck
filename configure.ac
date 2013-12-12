@@ -3,8 +3,8 @@ dnl Autoconf startup.
 dnl -------------------------------------------------------------------------
 
 AC_PREREQ([2.63])
-## t.i.n.a.v = this is not a version, never use it!
-AC_INIT([yuck], [t.i.n.a.v], [https://github.com/hroptatyr/yuck])
+m4_include([version.m4])
+AC_INIT([yuck], RELEASE_VERSION, [https://github.com/hroptatyr/yuck])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_HEADERS([src/config.h])
 AC_CONFIG_MACRO_DIR([m4])
