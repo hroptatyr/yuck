@@ -1180,7 +1180,7 @@ cmd_gendsl(const struct yuck_cmd_gendsl_s argi[static 1U])
 int
 main(int argc, char *argv[])
 {
-	struct yuck_s argi[1U];
+	yuck_t argi[1U];
 	int rc = 0;
 
 	if (yuck_parse(argi, argc, argv) < 0) {
