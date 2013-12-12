@@ -1119,6 +1119,9 @@ cmd_genman(const struct yuck_cmd_genman_s argi[static 1U])
 	}
 	/* write up our findings in DSL language */
 	rc = wr_intermediary(argi->args, argi->nargs);
+	if (argi->version_arg) {
+		rc += wr_version(argi->version_arg);
+	}
 	/* at least give the man page template an idea for YUCK_MAN_DATE */
 	rc += wr_man_date();
 	/* and we're finished with the intermediary */

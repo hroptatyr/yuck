@@ -18,6 +18,7 @@ Usage: yuck [OPTION]... genman [FILE]...
 Generate a man page from definitions in FILE, or stdin if omitted.
 
   -o, --output=FILE  Output goes into FILE instead of stdout.
+  --version=VERSION  Hardwire version number.
 
 ## GENDSL
 Usage: yuck gendsl [FILE]...
