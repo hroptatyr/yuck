@@ -27,3 +27,4 @@ if omitted.
 
   --no-auto-flags    Do not add auto flags (--help, --version).
   --no-auto-actions  Do not automatically handle auto flags.
+  --version=VERSION  Hardwire version number.

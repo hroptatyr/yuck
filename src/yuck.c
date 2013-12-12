@@ -1028,6 +1028,13 @@ wr_man_date(void)
 	}
 	return rc;
 }
+
+static int
+wr_version(const char ver[static 1U])
+{
+	fprintf(outf, "define([YUCK_VER], [%s])dnl\n", ver);
+	return 0;
+}
 #endif	/* !BOOTSTRAP */
 
 
@@ -1145,6 +1152,8 @@ out:
 static int
 cmd_gendsl(const struct yuck_cmd_gendsl_s argi[static 1U])
 {
+	int rc = 0;
+
 	if (argi->no_auto_flags_flag) {
 		global_tweaks.no_auto_flags = 1U;
 	}
@@ -1154,7 +1163,11 @@ cmd_gendsl(const struct yuck_cmd_gendsl_s argi[static 1U])
 
 	/* bang to stdout */
 	outf = stdout;
-	return wr_intermediary(argi->args, argi->nargs);
+	rc += wr_intermediary(argi->args, argi->nargs);
+	if (argi->version_arg) {
+		rc += wr_version(argi->version_arg);
+	}
+	return rc;
 }
 
 int
