@@ -7,6 +7,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS =
 SUBDIRS += src
+SUBDIRS += info
 SUBDIRS += test
 
 EXTRA_DIST =
@@ -14,6 +15,7 @@ DISTCLEANFILES =
 CLEANFILES =
 
 EXTRA_DIST += build-aux/git-version-gen
+EXTRA_DIST += version.m4
 
 DISTCLEANFILES += version.mk
 
@@ -33,7 +35,7 @@ do_subst = ( sed \
 
 yuck.pc: yuck.pc.in
 yuck.pc: yuck.pc.in version.mk
-	$(do_subst) <$< >$@
+	$(AM_V_GEN) $(do_subst) <$< >$@
 
 dist-hook:
 	echo $(VERSION) > $(distdir)/version \

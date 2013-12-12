@@ -9,7 +9,7 @@ include Makefile
 
 # update the included makefile snippet which sets VERSION variables
 version.mk: FORCE
-	$(top_srcdir)/build-aux/git-version-gen $(top_srcdir) $@
+	$(AM_V_GEN) $(top_srcdir)/build-aux/git-version-gen $(top_srcdir) $@
 
 else
 

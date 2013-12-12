@@ -1028,6 +1028,13 @@ wr_man_date(void)
 	}
 	return rc;
 }
+
+static int
+wr_version(const char ver[static 1U])
+{
+	fprintf(outf, "define([YUCK_VER], [%s])dnl\n", ver);
+	return 0;
+}
 #endif	/* !BOOTSTRAP */
 
 
@@ -1056,6 +1063,10 @@ cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 	}
 	/* write up our findings in DSL language */
 	rc = wr_intermediary(argi->args, argi->nargs);
+	/* deal with hard wired version numbers */
+	if (argi->version_arg) {
+		rc += wr_version(argi->version_arg);
+	}
 	/* special directive for the header or is it */
 	if (argi->header_arg != NULL) {
 		rc += wr_header(argi->header_arg);
@@ -1112,6 +1123,9 @@ cmd_genman(const struct yuck_cmd_genman_s argi[static 1U])
 	}
 	/* write up our findings in DSL language */
 	rc = wr_intermediary(argi->args, argi->nargs);
+	if (argi->version_arg) {
+		rc += wr_version(argi->version_arg);
+	}
 	/* at least give the man page template an idea for YUCK_MAN_DATE */
 	rc += wr_man_date();
 	/* and we're finished with the intermediary */
@@ -1145,6 +1159,8 @@ out:
 static int
 cmd_gendsl(const struct yuck_cmd_gendsl_s argi[static 1U])
 {
+	int rc = 0;
+
 	if (argi->no_auto_flags_flag) {
 		global_tweaks.no_auto_flags = 1U;
 	}
@@ -1154,7 +1170,11 @@ cmd_gendsl(const struct yuck_cmd_gendsl_s argi[static 1U])
 
 	/* bang to stdout */
 	outf = stdout;
-	return wr_intermediary(argi->args, argi->nargs);
+	rc += wr_intermediary(argi->args, argi->nargs);
+	if (argi->version_arg) {
+		rc += wr_version(argi->version_arg);
+	}
+	return rc;
 }
 
 int

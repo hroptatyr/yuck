@@ -8,6 +8,10 @@ LC_ALL = C
 
 AM_CFLAGS = $(EXTRA_CFLAGS)
 AM_CPPFLAGS = -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -D_BSD_SOURCE
+## for our friends on AIX
+AM_CPPFLAGS += -D_ALL_SOURCE
+## and Darwin
+AM_CPPFLAGS += -D_DARWIN_C_SOURCE
 
 bin_PROGRAMS =
 noinst_PROGRAMS =
@@ -17,12 +21,6 @@ noinst_LIBRARIES =
 BUILT_SOURCES =
 EXTRA_DIST = $(BUILT_SOURCES)
 CLEANFILES =
-
-CLEANFILES += version.c
-EXTRA_DIST += version.c.in
-
-noinst_LIBRARIES += libyuck.a
-libyuck_a_SOURCES = version.c version.h
 
 
 noinst_PROGRAMS += yuck-bootstrap
@@ -43,17 +41,12 @@ EXTRA_DIST += $(pkgdata_DATA)
 
 
 ## bootstrapping rules
-yuck.m4i: yuck.yuck $(builddir)/yuck-bootstrap
-	$(builddir)/yuck-bootstrap $< > $@
-	echo "define([YUCK_VER], [$(VERSION)])dnl" >> $@
+yuck.m4i: yuck.yuck $(builddir)/yuck-bootstrap $(top_builddir)/version.mk
+	$(AM_V_GEN) $(builddir)/yuck-bootstrap $< > $@
+	@echo "define([YUCK_VER], [$(VERSION)])dnl" >> $@
 
 yuck.yucc: yuck.m4 yuck.m4i yuck-coru.m4h yuck-coru.m4c
 	m4 $+ > $@ || rm -f -- $@
-
-
-## generate version.c from .c.in
-version.c: version.c.in $(top_builddir)/version.mk
-	sed -e 's,[@]VERSION[@],$(VERSION),g' <$(srcdir)/$@.in >$@
 
 
 ## for dist or dist check we need binaries, so help2man can work
