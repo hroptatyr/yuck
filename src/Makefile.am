@@ -42,8 +42,8 @@ EXTRA_DIST += $(pkgdata_DATA)
 
 ## bootstrapping rules
 yuck.m4i: yuck.yuck $(builddir)/yuck-bootstrap $(top_builddir)/version.mk
-	$(builddir)/yuck-bootstrap $< > $@
-	echo "define([YUCK_VER], [$(VERSION)])dnl" >> $@
+	$(AM_V_GEN) $(builddir)/yuck-bootstrap $< > $@
+	@echo "define([YUCK_VER], [$(VERSION)])dnl" >> $@
 
 yuck.yucc: yuck.m4 yuck.m4i yuck-coru.m4h yuck-coru.m4c
 	m4 $+ > $@ || rm -f -- $@
