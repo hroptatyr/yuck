@@ -281,14 +281,14 @@ popdef([dl])dnl
 
 ## yuck_option_help_line([ident], [[cmd]])
 define([yuck_option_help_line], [dnl
-pushdef([lhs], [yuck_option_help_lhs([$1], [$2])])dnl
-pushdef([desc], [patsubst(yuck_option_desc([$1], [$2]), [
+pushdef([lhs], yuck_option_help_lhs([$1], [$2]))dnl
+pushdef([desc], patsubst(dquote(yuck_option_desc([$1], [$2])), [
 ], [
-                        ])])dnl
-ifelse(eval(len(quote(lhs)) >= 24), [0], [dnl
-format([[[%-22s  %s]]], quote(lhs), quote(desc))], [dnl
-quote(lhs)[]
-                        quote(desc)[]dnl
+                        ]))dnl
+ifelse(eval(len(defn([lhs])) >= 24), [0], [dnl
+format([[[%-22s  %s]]], defn([lhs]), defn([desc]))], [dnl
+format([[[%s
+                        %s]]], defn([lhs]), defn([desc]))[]dnl
 ])
 popdef([lhs])dnl
 popdef([desc])dnl
