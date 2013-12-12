@@ -18,10 +18,17 @@ define([_foreachq], [ifelse([$#], [3], [],
 
 define([append], [define([$1], ifdef([$1], [defn([$1])[$3]])[$2])])
 ## like append, but append only non-empty arguments
-define([append_ne], [ifelse([$2], [], [], [append([$1], dquote([$2]), [$3])])])
+define([append_ne], [ifelse([$2], [], [], [append([$1], [$2], [$3])])])
 ## like append_ne, but append only non-existing arguments
 define([append_nene], [ifelse(index([$3]defn([$1])[$3], [$3$2$3]), [-1],
 	[append_ne([$1], [$2], [$3])])])
+
+define([appendq], [define([$1], ifdef([$1], [defn([$1])[$3]])dquote([$2]))])
+## like appendq, but append only non-empty arguments
+define([appendq_ne], [ifelse([$2], [], [], [append([$1], dquote([$2]), [$3])])])
+## like appendq_ne, but append only non-existing arguments
+define([appendq_nene], [ifelse(index([$3]defn([$1])[$3], [$3]dquote($2)[$3]), [-1],
+	[appendq_ne([$1], [$2], [$3])])])
 
 define([first_nonnil], [ifelse([$#], [0], [], [$1], [],
 	[first_nonnil(shift($@))], [], [], [$1])])
