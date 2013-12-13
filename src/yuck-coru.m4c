@@ -186,26 +186,28 @@ ifelse(quote(translit(yuck_shorts, [0123465789])), quote(yuck_shorts), [], [
 				ifelse(defn([C]), [], [select_divert(1)], [select_divert(2)])dnl
 
 			foreachq([opt], yuck_shorts(defn([C])), [case 'defn([opt])':
-				yuck_iftype(defn([opt]), defn([C]),
-					[flag], [tgt->yuck_slot(defn([opt]), defn([C]))++],
-					[arg], [tgt->yuck_slot(defn([opt]), defn([C])) = *arg
+pushdef([ident], make_C_ident(defn([opt])))dnl
+				yuck_iftype(defn([ident]), defn([C]),
+					[flag], [tgt->yuck_slot(defn([ident]), defn([C]))++],
+					[arg], [tgt->yuck_slot(defn([ident]), defn([C])) = *arg
 						? (op += strlen(arg), arg)
 						: argv[[++i]]],
-					[arg,opt], [tgt->yuck_slot(defn([opt]), defn([C])) = *arg
+					[arg,opt], [tgt->yuck_slot(defn([ident]), defn([C])) = *arg
 						? (op += strlen(arg), arg)
 						: YUCK_OPTARG_NONE],
-					[arg,mul], [tgt->yuck_slot(defn([opt]), defn([C])) =
+					[arg,mul], [tgt->yuck_slot(defn([ident]), defn([C])) =
 					yuck_append(
-						tgt->yuck_slot(defn([opt]), defn([C])), tgt->yuck_cnt_slot(defn([opt]), defn([C]))++,
+						tgt->yuck_slot(defn([ident]), defn([C])), tgt->yuck_cnt_slot(defn([ident]), defn([C]))++,
 						*arg ? (op += strlen(arg), arg) : argv[[++i]])],
-					[arg,mul,opt], [tgt->yuck_slot(defn([opt]), defn([C])) =
+					[arg,mul,opt], [tgt->yuck_slot(defn([ident]), defn([C])) =
 					yuck_append(
-						tgt->yuck_slot(defn([opt]), defn([C])), tgt->yuck_cnt_slot(defn([opt]), defn([C]))++,
+						tgt->yuck_slot(defn([ident]), defn([C])), tgt->yuck_cnt_slot(defn([ident]), defn([C]))++,
 						*arg ? (op += strlen(arg), arg) : YUCK_OPTARG_NONE)],
 					[auto], [/* invoke auto action and exit */
-				yuck_auto_[]yuck_canon(defn([opt]), defn([C]))(tgt);
+				yuck_auto_[]yuck_canon(defn([ident]), defn([C]))(tgt);
 				resume_at(success)]);
 				break;
+popdef([ident])dnl
 			])}
 			resume;
 		}
