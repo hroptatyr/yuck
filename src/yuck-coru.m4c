@@ -186,7 +186,7 @@ ifelse(quote(translit(yuck_shorts, [0123465789])), quote(yuck_shorts), [], [
 				ifelse(defn([C]), [], [select_divert(1)], [select_divert(2)])dnl
 
 			foreachq([opt], yuck_shorts(defn([C])), [case 'defn([opt])':
-pushdef([ident], make_C_ident(defn([opt])))dnl
+pushdef([ident], make_c_ident(defn([opt])))dnl
 				yuck_iftype(defn([ident]), defn([C]),
 					[flag], [tgt->yuck_slot(defn([ident]), defn([C]))++],
 					[arg], [tgt->yuck_slot(defn([ident]), defn([C])) = *arg
