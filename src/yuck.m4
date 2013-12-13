@@ -116,6 +116,7 @@ define([yuck_add_option], [dnl
 	pushdef([type], equote([$3]))
 	pushdef([short], [$1])
 	pushdef([long], [$2])
+	pushdef([cshort], make_c_ident([$1]))
 	pushdef([clong], make_c_ident([$2]))
 	pushdef([cmd], make_c_ident([$4]))
 
@@ -130,10 +131,10 @@ define([yuck_add_option], [dnl
 		appendq_ne([YUCK_]defn([cmd])[_L], defn([long]), [,])
 		appendq_ne([YUCK_]defn([cmd])[_I], defn([ident]), [,])
 
-		define([YUCK_]defn([cmd])[_]defn([short])[_canon], defn([ident]))
+		define([YUCK_]defn([cmd])[_]defn([cshort])[_canon], defn([ident]))
 		define([YUCK_]defn([cmd])[_]defn([clong])[_canon], defn([ident]))
 		define([YUCK_]defn([cmd])[_]defn([ident])[_canon], defn([ident]))
-		define([YUCK_]defn([cmd])[_]defn([short])[_type], defn([type]))
+		define([YUCK_]defn([cmd])[_]defn([cshort])[_type], defn([type]))
 		define([YUCK_]defn([cmd])[_]defn([clong])[_type], defn([type]))
 		define([YUCK_]defn([cmd])[_]defn([ident])[_type], defn([type]))
 
@@ -147,6 +148,8 @@ define([yuck_add_option], [dnl
 	popdef([type])
 	popdef([long])
 	popdef([short])
+	popdef([cshort])
+	popdef([clong])
 ])
 
 define([yuck_set_option_desc], [dnl
