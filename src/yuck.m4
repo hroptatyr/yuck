@@ -278,19 +278,20 @@ define([yuck_option_desc], [defn([YUCK_]$2[_]$1[_desc])])
 define([yuck_option_help_lhs], [dnl
 pushdef([s], [yuck_short([$1], [$2])])dnl
 pushdef([l], [yuck_long([$1], [$2])])dnl
-pushdef([type], [yuck_option_type([$1], [$2])])dnl
+pushdef([type], yuck_option_type([$1], [$2]))dnl
 pushdef([an], [yuck_type_name(defn([type]))])dnl
 pushdef([as], [yuck_type_sufx(defn([type]))])dnl
 pushdef([optp], [ifelse(quote(as), [], [0], quote(as), [mul], [0], [1])])dnl
 pushdef([oo], ifelse(optp, [0], [], LBRACK))dnl
 pushdef([oc], ifelse(optp, [0], [], RBRACK))dnl
 pushdef([ds], [ifelse(quote(s), [], [  ],
-	[-s]ifelse(quote(an), [], [], quote(l), [], [ oo[]an[]oc]))])dnl
+	[-s]ifelse(an, [], [], quote(l), [], [ oo[]an[]oc]))])dnl
 pushdef([dl], [ifelse(quote(l), [], [],
-	[--l]ifelse(quote(an), [], [], [oo[]=[]an[]oc]))])dnl
+	[--l]ifelse(an, [], [], [oo[]=[]an[]oc]))])dnl
 [  ]ds[]ifelse(quote(s), [], [  ], quote(l), [], [], [[, ]])dl[]dnl
 popdef([s])dnl
 popdef([l])dnl
+popdef([type])dnl
 popdef([an])dnl
 popdef([ds])dnl
 popdef([dl])dnl
