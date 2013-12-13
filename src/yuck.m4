@@ -291,6 +291,7 @@ pushdef([dl], [ifelse(quote(l), [], [],
 [  ]ds[]ifelse(quote(s), [], [  ], quote(l), [], [], [[, ]])dl[]dnl
 popdef([s])dnl
 popdef([l])dnl
+popdef([type])dnl
 popdef([an])dnl
 popdef([ds])dnl
 popdef([dl])dnl
