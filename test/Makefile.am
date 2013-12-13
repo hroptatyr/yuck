@@ -16,8 +16,6 @@ TEST_EXTENSIONS =
 BUILT_SOURCES =
 CLEANFILES =
 
-EXTRA_DIST += xmpl.c xmpl.yuck
-
 TEST_EXTENSIONS += .clit
 TESTS_ENVIRONMENT = root=$(top_srcdir) YUCK_TEMPLATE_PATH="$(abs_top_srcdir)/src"
 CLIT_LOG_COMPILER = $(builddir)/clitoris
@@ -97,6 +95,22 @@ EXTRA_DIST += muloptarg_04.yuck
 TESTS += noauto_01.clit
 TESTS += noauto_02.clit
 EXTRA_DIST += noauto_01.yuck
+
+BUILT_SOURCES += xmpl.yucc
+check_PROGRAMS += xmpl
+EXTRA_DIST += xmpl.c xmpl.yuck
+TESTS += xmpl-01.clit
+TESTS += xmpl-02.clit
+TESTS += xmpl-03.clit
+TESTS += xmpl-04.clit
+
+BUILT_SOURCES += xmpl-subcommands.yucc
+check_PROGRAMS += xmpl-subcommands
+EXTRA_DIST += xmpl-subcommands.c xmpl-subcommands.yuck
+TESTS += xmpl-subcommands-01.clit
+TESTS += xmpl-subcommands-02.clit
+TESTS += xmpl-subcommands-03.clit
+TESTS += xmpl-subcommands-04.clit
 
 
 ## yuck rule

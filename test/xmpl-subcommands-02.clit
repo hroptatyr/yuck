@@ -1,0 +1,12 @@
+#!/usr/bin/clitoris
+
+$ xmpl-subcommands turbo --help
+Usage: xmpl [OPTION]... turbo [FILE]...
+
+Run xmpl in turbo mode
+
+  -x, --extra-turbo     Use more turbos than normal.
+
+$
+
+## xmpl-subcommands-02.clit ends here
