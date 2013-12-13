@@ -1195,17 +1195,17 @@ No valid command specified.\n\
 See --help to obtain a list of available commands.\n", stderr);
 		rc = 1;
 		goto out;
-	case yuck_gen:
+	case YUCK_CMD_GEN:
 		if ((rc = cmd_gen((const void*)argi)) < 0) {
 			rc = 1;
 		}
 		break;
-	case yuck_gendsl:
+	case YUCK_CMD_GENDSL:
 		if ((rc = cmd_gendsl((const void*)argi)) < 0) {
 			rc = 1;
 		}
 		break;
-	case yuck_genman:
+	case YUCK_CMD_GENMAN:
 		if ((rc = cmd_genman((const void*)argi)) < 0) {
 			rc = 1;
 		}

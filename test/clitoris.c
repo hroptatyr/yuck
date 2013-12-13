@@ -1109,7 +1109,7 @@ main(int argc, char *argv[])
 	if (yuck_parse(argi, argc, argv)) {
 		goto out;
 	} else if (argi->nargs != 1U) {
-		yuck_auto_help(YUCK_NONE);
+		yuck_auto_help(YUCK_NOCMD);
 		goto out;
 	}
 

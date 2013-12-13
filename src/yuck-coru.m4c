@@ -58,7 +58,7 @@ static void yuck_auto_usage(enum yuck_cmds_e cmd)
 {
 	switch (cmd) {
 	default:
-	YUCK_NONE:
+	YUCK_NOCMD:
 		if (!YUCK_NCMDS) {
 			puts("Usage: YUCK_UMB [[OPTION]]... defn([YUCK_UMB.POSARG])");
 		} else {
@@ -87,7 +87,7 @@ static void yuck_auto_help(enum yuck_cmds_e cmd)
 	yuck_auto_usage(cmd);
 
 ifelse(yuck_cmds(), [], [], [dnl
-	if (cmd == YUCK_NONE) {
+	if (cmd == YUCK_NOCMD) {
 		/* also output a list of commands */
 		puts("\nCOMMAND may be one of:\n\
 foreachq([C], yuck_cmds(), [  yuck_cmd_string(defn([C]))\n\
@@ -140,7 +140,6 @@ int yuck_parse(struct yuck_s *restrict tgt, int argc, char *const argv[[]])
 	memset(tgt, 0, sizeof(*tgt));
 	tgt->args = args = calloc(argc, sizeof(*tgt->args));
 	tgt->nargs = 0U;
-	tgt->cmd = YUCK_NONE;
 	for (i = 1; i < argc; i++) {
 		op = argv[[i]];
 
