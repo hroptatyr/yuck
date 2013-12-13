@@ -116,6 +116,7 @@ define([yuck_add_option], [dnl
 	pushdef([type], equote([$3]))
 	pushdef([short], [$1])
 	pushdef([long], [$2])
+	pushdef([clong], make_c_ident([$2]))
 	pushdef([cmd], make_c_ident([$4]))
 
 	pushdef([ident], ifelse(defn([long]), [],
@@ -130,10 +131,10 @@ define([yuck_add_option], [dnl
 		appendq_ne([YUCK_]defn([cmd])[_I], defn([ident]), [,])
 
 		define([YUCK_]defn([cmd])[_]defn([short])[_canon], defn([ident]))
-		define([YUCK_]defn([cmd])[_]defn([long])[_canon], defn([ident]))
+		define([YUCK_]defn([cmd])[_]defn([clong])[_canon], defn([ident]))
 		define([YUCK_]defn([cmd])[_]defn([ident])[_canon], defn([ident]))
 		define([YUCK_]defn([cmd])[_]defn([short])[_type], defn([type]))
-		define([YUCK_]defn([cmd])[_]defn([long])[_type], defn([type]))
+		define([YUCK_]defn([cmd])[_]defn([clong])[_type], defn([type]))
 		define([YUCK_]defn([cmd])[_]defn([ident])[_type], defn([type]))
 
 		## reverse maps
