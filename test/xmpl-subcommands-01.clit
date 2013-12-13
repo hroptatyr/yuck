@@ -1,0 +1,19 @@
+#!/usr/bin/clitoris
+
+$ xmpl-subcommands --help
+Usage: xmpl [OPTION]... COMMAND
+
+Shows off yuck.
+
+COMMAND may be one of:
+  turbo
+
+
+  -h, --help            display this help and exit
+  -V, --version         output version information and exit
+  -x, --extra           Produce some extra bling.
+  -o, --output=FILE     Output bling to file.
+
+$
+
+## xmpl-subcommands.clit ends here
