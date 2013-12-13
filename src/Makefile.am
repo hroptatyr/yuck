@@ -46,7 +46,7 @@ yuck.m4i: yuck.yuck $(builddir)/yuck-bootstrap $(top_builddir)/version.mk
 	@echo "define([YUCK_VER], [$(VERSION)])dnl" >> $@
 
 yuck.yucc: yuck.m4 yuck.m4i yuck-coru.m4h yuck-coru.m4c
-	m4 $+ > $@ || rm -f -- $@
+	m4 -B 16386 $+ > $@ || rm -f -- $@
 
 
 ## for dist or dist check we need binaries, so help2man can work
