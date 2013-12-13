@@ -174,22 +174,25 @@ define([yuck_set_option_desc], [dnl
 ## yuck_canon([opt], [[cmd]])
 define([yuck_canon], [defn([YUCK_$2_$1_canon])])
 
-## yuck_type([opt], [[cmd]])
-define([yuck_type], [first(defn([YUCK_$2_$1_type]))])
+## yuck_option_type([opt], [[cmd]])
+define([yuck_option_type], [defn([YUCK_$2_$1_type])])
 
-## yuck_arg_name([opt], [[cmd]])
-define([yuck_arg_name], [second(defn([YUCK_$2_$1_type]))])
+## yuck_type([type-spec])
+define([yuck_type], [first([$1])])
 
-## yuck_arg_suf([opt], [[cmd]])
-define([yuck_arg_suf], [thirds(defn([YUCK_$2_$1_type]))])
+## yuck_type_name([type-spec])
+define([yuck_type_name], [second([$1])])
+
+## yuck_type_sufx([type-spec])
+define([yuck_type_sufx], [thirds([$1])])
 
 ## yuck_slot_identifier([option], [[cmd]])
 define([yuck_slot_identifier], [dnl
 pushdef([canon], yuck_canon([$1], [$2]))dnl
-pushdef([type], yuck_type([$1], [$2]))dnl
+pushdef([type], yuck_option_type([$1], [$2]))dnl
 dnl
-defn([canon])[_]defn([type])[]dnl
-yuck_iftype([$1], [$2], [arg,mul], [s], [arg,mul,opt], [s])[]dnl
+defn([canon])[_]yuck_type(defn([type]))[]dnl
+cond(yuck_type_sufx(defn([type])), [mul], [s], [mul,opt], [s])[]dnl
 dnl
 popdef([canon])dnl
 popdef([type])dnl
@@ -218,12 +221,14 @@ popdef([idn])dnl
 
 ## yuck_iftype([opt], [cmd], [type], [body], [[type], [body]]...)
 define([yuck_iftype], [dnl
-pushdef([type], yuck_type([$1], [$2]))dnl
-pushdef([tsuf], yuck_arg_suf([$1], [$2]))dnl
-append_ne([type], defn([tsuf]), [,])[]dnl
-[]ifelse(_splice(defn([type]), shift(shift($@))))[]dnl
+pushdef([type], yuck_option_type([$1], [$2]))dnl
+pushdef([tsuf], yuck_type_sufx(defn([type])))dnl
+pushdef([res], yuck_type(defn([type])))dnl
+append_ne([res], defn([tsuf]), [,])[]dnl
+[]ifelse(_splice(defn([res]), shift(shift($@))))[]dnl
 popdef([tsuf])dnl
 popdef([type])dnl
+popdef([res])dnl
 ])
 
 ## yuck_umbcmds(), umbrella + commands
