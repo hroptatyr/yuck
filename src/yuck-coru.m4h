@@ -28,21 +28,18 @@ yuck_iftype([$1], [$2],
 ])dnl
 
 define([yuck_slot_decl], [dnl
-pushdef([pre],dnl
+pushdef([pre], [yuck_slot_predecl([$1], [$2])])dnl
+pushdef([ident], [yuck_slot_identifier([$1], [$2])])dnl
 yuck_iftype([$1], [$2],
-	[arg,mul], [yuck_slot_predecl([$1], [$2]); ],
-	[arg,mul,opt], [yuck_slot_predecl([$1], [$2]); ],
-))dnl
-pushdef([decl],dnl
-yuck_iftype([$1], [$2],
-	[flag], [unsigned int ],
-	[arg], [const char *],
-	[arg,opt], [const char *],
-	[arg,mul], [const char **],
-	[arg,mul,opt], [const char **],
-))dnl
-ifelse(decl, [], [], [pre[]decl[]yuck_slot_identifier([$1], [$2]);
-])])dnl
+	[flag], [unsigned int ident;],
+	[arg], [const char *ident;],
+	[arg,opt], [const char *ident;],
+	[arg,mul], [pre; const char **ident;],
+	[arg,mul,opt], [pre; const char **ident;],
+	[auto], [/* $1 is handled automatically */])dnl
+popdef([pre])dnl
+popdef([ident])dnl
+])dnl
 
 ifelse(yuck_cmds(), [], [dnl
 typedef struct yuck_s yuck_t;
@@ -58,10 +55,12 @@ struct yuck_cmd_[]defn([cmd])[]_s {
 	/* left-over arguments, the command string is never a part of this */
 	size_t nargs;
 	char *const *args;
-foreachq([slot], yuck_idents(), [dnl
-	yuck_slot_decl(defn([slot]))])
-foreachq([slot], yuck_idents(defn([cmd])), [dnl
-	yuck_slot_decl(defn([slot]), defn([cmd]))])[]dnl
+foreachq([slot], yuck_idents(), [
+	yuck_slot_decl(defn([slot]))[]dnl
+])
+foreachq([slot], yuck_idents(defn([cmd])), [
+	yuck_slot_decl(defn([slot]), defn([cmd]))[]dnl
+])
 };
 ])
 
@@ -76,9 +75,9 @@ struct yuck_s {
 	char *const *args;
 
 	/* slots common to all commands */
-foreachq([slot], yuck_idents(), [dnl
-	yuck_slot_decl(defn([slot]))
-])dnl
+foreachq([slot], yuck_idents(), [
+	yuck_slot_decl(defn([slot]))[]dnl
+])
 };
 ], [dnl else
 union yuck_u {
@@ -103,7 +102,7 @@ foreachq([cmd], yuck_cmds(), [dnl
 	struct yuck_cmd_[]defn([cmd])[]_s defn([cmd]);
 ])dnl
 };
-])dnl
+])
 
 pushdef([DECLF], ifdef([YUCK_HEADER], [extern], [static]))[]dnl
 DECLF int yuck_parse(yuck_t[[static 1U]], int argc, char *const argv[[]]);
