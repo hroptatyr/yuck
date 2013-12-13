@@ -281,9 +281,9 @@ DEFUN void yuck_auto_usage(const yuck_t src[[static 1U]])
 	default:
 	YUCK_NOCMD:
 		if (!YUCK_NCMDS) {
-			puts("Usage: YUCK_UMB [[OPTION]]... defn([YUCK_UMB.POSARG])");
+			puts("Usage: YUCK_UMB [[OPTION]]... defn([YUCK_UMB_POSARG])");
 		} else {
-			puts("Usage: YUCK_UMB [[OPTION]]... COMMAND defn([YUCK_UMB.POSARG])");
+			puts("Usage: YUCK_UMB [[OPTION]]... COMMAND defn([YUCK_UMB_POSARG])");
 		}
 ifelse(yuck_umb_desc(), [], [], [dnl
 		puts("\n\
