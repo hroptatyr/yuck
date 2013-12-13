@@ -120,21 +120,23 @@ DEFUN int yuck_parse(yuck_t tgt[[static 1U]], int argc, char *const argv[[]])
 			if (0) {
 				;
 			}foreachq([opt], yuck_longs(defn([C])), [ else if (yuck_streqp(op, "defn([opt])")) {
-				yuck_iftype(defn([opt]), defn([C]),
-					[flag], [tgt->yuck_slot(defn([opt]), defn([C]))++],
-					[arg], [tgt->yuck_slot(defn([opt]), defn([C])) = arg ?: argv[[++i]]],
-					[arg,opt], [tgt->yuck_slot(defn([opt]), defn([C])) = arg ?: YUCK_OPTARG_NONE],
-					[arg,mul], [tgt->yuck_slot(defn([opt]), defn([C])) =
+pushdef([ident], make_c_ident(defn([opt])))dnl
+				yuck_iftype(defn([ident]), defn([C]),
+					[flag], [tgt->yuck_slot(defn([ident]), defn([C]))++],
+					[arg], [tgt->yuck_slot(defn([ident]), defn([C])) = arg ?: argv[[++i]]],
+					[arg,opt], [tgt->yuck_slot(defn([ident]), defn([C])) = arg ?: YUCK_OPTARG_NONE],
+					[arg,mul], [tgt->yuck_slot(defn([ident]), defn([C])) =
 					yuck_append(
-						tgt->yuck_slot(defn([opt]), defn([C])), tgt->yuck_cnt_slot(defn([opt]), defn([C]))++,
+						tgt->yuck_slot(defn([ident]), defn([C])), tgt->yuck_cnt_slot(defn([ident]), defn([C]))++,
 						arg ?: argv[[++i]])],
-					[arg,mul,opt], [tgt->yuck_slot(defn([opt]), defn([C])) =
+					[arg,mul,opt], [tgt->yuck_slot(defn([ident]), defn([C])) =
 					yuck_append(
-						tgt->yuck_slot(defn([opt]), defn([C])), tgt->yuck_cnt_slot(defn([opt]), defn([C]))++,
+						tgt->yuck_slot(defn([ident]), defn([C])), tgt->yuck_cnt_slot(defn([ident]), defn([C]))++,
 						arg ?: YUCK_OPTARG_NONE)],
 					[auto], [/* invoke auto action and exit */
-				yuck_auto_[]yuck_canon(defn([opt]), defn([C]))(tgt);
+				yuck_auto_[]yuck_canon(defn([ident]), defn([C]))(tgt);
 				resume_at(success)]);
+popdef([ident])dnl
 			}]) else {
 				ifelse(defn([C]), [],
 				       [/* grml */
@@ -184,26 +186,28 @@ ifelse(quote(translit(yuck_shorts, [0123465789])), quote(yuck_shorts), [], [
 				ifelse(defn([C]), [], [select_divert(1)], [select_divert(2)])dnl
 
 			foreachq([opt], yuck_shorts(defn([C])), [case 'defn([opt])':
-				yuck_iftype(defn([opt]), defn([C]),
-					[flag], [tgt->yuck_slot(defn([opt]), defn([C]))++],
-					[arg], [tgt->yuck_slot(defn([opt]), defn([C])) = *arg
+pushdef([ident], make_c_ident(defn([opt])))dnl
+				yuck_iftype(defn([ident]), defn([C]),
+					[flag], [tgt->yuck_slot(defn([ident]), defn([C]))++],
+					[arg], [tgt->yuck_slot(defn([ident]), defn([C])) = *arg
 						? (op += strlen(arg), arg)
 						: argv[[++i]]],
-					[arg,opt], [tgt->yuck_slot(defn([opt]), defn([C])) = *arg
+					[arg,opt], [tgt->yuck_slot(defn([ident]), defn([C])) = *arg
 						? (op += strlen(arg), arg)
 						: YUCK_OPTARG_NONE],
-					[arg,mul], [tgt->yuck_slot(defn([opt]), defn([C])) =
+					[arg,mul], [tgt->yuck_slot(defn([ident]), defn([C])) =
 					yuck_append(
-						tgt->yuck_slot(defn([opt]), defn([C])), tgt->yuck_cnt_slot(defn([opt]), defn([C]))++,
+						tgt->yuck_slot(defn([ident]), defn([C])), tgt->yuck_cnt_slot(defn([ident]), defn([C]))++,
 						*arg ? (op += strlen(arg), arg) : argv[[++i]])],
-					[arg,mul,opt], [tgt->yuck_slot(defn([opt]), defn([C])) =
+					[arg,mul,opt], [tgt->yuck_slot(defn([ident]), defn([C])) =
 					yuck_append(
-						tgt->yuck_slot(defn([opt]), defn([C])), tgt->yuck_cnt_slot(defn([opt]), defn([C]))++,
+						tgt->yuck_slot(defn([ident]), defn([C])), tgt->yuck_cnt_slot(defn([ident]), defn([C]))++,
 						*arg ? (op += strlen(arg), arg) : YUCK_OPTARG_NONE)],
 					[auto], [/* invoke auto action and exit */
-				yuck_auto_[]yuck_canon(defn([opt]), defn([C]))(tgt);
+				yuck_auto_[]yuck_canon(defn([ident]), defn([C]))(tgt);
 				resume_at(success)]);
 				break;
+popdef([ident])dnl
 			])}
 			resume;
 		}
@@ -281,9 +285,9 @@ DEFUN void yuck_auto_usage(const yuck_t src[[static 1U]])
 	default:
 	YUCK_NOCMD:
 		if (!YUCK_NCMDS) {
-			puts("Usage: YUCK_UMB [[OPTION]]... defn([YUCK_UMB.POSARG])");
+			puts("Usage: YUCK_UMB [[OPTION]]... defn([YUCK_UMB_POSARG])");
 		} else {
-			puts("Usage: YUCK_UMB [[OPTION]]... COMMAND defn([YUCK_UMB.POSARG])");
+			puts("Usage: YUCK_UMB [[OPTION]]... COMMAND defn([YUCK_UMB_POSARG])");
 		}
 ifelse(yuck_umb_desc(), [], [], [dnl
 		puts("\n\

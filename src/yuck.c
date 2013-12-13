@@ -896,8 +896,8 @@ find_dsl(void)
 static __attribute__((noinline)) int
 run_m4(const char *outfn, ...)
 {
-	static char *m4_cmdline[6U] = {
-		"m4", dslfn,
+	static char *m4_cmdline[8U] = {
+		"m4", "-B", "16386", dslfn,
 	};
 	va_list vap;
 	pid_t m4p;
@@ -925,9 +925,15 @@ run_m4(const char *outfn, ...)
 		break;
 	}
 
+	/* checkout the environment, look for M4 */
+	with (char *em4) {
+		if ((em4 = getenv("M4")) != NULL) {
+			m4_cmdline[0U] = em4;
+		}
+	}
 	/* child code here */
 	va_start(vap, outfn);
-	for (size_t i = 2U;
+	for (size_t i = 4U;
 	     i < countof(m4_cmdline) &&
 		     (m4_cmdline[i] = va_arg(vap, char*)) != NULL; i++);
 	va_end(vap);
