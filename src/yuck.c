@@ -925,6 +925,12 @@ run_m4(const char *outfn, ...)
 		break;
 	}
 
+	/* checkout the environment, look for M4 */
+	with (char *em4) {
+		if ((em4 = getenv("M4")) != NULL) {
+			m4_cmdline[0U] = em4;
+		}
+	}
 	/* child code here */
 	va_start(vap, outfn);
 	for (size_t i = 2U;
