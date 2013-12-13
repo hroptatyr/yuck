@@ -85,13 +85,14 @@ Then include in your `xmpl.c`:
 
     int main(int argc, char *argv[])
     {
-            struct yuck_s argp[1];
+            yuck_t argp[1];
+    
             yuck_parse(argp, argc, argv);
-
+    
             if (argp->extra_flag) {
                     puts("BLING BLING!");
             }
-
+    
             yuck_free(argp);
             return 0;
     }
@@ -114,7 +115,7 @@ And that's it.  Some example calls:
 
 More details, please
 --------------------
-The example above results in an auxiliary struct
+The example above results in an auxiliary struct:
 
     struct yuck_s {
             enum yuck_cmds_e cmd;
@@ -123,17 +124,17 @@ The example above results in an auxiliary struct
             size_t nargs;
             char *const *args;
     
+            /* slots common to all commands */
+    
+            /* help is handled automatically */
+            /* version is handled automatically */
             unsigned int extra_flag;
             const char *output_arg;
-    
-            /* depending on CMD at most one of the following structs is filled in
-             * if CMD is YUCK_NONE no slots of this union must be accessed */
-            union {};
     };
 
 which is filled in when `yuck_parse()` is run.  As there are no
-subcommands defined the union at the bottom is underspecified and the
-`cmd` slot at the top will always hold `YUCK_NONE`.
+subcommands defined this struct will directly be typedef'd to `yuck_t`
+and the `cmd` slot at the top will always hold `YUCK_NOCMD`.
 
 Every occurrence of `-x` or `--extra` on the command line will increase
 the count in `extra_flag`, yuck does not distinguish between optional
@@ -146,8 +147,8 @@ commandline.
 
 Left-over positional arguments will be counted in `nargs` and collected
 into `args`.  It is never an error to pass in positional arguments.  It
-is up to the caller of `yuck_parse()` to check the struct yuck_s
-representation of the command line for integrity.
+is up to the caller of `yuck_parse()` to check the yuck_t representation
+of the command line for integrity.
 
 In a similar fashion, yuck's only types are options with arguments
 (which are mapped to const char* or const char** in case of multi-args)
@@ -158,8 +159,8 @@ or constrain a HOSTNAME argument to its legal characters, etc.
 
 All const char* objects point straight to members of `argv`, i.e. they
 are not `strdup()`ed.  Changing strings in argv will therefore change
-the strings in the struct yuck_s representation also, and vice versa
-(after by-passing the const qualifier).
+the strings in the yuck_t representation also, and vice versa (after
+by-passing the const qualifier).
 
 <!--
   Local variables:
