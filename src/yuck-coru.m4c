@@ -20,6 +20,7 @@ ifdef([YUCK_HEADER], [#include "YUCK_HEADER"
 # pragma GCC diagnostic ignored "-Wunused-variable"
 # pragma GCC diagnostic ignored "-Wunused-function"
 #endif	/* __INTEL_COMPILER */
+pushdef([DEFUN], ifdef([YUCK_HEADER], [], [static]))[]dnl
 
 
 static inline bool
@@ -130,7 +131,7 @@ ifdef([YUCK_VER], [dnl
 }
 
 
-int yuck_parse(yuck_t tgt[[static 1U]], int argc, char *const argv[[]])
+DEFUN int yuck_parse(yuck_t tgt[[static 1U]], int argc, char *const argv[[]])
 {
 	const char *op;
 	char **args;
@@ -319,7 +320,7 @@ ifelse(quote(translit(yuck_shorts, [0123465789])), quote(yuck_shorts), [], [
 	}
 }
 
-void yuck_free(yuck_t tgt[[static 1U]])
+DEFUN void yuck_free(yuck_t tgt[[static 1U]])
 {
 	if (tgt->args != NULL) {
 		/* free despite const qualifier */
@@ -349,6 +350,7 @@ popdef([action])])dnl
 	return;
 }
 
+popdef([DEFUN])dnl
 #if defined __INTEL_COMPILER
 # pragma warning (default:177)
 # pragma warning (default:111)
