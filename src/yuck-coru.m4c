@@ -130,7 +130,7 @@ ifdef([YUCK_VER], [dnl
 }
 
 
-int yuck_parse(yuck_t *tgt, int argc, char *const argv[[]])
+int yuck_parse(yuck_t tgt[[static 1U]], int argc, char *const argv[[]])
 {
 	const char *op;
 	char **args;
@@ -319,7 +319,7 @@ ifelse(quote(translit(yuck_shorts, [0123465789])), quote(yuck_shorts), [], [
 	}
 }
 
-void yuck_free(yuck_t *tgt)
+void yuck_free(yuck_t tgt[[static 1U]])
 {
 	if (tgt->args != NULL) {
 		/* free despite const qualifier */
