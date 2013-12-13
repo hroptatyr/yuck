@@ -1103,7 +1103,7 @@ out:
 int
 main(int argc, char *argv[])
 {
-	yuck_t argi[1U];
+	struct yuck_s argi[1U];
 	int rc = 99;
 
 	if (yuck_parse(argi, argc, argv)) {
