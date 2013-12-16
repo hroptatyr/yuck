@@ -4,12 +4,12 @@ $ yuck gendsl "${srcdir}/muloptarg_03.yuck"
 changequote([,])dnl
 divert([-1])
 
-yuck_set_umbrella([plain], [])
-yuck_add_option([h], [help], [auto], [])
-yuck_set_option_desc([h], [help], [], [display this help and exit])
-yuck_add_option([V], [version], [auto], [])
-yuck_set_option_desc([V], [version], [], [output version information and exit])
-yuck_add_option([x], [execute], [arg, LEVEL, mul, opt], []);
+yuck_set_umbrella([plain], [plain], [])
+yuck_add_option([help], [h], [help], [auto])
+yuck_set_option_desc([help], [display this help and exit])
+yuck_add_option([version], [V], [version], [auto])
+yuck_set_option_desc([version], [output version information and exit])
+yuck_add_option([execute], [x], [execute], [arg, LEVEL, mul, opt]);
 
 changecom([//])
 divert[]dnl
