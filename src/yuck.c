@@ -550,8 +550,6 @@ interp(const char *line, size_t llen)
 }
 
 
-static const char *UNUSED(curr_umb);
-static const char *curr_cmd;
 static const char nul_str[] = "";
 static const char *const auto_types[] = {"auto", "flag"};
 static FILE *outf;
@@ -562,26 +560,70 @@ static struct {
 } global_tweaks;
 
 static void
+__identify(char *restrict idn)
+{
+	for (char *restrict ip = idn; *ip; ip++) {
+		switch (*ip) {
+		case '0' ... '9':
+		case 'A' ... 'Z':
+		case 'a' ... 'z':
+			break;
+		default:
+			*ip = '_';
+		}
+	}
+	return;
+}
+
+static char*
+make_opt_ident(const struct opt_s *arg)
+{
+	static bbuf_t i[1U];
+
+	if (arg->lopt != NULL) {
+		bbuf_cpy(i, arg->lopt, strlen(arg->lopt));
+	} else if (arg->sopt) {
+		bbuf_cpy(i, "dash.", 5U);
+		i->s[4U] = arg->sopt;
+	} else {
+		static unsigned int cnt;
+		bbuf_cpy(i, "idnXXXX", 7U);
+		snprintf(i->s + 3U, 5U, "%u", cnt++);
+	}
+	__identify(i->s);
+	return i->s;
+}
+
+static char*
+make_ident(const char *str)
+{
+	static bbuf_t buf[1U];
+
+	bbuf_cpy(buf, str, strlen(str));
+	__identify(buf->s);
+	return buf->s;
+}
+
+static void
 yield_help(void)
 {
-	const char *cmd = curr_cmd ?: nul_str;
 	const char *type = auto_types[global_tweaks.no_auto_action];
 
-	fprintf(outf, "yuck_add_option([h], [help], [%s], [%s])\n", type, cmd);
-	fprintf(outf, "yuck_set_option_desc([h], [help], [%s], [\
-display this help and exit])\n", cmd);
+	fprintf(outf, "yuck_add_option([help], [h], [help], [%s])\n", type);
+	fprintf(outf, "yuck_set_option_desc([help], [\
+display this help and exit])\n");
 	return;
 }
 
 static void
 yield_version(void)
 {
-	const char *cmd = curr_cmd ?: nul_str;
 	const char *type = auto_types[global_tweaks.no_auto_action];
 
-	fprintf(outf, "yuck_add_option([V], [version], [%s], [%s])\n", type, cmd);
-	fprintf(outf, "yuck_set_option_desc([V], [version], [%s], [\
-output version information and exit])\n", cmd);
+	fprintf(outf,
+		"yuck_add_option([version], [V], [version], [%s])\n", type);
+	fprintf(outf, "yuck_set_option_desc([version], [\
+output version information and exit])\n");
 	return;
 }
 
@@ -595,18 +637,22 @@ yield_usg(const struct usg_s *arg)
 		massage_desc(arg->desc);
 	}
 	if (arg->cmd != NULL) {
-		curr_cmd = arg->cmd;
-		fprintf(outf, "\nyuck_add_command([%s], [%s])\n", arg->cmd, parg);
+		const char *idn = make_ident(arg->cmd);
+
+		fprintf(outf, "\nyuck_add_command([%s], [%s], [%s])\n",
+			idn, arg->cmd, parg);
 		if (arg->desc != NULL) {
 			fprintf(outf, "yuck_set_command_desc([%s], [%s])\n",
-				arg->cmd, arg->desc);
+				idn, arg->desc);
 		}
 	} else if (arg->umb != NULL) {
-		curr_umb = arg->umb;
-		fprintf(outf, "\nyuck_set_umbrella([%s], [%s])\n", arg->umb, parg);
+		const char *idn = make_ident(arg->umb);
+
+		fprintf(outf, "\nyuck_set_umbrella([%s], [%s], [%s])\n",
+			idn, arg->umb, parg);
 		if (arg->desc != NULL) {
 			fprintf(outf, "yuck_set_umbrella_desc([%s], [%s])\n",
-				arg->umb, arg->desc);
+				idn, arg->desc);
 		}
 		/* insert auto-help and auto-version */
 		if (!global_tweaks.no_auto_flags) {
@@ -622,24 +668,23 @@ yield_opt(const struct opt_s *arg)
 {
 	char sopt[2U] = {arg->sopt, '\0'};
 	const char *opt = arg->lopt ?: nul_str;
-	const char *cmd = curr_cmd ?: nul_str;
+	const char *idn = make_opt_ident(arg);
 
 	if (arg->larg == NULL) {
-		fprintf(outf, "yuck_add_option([%s], [%s], [flag], [%s]);\n",
-			sopt, opt, cmd);
+		fprintf(outf, "yuck_add_option([%s], [%s], [%s], "
+			"[flag]);\n", idn, sopt, opt);
 	} else {
 		const char *asufs[] = {
 			nul_str, ", opt", ", mul", ", mul, opt"
 		};
 		const char *asuf = asufs[arg->oarg | arg->marg << 1U];
-		fprintf(outf,
-			"yuck_add_option([%s], [%s], [arg, %s%s], [%s]);\n",
-			sopt, opt, arg->larg, asuf, cmd);
+		fprintf(outf, "yuck_add_option([%s], [%s], [%s], "
+			"[arg, %s%s]);\n", idn, sopt, opt, arg->larg, asuf);
 	}
 	if (arg->desc != NULL) {
 		massage_desc(arg->desc);
-		fprintf(outf, "yuck_set_option_desc([%s], [%s], [%s], [%s])\n",
-			sopt, opt, cmd, arg->desc);
+		fprintf(outf,
+			"yuck_set_option_desc([%s], [%s])\n", idn, arg->desc);
 	}
 	return;
 }
@@ -896,8 +941,8 @@ find_dsl(void)
 static __attribute__((noinline)) int
 run_m4(const char *outfn, ...)
 {
-	static char *m4_cmdline[8U] = {
-		"m4", "-B", "16386", dslfn,
+	static char *m4_cmdline[6U] = {
+		"m4", dslfn,
 	};
 	va_list vap;
 	pid_t m4p;
@@ -933,7 +978,7 @@ run_m4(const char *outfn, ...)
 	}
 	/* child code here */
 	va_start(vap, outfn);
-	for (size_t i = 4U;
+	for (size_t i = 2U;
 	     i < countof(m4_cmdline) &&
 		     (m4_cmdline[i] = va_arg(vap, char*)) != NULL; i++);
 	va_end(vap);

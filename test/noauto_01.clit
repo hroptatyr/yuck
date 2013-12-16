@@ -4,7 +4,7 @@ $ yuck gendsl --no-auto-flags "${srcdir}/noauto_01.yuck"
 changequote([,])dnl
 divert([-1])
 
-yuck_set_umbrella([plain], [])
+yuck_set_umbrella([plain], [plain], [])
 
 changecom([//])
 divert[]dnl

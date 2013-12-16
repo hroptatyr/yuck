@@ -4,13 +4,13 @@ $ yuck gendsl "${srcdir}/option_01.yuck"
 changequote([,])dnl
 divert([-1])
 
-yuck_set_umbrella([plain], [])
-yuck_add_option([h], [help], [auto], [])
-yuck_set_option_desc([h], [help], [], [display this help and exit])
-yuck_add_option([V], [version], [auto], [])
-yuck_set_option_desc([V], [version], [], [output version information and exit])
-yuck_add_option([x], [], [flag], []);
-yuck_set_option_desc([x], [], [], [Execute more thoroughly])
+yuck_set_umbrella([plain], [plain], [])
+yuck_add_option([help], [h], [help], [auto])
+yuck_set_option_desc([help], [display this help and exit])
+yuck_add_option([version], [V], [version], [auto])
+yuck_set_option_desc([version], [output version information and exit])
+yuck_add_option([dashx], [x], [], [flag]);
+yuck_set_option_desc([dashx], [Execute more thoroughly])
 
 changecom([//])
 divert[]dnl

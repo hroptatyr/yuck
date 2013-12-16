@@ -52,11 +52,6 @@ ifelse([$1], [$2], [$3],
 	[$#], [4], [$4],
 	[$0([$1], shift(shift(shift($@))))])])
 
-define([make_c_ident], [dnl
-translit([$1], [!"#$%&'()*+,-./:;<=>?@[\]^`{|}~],dnl "
-	[_________________________________])[]dnl
-])
-
 define([downcase], [dnl
 translit([$1], [ABCDEFGHIJKLMNOPQRSTUVWXYZ], [abcdefghijklmnopqrstuvwxyz])[]dnl
 ])
@@ -73,103 +68,66 @@ define([yuck_set_version], [dnl
 	define([YUCK_VER], [$1])
 ])
 
-## yuck_set_umbrella([UMB], [[POSARG]])
+## yuck_set_umbrella([ident], [umbrella], [[posarg]])
 define([yuck_set_umbrella], [dnl
-	define([YUCK_UMB], [$1])
-	define([YUCK_UMC], make_c_ident([$1]))
-	define([YUCK_UMB_POSARG], [$2])
+	define([YUCK_CURRENT_UMB], [$1])
+	define([YUCK_UMB], [$2])
+	define([YUCK_UMB_POSARG], [$3])
 ])
 
+## yuck_set_umbrella_desc([ident], [desc])
 define([yuck_set_umbrella_desc], [dnl
-	pushdef([umb], make_c_ident([$1]))
-	pushdef([desc], [$2])
-
-	define([YUCK_UMB_]defn([umb])[_desc], defn([desc]))
-
-	popdef([umb])
-	popdef([desc])
+	define([YUCK_UMB_$1_desc], [$2])
 ])
 
-## yuck_add_command([CMD], [[POSARG]])
+## yuck_add_command([ident], [command], [[posarg]])
 define([yuck_add_command], [dnl
-	pushdef([cmd], make_c_ident([$1]))
-	append_nene([YUCK_CMD], defn([cmd]), [,])
-	define([YUCK_STR_]defn([cmd]), [$1])
-	define([YUCK_POSARG_]defn([cmd]), [$2])
-	popdef([cmd])
+	define([YUCK_CURRENT_CMD], [$1])
+	append_nene([YUCK_CMD], [$1], [,])
+	define([YUCK_STR_$1], [$2])
+	define([YUCK_POSARG_$1], [$3])
 ])
 
+## yuck_set_command_desc([ident], [desc])
 define([yuck_set_command_desc], [dnl
-	pushdef([cmd], make_c_ident([$1]))
-	pushdef([desc], [$2])
-
-	define([YUCK_CMD_]defn([cmd])[_desc], defn([desc]))
-
-	popdef([cmd])
-	popdef([desc])
+	define([YUCK_CMD_$1_desc], [$2])
 ])
 
-## yuck_add_option(short, long, type, [CMD])
+## yuck_add_option([ident], [short], [long], [type])
 define([yuck_add_option], [dnl
 	## quote the elements of the type arg first
 	## before any possible expansion is in scope
-	pushdef([type], equote([$3]))
-	pushdef([short], [$1])
-	pushdef([long], [$2])
-	pushdef([cshort], make_c_ident([$1]))
-	pushdef([clong], make_c_ident([$2]))
-	pushdef([cmd], make_c_ident([$4]))
+	pushdef([type], equote([$4]))
+	pushdef([ident], [$1])
+	pushdef([cmd], defn([YUCK_CURRENT_CMD]))
 
-	pushdef([ident], ifelse(defn([long]), [],
-		ifelse(defn([short]), [],
-			[define([cnt], ifdef([cnt], [incr(cnt)], [0]))[s]cnt],
-			[dash]defn([short])), make_c_ident(defn([long]))))
+	ifelse([$2], [], [],
+		index([0123456789], [$2]), [-1], [],
+		[dnl else
+		define([YUCK_SHORTS_HAVE_NUMERALS], [1])
+	])
 
-	ifdef([YUCK_]cmd[_]ident[_canon], [], [dnl
+	ifdef([YUCK_]defn([cmd])[_]defn([ident])[_canon], [], [dnl
 		## process only if new
-		appendq_ne([YUCK_]defn([cmd])[_S], defn([short]), [,])
-		appendq_ne([YUCK_]defn([cmd])[_L], defn([long]), [,])
 		appendq_ne([YUCK_]defn([cmd])[_I], defn([ident]), [,])
 
-		define([YUCK_]defn([cmd])[_]defn([cshort])[_canon], defn([ident]))
-		define([YUCK_]defn([cmd])[_]defn([clong])[_canon], defn([ident]))
+		## forward maps
 		define([YUCK_]defn([cmd])[_]defn([ident])[_canon], defn([ident]))
-		define([YUCK_]defn([cmd])[_]defn([cshort])[_type], defn([type]))
-		define([YUCK_]defn([cmd])[_]defn([clong])[_type], defn([type]))
 		define([YUCK_]defn([cmd])[_]defn([ident])[_type], defn([type]))
 
 		## reverse maps
-		define([YUCK_]defn([cmd])[_]defn([ident])[_short], defn([short]))
-		define([YUCK_]defn([cmd])[_]defn([ident])[_long], defn([long]))
+		define([YUCK_]defn([cmd])[_]defn([ident])[_short], [$2])
+		define([YUCK_]defn([cmd])[_]defn([ident])[_long], [$3])
 	])
 
 	popdef([ident])
 	popdef([cmd])
 	popdef([type])
-	popdef([long])
-	popdef([short])
-	popdef([cshort])
-	popdef([clong])
 ])
 
+## yuck_set_option_desc([ident], [desc])
 define([yuck_set_option_desc], [dnl
-	pushdef([short], [$1])
-	pushdef([long], [$2])
-	pushdef([cmd], make_c_ident([$3]))
-	pushdef([desc], [$4])
-
-	pushdef([ident], ifelse(defn([long]), [],
-		ifelse(defn([short]), [],
-			[define([dcnt], ifdef([dcnt], [incr(dcnt)], [0]))[s]dcnt],
-			[dash]defn([short])), make_c_ident(defn([long]))))
-
-	define([YUCK_]defn([cmd])[_]defn([ident])[_desc], defn([desc]))
-
-	popdef([ident])
-	popdef([short])
-	popdef([long])
-	popdef([cmd])
-	popdef([desc])
+	define([YUCK_]defn([YUCK_CURRENT_CMD])[_$1_desc], [$2])
 ])
 
 
@@ -241,8 +199,8 @@ define([yuck_umbcmds], [ifdef([YUCK_CMD], [[,]defn([YUCK_CMD])], dquote([[]]))])
 ## yuck_cmds(), just the commands
 define([yuck_cmds], [defn([YUCK_CMD])])
 
-## yuck_cmd
-define([yuck_cmd], [upcase(defn([YUCK_UMC]))[_CMD_]ifelse([$1], [], [NONE], [upcase([$1])])])
+## yuck_cmd([command])
+define([yuck_cmd], [upcase(defn([YUCK_CURRENT_UMB]))[_CMD_]ifelse([$1], [], [NONE], [upcase([$1])])])
 
 ## yuck_cmd_string
 define([yuck_cmd_string], [defn([YUCK_STR_]$1)])
@@ -256,23 +214,17 @@ define([yuck_umb_desc], [defn([YUCK_UMB_]ifelse([$1], [], defn([YUCK_UMB]), [$1]
 ## yuck_cmd_desc([cmd]) getter for the command description
 define([yuck_cmd_desc], [defn([YUCK_CMD_$1_desc])])
 
-## yuck_shorts([cmd])
-define([yuck_shorts], [defn([YUCK_]$1[_S])])
-
-## yuck_longs([cmd])
-define([yuck_longs], [defn([YUCK_]$1[_L])])
-
 ## yuck_idents([cmd])
-define([yuck_idents], [defn([YUCK_]$1[_I])])
+define([yuck_idents], [defn([YUCK_$1_I])])
 
 ## yuck_short([ident], [[cmd]])
-define([yuck_short], [defn([YUCK_]$2[_]$1[_short])])
+define([yuck_short], [defn([YUCK_$2_$1_short])])
 
 ## yuck_long([ident], [[cmd]])
-define([yuck_long], [defn([YUCK_]$2[_]$1[_long])])
+define([yuck_long], [defn([YUCK_$2_$1_long])])
 
 ## yuck_option_desc([ident], [[cmd]])
-define([yuck_option_desc], [defn([YUCK_]$2[_]$1[_desc])])
+define([yuck_option_desc], [defn([YUCK_$2_$1_desc])])
 
 ## yuck_option_help_lhs([ident], [[cmd]])
 define([yuck_option_help_lhs], [dnl

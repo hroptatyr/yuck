@@ -1,4 +1,5 @@
 /* -*- c -*- */
+changecom([#])dnl
 #if !defined INCLUDED_yuck_h_
 #define INCLUDED_yuck_h_
 

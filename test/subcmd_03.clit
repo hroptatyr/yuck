@@ -1,20 +1,21 @@
+
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
 $ yuck gendsl "${srcdir}/subcmd_03.yuck"
 changequote([,])dnl
 divert([-1])
 
-yuck_set_umbrella([plain], [])
+yuck_set_umbrella([plain], [plain], [])
 yuck_set_umbrella_desc([plain], [Run plain tool.])
-yuck_add_option([h], [help], [auto], [])
-yuck_set_option_desc([h], [help], [], [display this help and exit])
-yuck_add_option([V], [version], [auto], [])
-yuck_set_option_desc([V], [version], [], [output version information and exit])
+yuck_add_option([help], [h], [help], [auto])
+yuck_set_option_desc([help], [display this help and exit])
+yuck_add_option([version], [V], [version], [auto])
+yuck_set_option_desc([version], [output version information and exit])
 
-yuck_add_command([foo], [])
+yuck_add_command([foo], [foo], [])
 yuck_set_command_desc([foo], [Run plain tool in foo mode.])
 
-yuck_add_command([bar], [])
+yuck_add_command([bar], [bar], [])
 yuck_set_command_desc([bar], [Run plain tool in bar mode.])
 
 changecom([//])
