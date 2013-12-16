@@ -266,7 +266,7 @@ popdef([next])dnl
 ])dnl
 
 ## yuck_option_help_line([ident], [[cmd]])
-define([yuck_option_help_line], [dnl
+define([_yuck_option_help_line], [dnl
 pushdef([lhs], yuck_option_help_lhs([$1], [$2]))dnl
 pushdef([desc], yuck_option_desc([$1], [$2]))dnl
 pushdef([indesc], yuck_indent_line(defn([desc])))dnl
@@ -283,6 +283,9 @@ popdef([lenlhs])dnl
 popdef([indesc])dnl
 popdef([lhs])dnl
 popdef([desc])dnl
+])
+define([yuck_option_help_line], [dnl
+dquote(_$0([$1], [$2]))[]dnl
 ])
 
 ## \n -> \\n\\
