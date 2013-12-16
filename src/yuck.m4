@@ -264,14 +264,42 @@ popdef([lhs])dnl
 popdef([desc])dnl
 ])
 
-## \ -> \\, " -> \" and literal \n -> \\n\\
-define([_yuck_C_literal], [dnl
-patsubst(patsubst(patsubst([[[[$1]]]], [\\], [\\\\]), ["], [\\"]), [
-], [\\n\\
-])[]dnl
-])
+## convert STR and ETR back to [ and ]
 define([yuck_C_literal], [dnl
 translit(_yuck_C_literal([$1]), LBRACK[]RBRACK, [[]])[]dnl
+])dnl
+
+## \n -> \\n\\
+define([yuck_esc_newline], [dnl
+pushdef([next], index([$1], [
+]))[]dnl
+ifelse(next, [-1], [$1], [dnl
+substr([$1], 0, next)[\n\
+]$0(substr([$1], incr(next)))[]dnl
+])[]dnl
+popdef([next])dnl
+])dnl
+
+## " -> \"
+define([yuck_esc_quote], [dnl
+pushdef([next], index([$1], ["]))[]dnl "
+ifelse(next, [-1], [$1], [dnl
+substr([$1], 0, next)[\"]$0(substr([$1], incr(next)))[]dnl
+])[]dnl
+popdef([next])[]dnl
+])dnl
+
+## \ -> \\
+define([yuck_esc_backslash], [dnl
+pushdef([next], index([$1], [\]))[]dnl
+ifelse(next, [-1], [$1], [dnl
+substr([$1], 0, next)[\\]$0(substr([$1], incr(next)))[]dnl
+])[]dnl
+popdef([next])[]dnl
+])dnl
+
+define([yuck_C_literal], [dnl
+yuck_esc_newline(yuck_esc_quote(yuck_esc_backslash([$1])))[]dnl
 ])dnl
 
 
