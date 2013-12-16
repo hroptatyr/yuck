@@ -249,17 +249,32 @@ popdef([ds])dnl
 popdef([dl])dnl
 ])
 
+define([yuck_indent_line], [dnl
+pushdef([next], index([$1], [
+]))[]dnl
+ifelse(next, [-1], [                        $1], [dnl
+[                        ]substr([$1], 0, next)[
+]$0(substr([$1], incr(next)))[]dnl
+])[]dnl
+popdef([next])dnl
+])dnl
+
 ## yuck_option_help_line([ident], [[cmd]])
 define([yuck_option_help_line], [dnl
 pushdef([lhs], yuck_option_help_lhs([$1], [$2]))dnl
-pushdef([desc], patsubst(dquote(yuck_option_desc([$1], [$2])), [
-], [
-                        ]))dnl
-ifelse(eval(len(defn([lhs])) >= 24), [0], [dnl
-format([[[%-22s  %s]]], defn([lhs]), defn([desc]))], [dnl
-format([[[%s
-                        %s]]], defn([lhs]), defn([desc]))[]dnl
+pushdef([desc], yuck_option_desc([$1], [$2]))dnl
+pushdef([indesc], yuck_indent_line(defn([desc])))dnl
+pushdef([lenlhs], len(defn([lhs])))dnl
+ifelse(eval(lenlhs >= 23), [0], [dnl
+defn([lhs])[]substr(defn([indesc]), lenlhs)[]dnl
+], eval(lenlhs >= 24), [0], [dnl
+defn([lhs])[]substr(defn([indesc]), decr(lenlhs))[]dnl
+], [dnl
+defn([lhs])[
+]defn([indesc])[]dnl
 ])
+popdef([lenlhs])dnl
+popdef([indesc])dnl
 popdef([lhs])dnl
 popdef([desc])dnl
 ])
