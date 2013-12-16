@@ -99,11 +99,11 @@ define([yuck_add_option], [dnl
 	## before any possible expansion is in scope
 	pushdef([type], equote([$4]))
 	pushdef([ident], [$1])
-	pushdef([short], [$2])
-	pushdef([long], [$3])
 	pushdef([cmd], defn([YUCK_CURRENT_CMD]))
 
-	ifelse(index([0123456789], defn([short])), [-1], [], [dnl
+	ifelse([$2], [], [],
+		index([0123456789], [$2]), [-1], [],
+		[dnl else
 		define([YUCK_SHORTS_HAVE_NUMERALS], [1])
 	])
 
@@ -116,15 +116,13 @@ define([yuck_add_option], [dnl
 		define([YUCK_]defn([cmd])[_]defn([ident])[_type], defn([type]))
 
 		## reverse maps
-		define([YUCK_]defn([cmd])[_]defn([ident])[_short], defn([short]))
-		define([YUCK_]defn([cmd])[_]defn([ident])[_long], defn([long]))
+		define([YUCK_]defn([cmd])[_]defn([ident])[_short], [$2])
+		define([YUCK_]defn([cmd])[_]defn([ident])[_long], [$3])
 	])
 
 	popdef([ident])
 	popdef([cmd])
 	popdef([type])
-	popdef([long])
-	popdef([short])
 ])
 
 ## yuck_set_option_desc([ident], [desc])
