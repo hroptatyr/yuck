@@ -318,7 +318,7 @@ DEFUN void yuck_auto_usage(const yuck_t src[[static 1U]])
 	YUCK_NOCMD:
 		puts("Usage: YUCK_UMB [[OPTION]]...dnl
 ifelse(yuck_cmds(), [], [], [ COMMAND])[]dnl
-ifelse(defn([YUCK_UMB_POSARG]), [], [], [defn([YUCK_UMB_POSARG])])[]dnl
+ifelse(defn([YUCK_UMB_POSARG]), [], [], [ defn([YUCK_UMB_POSARG])])[]dnl
 ");
 ifelse(yuck_umb_desc(), [], [], [dnl
 		puts("\n\
@@ -327,7 +327,8 @@ yuck_C_literal(yuck_umb_desc())");
 		break;
 foreachq([C], yuck_cmds(), [
 	case yuck_cmd(defn([C])):
-		puts("Usage: YUCK_UMB [[OPTION]]... yuck_cmd_string(defn([C])) yuck_cmd_posarg(defn([C]))");
+		puts("Usage: YUCK_UMB [[OPTION]]... yuck_cmd_string(defn([C]))[]dnl
+ifelse(yuck_cmd_posarg(defn([C])), [], [], [ yuck_cmd_posarg(defn([C]))])");
 ifelse(yuck_cmd_desc(defn([C])), [], [], [dnl
 		puts("\n\
 yuck_C_literal(yuck_cmd_desc(defn([C])))");
