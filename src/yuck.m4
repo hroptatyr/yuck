@@ -263,7 +263,8 @@ popdef([yuck_arg_mul_opt_action])dnl
 define([yuck_indent_line], [dnl
 pushdef([next], index([$1], [
 ]))[]dnl
-ifelse(next, [-1], [                        $1], [dnl
+ifelse([$1], [], [], dnl
+next, [-1], [                        $1], [dnl
 [                        ]substr([$1], 0, next)[
 ]$0(substr([$1], incr(next)))[]dnl
 ])[]dnl
@@ -276,7 +277,8 @@ pushdef([lhs], yuck_option_help_lhs([$1], [$2]))dnl
 pushdef([desc], yuck_option_desc([$1], [$2]))dnl
 pushdef([indesc], yuck_indent_line(defn([desc])))dnl
 pushdef([lenlhs], len(defn([lhs])))dnl
-ifelse(eval(lenlhs >= 23), [0], [dnl
+ifelse(defn([indesc]), [], [defn([lhs])],
+eval(lenlhs >= 23), [0], [dnl
 defn([lhs])[]substr(defn([indesc]), lenlhs)[]dnl
 ], eval(lenlhs >= 24), [0], [dnl
 defn([lhs])[]substr(defn([indesc]), decr(lenlhs))[]dnl
