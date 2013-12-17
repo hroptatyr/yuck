@@ -117,18 +117,18 @@ DEFUN int yuck_parse(yuck_t tgt[[static 1U]], int argc, char *const argv[[]])
 		resume;
 
 dnl TYPE actions
-define([yuck_flag_action], [tgt->yuck_slot([$1], [$2])++])dnl
-define([yuck_arg_action], [tgt->yuck_slot([$1], [$2]) = arg ?: argv[[++i]]])dnl
-define([yuck_arg_opt_action], [tgt->yuck_slot([$1], [$2]) = arg ?: YUCK_OPTARG_NONE])dnl
-define([yuck_arg_mul_action], [tgt->yuck_slot([$1], [$2]) =
+pushdef([yuck_flag_action], [tgt->yuck_slot([$1], [$2])++])dnl
+pushdef([yuck_arg_action], [tgt->yuck_slot([$1], [$2]) = arg ?: argv[[++i]]])dnl
+pushdef([yuck_arg_opt_action], [tgt->yuck_slot([$1], [$2]) = arg ?: YUCK_OPTARG_NONE])dnl
+pushdef([yuck_arg_mul_action], [tgt->yuck_slot([$1], [$2]) =
 					yuck_append(
 						tgt->yuck_slot([$1], [$2]), tgt->yuck_cnt_slot([$1], [$2])++,
 						arg ?: argv[[++i]])])dnl
-define([yuck_arg_mul_opt_action], [tgt->yuck_slot([$1], [$2]) =
+pushdef([yuck_arg_mul_opt_action], [tgt->yuck_slot([$1], [$2]) =
 					yuck_append(
 						tgt->yuck_slot([$1], [$2]), tgt->yuck_cnt_slot([$1], [$2])++,
 						arg ?: YUCK_OPTARG_NONE)])dnl
-define([yuck_auto_action], [/* invoke auto action and exit */
+pushdef([yuck_auto_action], [/* invoke auto action and exit */
 				yuck_auto_[]yuck_canon([$1], [$2])(tgt);
 				resume_at(success)])dnl
 
@@ -137,13 +137,13 @@ define([yuck_auto_action], [/* invoke auto action and exit */
 			if (0) {
 				;
 			}dnl
-foreachq([opt], yuck_idents(defn([C])), [ dnl
-pushdef([long], yuck_long(defn([opt]), defn([C])))[]dnl
+foreachq([I], yuck_idents(defn([C])), [ dnl
+pushdef([long], yuck_long(defn([I]), defn([C])))[]dnl
 ifelse(defn([long]), [], [divert(-1)])dnl
 else if (yuck_streqp(op, "defn([long])")) {
 popdef([long])[]dnl
 dnl now simply expand yuck_foo_action:
-				yuck_option_action(defn([opt]), defn([C]));
+				yuck_option_action(defn([I]), defn([C]));
 			}dnl
 divert[]dnl
 ]) else {
@@ -156,6 +156,12 @@ divert[]dnl
 			resume;
 		}
 		])
+popdef([yuck_flag_action])dnl
+popdef([yuck_arg_action])dnl
+popdef([yuck_arg_mul_action])dnl
+popdef([yuck_arg_opt_action])dnl
+popdef([yuck_arg_mul_opt_action])dnl
+popdef([yuck_auto_action])dnl
 	}
 
 	coroutine(shortopt)
@@ -173,25 +179,25 @@ divert[]dnl
 		resume;
 
 dnl TYPE actions
-define([yuck_flag_action], [tgt->yuck_slot(defn([opt]), defn([C]))++])dnl
-define([yuck_arg_action], [tgt->yuck_slot(defn([opt]), defn([C])) = *arg
+pushdef([yuck_flag_action], [tgt->yuck_slot([$1], [$2])++])dnl
+pushdef([yuck_arg_action], [tgt->yuck_slot([$1], [$2]) = *arg
 					? (op += strlen(arg), arg)
 					: argv[[++i]]])dnl
-define([yuck_arg_opt_action], [tgt->yuck_slot(defn([opt]), defn([C])) = *arg
+pushdef([yuck_arg_opt_action], [tgt->yuck_slot([$1], [$2]) = *arg
 					? (op += strlen(arg), arg)
 					: YUCK_OPTARG_NONE])dnl
-define([yuck_arg_mul_action], [tgt->yuck_slot(defn([opt]), defn([C])) =
+pushdef([yuck_arg_mul_action], [tgt->yuck_slot([$1], [$2]) =
 					yuck_append(
-						tgt->yuck_slot(defn([opt]), defn([C])),
-						tgt->yuck_cnt_slot(defn([opt]), defn([C]))++,
+						tgt->yuck_slot([$1], [$2]),
+						tgt->yuck_cnt_slot([$1], [$2])++,
 						*arg ? (op += strlen(arg), arg) : argv[[++i]])])dnl
-define([yuck_arg_mul_opt_action], [tgt->yuck_slot(defn([opt]), defn([C])) =
+pushdef([yuck_arg_mul_opt_action], [tgt->yuck_slot([$1], [$2]) =
 					yuck_append(
-						tgt->yuck_slot(defn([opt]), defn([C])),
-						tgt->yuck_cnt_slot(defn([opt]), defn([C]))++,
+						tgt->yuck_slot([$1], [$2]),
+						tgt->yuck_cnt_slot([$1], [$2])++,
 						*arg ? (op += strlen(arg), arg) : YUCK_OPTARG_NONE)])dnl
-define([yuck_auto_action], [/* invoke auto action and exit */
-				yuck_auto_[]yuck_canon(defn([opt]), defn([C]))(tgt);
+pushdef([yuck_auto_action], [/* invoke auto action and exit */
+				yuck_auto_[]yuck_canon([$1], [$2])(tgt);
 				resume_at(success)])dnl
 
 		foreachq([C], yuck_umbcmds(), [coroutine(yuck_cmd(defn([C]))[_shortopt])
@@ -217,14 +223,14 @@ ifdef([YUCK_SHORTS_HAVE_NUMERALS], [
 				ifelse(defn([C]), [], [select_divert(1)], [select_divert(2)])dnl
 divert[]dnl
 
-foreachq([opt], yuck_idents(defn([C])), [dnl
-pushdef([short], yuck_short(defn([opt]), defn([C])))dnl
+foreachq([I], yuck_idents(defn([C])), [dnl
+pushdef([short], yuck_short(defn([I]), defn([C])))dnl
 ifelse(defn([short]), [], [divert(-1)])dnl
 			case 'defn([short])':
 popdef([short])dnl
 dnl
 dnl now simply expand yuck_foo_action:
-				yuck_option_action(defn([opt]), defn([C]));
+				yuck_option_action(defn([I]), defn([C]));
 				break;
 divert[]dnl
 ])dnl
@@ -232,6 +238,12 @@ divert[]dnl
 			resume;
 		}
 		])
+popdef([yuck_flag_action])dnl
+popdef([yuck_arg_action])dnl
+popdef([yuck_arg_opt_action])dnl
+popdef([yuck_arg_mul_action])dnl
+popdef([yuck_arg_mul_opt_action])dnl
+popdef([yuck_auto_action])dnl
 	}
 
 	coroutine(arg)
@@ -280,21 +292,33 @@ DEFUN void yuck_free(yuck_t tgt[[static 1U]])
 		void *ptr;
 	default:
 		break;
-foreachq([C], yuck_umbcmds(), [dnl
-	case yuck_cmd(defn([C])):
-foreachq([slot], yuck_idents(defn([C])), [dnl
 pushdef([action], [dnl
-		ptr = (char*)NULL + ((const char*)tgt->defn([slot]) - (char*)NULL);
+		ptr = (char*)NULL + ((const char*)tgt->yuck_slot([$1], [$2]) - (char*)NULL);
 		if (ptr != NULL) {
 			free(ptr);
 		}
 ])dnl
-yuck_iftype(defn([slot]), defn([C]),
-	    [arg,mul], [action],
-	    [arg,mul,opt], [action])[]dnl
-popdef([action])])dnl
+dnl TYPE actions
+pushdef([yuck_flag_action], [])dnl
+pushdef([yuck_arg_action], [])dnl
+pushdef([yuck_arg_opt_action], [])dnl
+pushdef([yuck_arg_mul_action], defn([action]))dnl
+pushdef([yuck_arg_mul_opt_action], defn([action]))dnl
+pushdef([yuck_auto_action], [])dnl
+foreachq([C], yuck_umbcmds(), [dnl
+	case yuck_cmd(defn([C])):
+foreachq([I], yuck_idents(defn([C])), [dnl
+		yuck_option_action(defn([I]), defn([C]));
 		break;
-])
+])[]dnl
+])[]dnl
+popdef([action])dnl
+popdef([yuck_flag_action])dnl
+popdef([yuck_arg_action])dnl
+popdef([yuck_arg_opt_action])dnl
+popdef([yuck_arg_mul_action])dnl
+popdef([yuck_arg_mul_opt_action])dnl
+popdef([yuck_auto_opt_action])dnl
 	}
 	return;
 }
