@@ -157,14 +157,15 @@ popdef([type])dnl
 
 ## yuck_cnt_slot([option], [[cmd]])
 define([yuck_cnt_slot], [dnl
+pushdef([type], yuck_option_type([$1], [$2]))dnl
+ifelse(yuck_type(defn([type])), [arg], [dnl
+ifelse(first(yuck_type_sufx(defn([type]))), [mul], [
 pushdef([idn], [yuck_canon([$1], [$2])[_nargs]])dnl
-pushdef([res], [ifelse([$2], [], [idn], [$2.idn])])dnl
-yuck_iftype([$1], [$2],
-	[arg,mul], defn([res]),
-	[arg,mul,opt], defn([res]),
-)dnl
+ifelse([$2], [], [idn], [$2.idn])[]dnl
 popdef([idn])dnl
-popdef([res])dnl
+])[]dnl
+])[]dnl
+popdef([type])dnl
 ])
 
 ## yuck_slot([option], [[cmd]])
