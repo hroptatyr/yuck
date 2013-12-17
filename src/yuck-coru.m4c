@@ -137,13 +137,13 @@ pushdef([yuck_auto_action], [/* invoke auto action and exit */
 			if (0) {
 				;
 			}dnl
-foreachq([opt], yuck_idents(defn([C])), [ dnl
-pushdef([long], yuck_long(defn([opt]), defn([C])))[]dnl
+foreachq([I], yuck_idents(defn([C])), [ dnl
+pushdef([long], yuck_long(defn([I]), defn([C])))[]dnl
 ifelse(defn([long]), [], [divert(-1)])dnl
 else if (yuck_streqp(op, "defn([long])")) {
 popdef([long])[]dnl
 dnl now simply expand yuck_foo_action:
-				yuck_option_action(defn([opt]), defn([C]));
+				yuck_option_action(defn([I]), defn([C]));
 			}dnl
 divert[]dnl
 ]) else {
@@ -223,14 +223,14 @@ ifdef([YUCK_SHORTS_HAVE_NUMERALS], [
 				ifelse(defn([C]), [], [select_divert(1)], [select_divert(2)])dnl
 divert[]dnl
 
-foreachq([opt], yuck_idents(defn([C])), [dnl
-pushdef([short], yuck_short(defn([opt]), defn([C])))dnl
+foreachq([I], yuck_idents(defn([C])), [dnl
+pushdef([short], yuck_short(defn([I]), defn([C])))dnl
 ifelse(defn([short]), [], [divert(-1)])dnl
 			case 'defn([short])':
 popdef([short])dnl
 dnl
 dnl now simply expand yuck_foo_action:
-				yuck_option_action(defn([opt]), defn([C]));
+				yuck_option_action(defn([I]), defn([C]));
 				break;
 divert[]dnl
 ])dnl
