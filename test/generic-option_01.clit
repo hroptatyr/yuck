@@ -1,0 +1,12 @@
+#!/usr/bin/clitoris
+
+$ generic-option_01 --help
+Usage: plain [OPTION]...
+
+  -h, --help            display this help and exit
+  -V, --version         output version information and exit
+  -x                    Execute more thoroughly
+
+$
+
+## generic-option_01.clit ends here
