@@ -1,0 +1,12 @@
+#!/usr/bin/clitoris
+
+$ generic-mularg_02 --help
+Usage: plain [OPTION]...
+
+  -h, --help            display this help and exit
+  -V, --version         output version information and exit
+  -x LEVEL...
+
+$
+
+## generic-mularg_02.clit ends here

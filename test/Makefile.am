@@ -137,6 +137,30 @@ generic_muloptarg_04_CPPFLAGS = -DYUCC_FILE='"muloptarg_04.yucc"'
 BUILT_SOURCES += muloptarg_04.yucc
 TESTS += generic-muloptarg_04.clit
 
+check_PROGRAMS += generic-mularg_01
+generic_mularg_01_SOURCES = generic.c
+generic_mularg_01_CPPFLAGS = -DYUCC_FILE='"mularg_01.yucc"'
+BUILT_SOURCES += mularg_01.yucc
+TESTS += generic-mularg_01.clit
+
+check_PROGRAMS += generic-mularg_02
+generic_mularg_02_SOURCES = generic.c
+generic_mularg_02_CPPFLAGS = -DYUCC_FILE='"mularg_02.yucc"'
+BUILT_SOURCES += mularg_02.yucc
+TESTS += generic-mularg_02.clit
+
+check_PROGRAMS += generic-mularg_03
+generic_mularg_03_SOURCES = generic.c
+generic_mularg_03_CPPFLAGS = -DYUCC_FILE='"mularg_03.yucc"'
+BUILT_SOURCES += mularg_03.yucc
+TESTS += generic-mularg_03.clit
+
+check_PROGRAMS += generic-mularg_04
+generic_mularg_04_SOURCES = generic.c
+generic_mularg_04_CPPFLAGS = -DYUCC_FILE='"mularg_04.yucc"'
+BUILT_SOURCES += mularg_04.yucc
+TESTS += generic-mularg_04.clit
+
 
 ## yuck rule
 %.yucc: %.yuck $(top_builddir)/src/yuck
