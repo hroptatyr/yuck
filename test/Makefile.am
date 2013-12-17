@@ -112,6 +112,31 @@ TESTS += xmpl-subcommands-02.clit
 TESTS += xmpl-subcommands-03.clit
 TESTS += xmpl-subcommands-04.clit
 
+EXTRA_DIST += generic.c
+check_PROGRAMS += generic-muloptarg_01
+generic_muloptarg_01_SOURCES = generic.c
+generic_muloptarg_01_CPPFLAGS = -DYUCC_FILE='"muloptarg_01.yucc"'
+BUILT_SOURCES += muloptarg_01.yucc
+TESTS += generic-muloptarg_01.clit
+
+check_PROGRAMS += generic-muloptarg_02
+generic_muloptarg_02_SOURCES = generic.c
+generic_muloptarg_02_CPPFLAGS = -DYUCC_FILE='"muloptarg_02.yucc"'
+BUILT_SOURCES += muloptarg_02.yucc
+TESTS += generic-muloptarg_02.clit
+
+check_PROGRAMS += generic-muloptarg_03
+generic_muloptarg_03_SOURCES = generic.c
+generic_muloptarg_03_CPPFLAGS = -DYUCC_FILE='"muloptarg_03.yucc"'
+BUILT_SOURCES += muloptarg_03.yucc
+TESTS += generic-muloptarg_03.clit
+
+check_PROGRAMS += generic-muloptarg_04
+generic_muloptarg_04_SOURCES = generic.c
+generic_muloptarg_04_CPPFLAGS = -DYUCC_FILE='"muloptarg_04.yucc"'
+BUILT_SOURCES += muloptarg_04.yucc
+TESTS += generic-muloptarg_04.clit
+
 
 ## yuck rule
 %.yucc: %.yuck $(top_builddir)/src/yuck
