@@ -23,18 +23,6 @@ ifdef([YUCK_HEADER], [#include "YUCK_HEADER"
 #endif	/* __INTEL_COMPILER */
 pushdef([DEFUN], ifdef([YUCK_HEADER], [], [static]))[]dnl
 
-dnl yuck_option_action([ident], [cmd])
-define([yuck_option_action], [dnl
-pushdef([type], yuck_option_type([$1], [$2]))dnl
-pushdef([prim], yuck_type(defn([type])))dnl
-pushdef([sufx], yuck_type_sufx(defn([type])))dnl
-[yuck_]defn([prim])ifelse(defn([sufx]), [], [], [_]translit(defn([sufx]), [,], [_]))[_action](quote([$1]), quote([$2]))dnl
-popdef([type])dnl
-popdef([prim])dnl
-popdef([sufx])dnl
-])dnl
-define([yuck_expand], [$1])
-
 
 static inline bool
 yuck_streqp(const char *s1, const char *s2)
@@ -155,7 +143,7 @@ ifelse(defn([long]), [], [divert(-1)])dnl
 else if (yuck_streqp(op, "defn([long])")) {
 popdef([long])[]dnl
 dnl now simply expand yuck_foo_action:
-				yuck_expand(yuck_option_action(defn([opt]), defn([C])));
+				yuck_option_action(defn([opt]), defn([C]));
 			}dnl
 divert[]dnl
 ]) else {
@@ -236,7 +224,7 @@ ifelse(defn([short]), [], [divert(-1)])dnl
 popdef([short])dnl
 dnl
 dnl now simply expand yuck_foo_action:
-				yuck_expand(yuck_option_action(defn([opt]), defn([C])));
+				yuck_option_action(defn([opt]), defn([C]));
 				break;
 divert[]dnl
 ])dnl
@@ -318,7 +306,7 @@ DEFUN void yuck_auto_usage(const yuck_t src[[static 1U]])
 	YUCK_NOCMD:
 		puts("Usage: YUCK_UMB [[OPTION]]...dnl
 ifelse(yuck_cmds(), [], [], [ COMMAND])[]dnl
-ifelse(defn([YUCK_UMB_POSARG]), [], [], [defn([YUCK_UMB_POSARG])])[]dnl
+ifelse(defn([YUCK_UMB_POSARG]), [], [], [ defn([YUCK_UMB_POSARG])])[]dnl
 ");
 ifelse(yuck_umb_desc(), [], [], [dnl
 		puts("\n\
@@ -327,7 +315,8 @@ yuck_C_literal(yuck_umb_desc())");
 		break;
 foreachq([C], yuck_cmds(), [
 	case yuck_cmd(defn([C])):
-		puts("Usage: YUCK_UMB [[OPTION]]... yuck_cmd_string(defn([C])) yuck_cmd_posarg(defn([C]))");
+		puts("Usage: YUCK_UMB [[OPTION]]... yuck_cmd_string(defn([C]))[]dnl
+ifelse(yuck_cmd_posarg(defn([C])), [], [], [ yuck_cmd_posarg(defn([C]))])");
 ifelse(yuck_cmd_desc(defn([C])), [], [], [dnl
 		puts("\n\
 yuck_C_literal(yuck_cmd_desc(defn([C])))");

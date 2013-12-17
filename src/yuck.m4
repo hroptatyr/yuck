@@ -3,11 +3,6 @@ divert([-1])
 
 ## this is a little domain language for the yuck processor
 
-## our own version of [ and ] (the quoting characters)
-## must be in sync with yuck.c
-define([LBRACK], format([%c], 2))
-define([RBRACK], format([%c], 3))
-
 # foreachq(x, [item_1, item_2, ..., item_n], stmt)
 #   quoted list, alternate improved version
 define([foreachq], [ifelse([$2], [], [],
@@ -226,52 +221,104 @@ define([yuck_long], [defn([YUCK_$2_$1_long])])
 ## yuck_option_desc([ident], [[cmd]])
 define([yuck_option_desc], [defn([YUCK_$2_$1_desc])])
 
+## type actions
+define([_yuck_option_action], [dnl
+pushdef([type], yuck_option_type([$1], [$2]))dnl
+pushdef([prim], yuck_type(defn([type])))dnl
+pushdef([sufx], yuck_type_sufx(defn([type])))dnl
+[yuck_]defn([prim])ifelse(defn([sufx]), [], [], [_]translit(defn([sufx]), [,], [_]))[_action](quote([$1]), quote([$2]))dnl
+popdef([type])dnl
+popdef([prim])dnl
+popdef([sufx])dnl
+])dnl
+define([yuck_expand], [$1])
+define([yuck_option_action], [yuck_expand(_$0([$1], [$2]))])
+
 ## yuck_option_help_lhs([ident], [[cmd]])
 define([yuck_option_help_lhs], [dnl
-pushdef([s], [yuck_short([$1], [$2])])dnl
-pushdef([l], [yuck_long([$1], [$2])])dnl
+pushdef([s], yuck_short([$1], [$2]))dnl
+pushdef([l], yuck_long([$1], [$2]))dnl
 pushdef([type], yuck_option_type([$1], [$2]))dnl
-pushdef([an], [yuck_type_name(defn([type]))])dnl
-pushdef([as], [yuck_type_sufx(defn([type]))])dnl
-pushdef([optp], [ifelse(quote(as), [], [0], quote(as), [mul], [0], [1])])dnl
-pushdef([oo], ifelse(optp, [0], [], LBRACK))dnl
-pushdef([oc], ifelse(optp, [0], [], RBRACK))dnl
-pushdef([ds], [ifelse(quote(s), [], [  ],
-	[-s]ifelse(an, [], [], quote(l), [], [ oo[]an[]oc]))])dnl
-pushdef([dl], [ifelse(quote(l), [], [],
-	[--l]ifelse(an, [], [], [oo[]=[]an[]oc]))])dnl
-[  ]ds[]ifelse(quote(s), [], [  ], quote(l), [], [], [[, ]])dl[]dnl
+pushdef([prel], ifelse(defn([l]), [], [], [=]))dnl
+define([yuck_arg_action], [defn([prel])[]yuck_type_name(yuck_option_type([$1], [$2]))])dnl
+define([yuck_arg_opt_action], [dquote(defn([prel])[]yuck_type_name(yuck_option_type([$1], [$2])))])dnl
+define([yuck_arg_mul_action], [defn([prel])[]yuck_type_name(yuck_option_type([$1], [$2]))...])dnl
+define([yuck_arg_mul_opt_action], [dquote(defn([prel])[]yuck_type_name(yuck_option_type([$1], [$2])))...])dnl
+[  ]ifelse(defn([s]), [], [    ], [-defn([s])ifelse(defn([l]), [], [], [[, ]])])[]dnl
+ifelse(defn([l]), [], [], [--]defn([l]))[]dnl
+ifelse(yuck_type(defn([type])), [arg], [dnl
+ifelse(defn([l]), [], [ ], [])[]yuck_option_action([$1], [$2])[]dnl
+])[]dnl
+popdef([type])dnl
+popdef([prel])dnl
 popdef([s])dnl
 popdef([l])dnl
-popdef([type])dnl
-popdef([an])dnl
-popdef([ds])dnl
-popdef([dl])dnl
 ])
+
+define([yuck_indent_line], [dnl
+pushdef([next], index([$1], [
+]))[]dnl
+ifelse(next, [-1], [                        $1], [dnl
+[                        ]substr([$1], 0, next)[
+]$0(substr([$1], incr(next)))[]dnl
+])[]dnl
+popdef([next])dnl
+])dnl
 
 ## yuck_option_help_line([ident], [[cmd]])
 define([yuck_option_help_line], [dnl
 pushdef([lhs], yuck_option_help_lhs([$1], [$2]))dnl
-pushdef([desc], patsubst(dquote(yuck_option_desc([$1], [$2])), [
-], [
-                        ]))dnl
-ifelse(eval(len(defn([lhs])) >= 24), [0], [dnl
-format([[[%-22s  %s]]], defn([lhs]), defn([desc]))], [dnl
-format([[[%s
-                        %s]]], defn([lhs]), defn([desc]))[]dnl
+pushdef([desc], yuck_option_desc([$1], [$2]))dnl
+pushdef([indesc], yuck_indent_line(defn([desc])))dnl
+pushdef([lenlhs], len(defn([lhs])))dnl
+ifelse(eval(lenlhs >= 23), [0], [dnl
+defn([lhs])[]substr(defn([indesc]), lenlhs)[]dnl
+], eval(lenlhs >= 24), [0], [dnl
+defn([lhs])[]substr(defn([indesc]), decr(lenlhs))[]dnl
+], [dnl
+defn([lhs])[
+]defn([indesc])[]dnl
 ])
+popdef([lenlhs])dnl
+popdef([indesc])dnl
 popdef([lhs])dnl
 popdef([desc])dnl
 ])
 
-## \ -> \\, " -> \" and literal \n -> \\n\\
-define([_yuck_C_literal], [dnl
-patsubst(patsubst(patsubst([[[[$1]]]], [\\], [\\\\]), ["], [\\"]), [
-], [\\n\\
-])[]dnl
+define([xleft], [dnl
+changequote([<<<],[>>>])<<<>>>dnl
+substr(<<<$1>>>,0,<<<$2>>>)<<<>>>dnl
+changequote([,])[]dnl
 ])
+
+define([xright], [dnl
+changequote([<<<],[>>>])<<<>>>dnl
+substr(<<<$1>>>,<<<$2>>>)<<<>>>dnl
+changequote([,])[]dnl
+])
+
+define([yuck_esc], [dnl
+pushdef([next], index([$1], [$2]))[]dnl
+ifelse(next, [-1], [[$1]], [dnl
+xleft([$1], next)[$3]dnl
+$0(xright([$1], incr(next)), [$2], [$3])[]dnl
+])[]dnl
+popdef([next])dnl
+])dnl
+
+## \n -> \\n\\
+define([yuck_esc_newline], [yuck_esc([$1], [
+], [\n\
+])])
+
+## " -> \"
+define([yuck_esc_quote], [yuck_esc([$1], ["], [\"])])dnl "
+
+## \ -> \\
+define([yuck_esc_backslash], [yuck_esc([$1], [\], [\\])])dnl
+
 define([yuck_C_literal], [dnl
-translit(_yuck_C_literal([$1]), LBRACK[]RBRACK, [[]])[]dnl
+yuck_esc_newline([$1])[]dnl
 ])dnl
 
 
