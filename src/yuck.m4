@@ -285,34 +285,37 @@ popdef([lhs])dnl
 popdef([desc])dnl
 ])
 
-## \n -> \\n\\
-define([yuck_esc_newline], [dnl
-pushdef([next], index([$1], [
-]))[]dnl
-ifelse(next, [-1], [$1], [dnl
-substr([$1], 0, next)[\n\
-]$0(substr([$1], incr(next)))[]dnl
+define([xleft], [dnl
+changequote([<<<],[>>>])<<<>>>dnl
+substr(<<<$1>>>,0,<<<$2>>>)<<<>>>dnl
+changequote([,])[]dnl
+])
+
+define([xright], [dnl
+changequote([<<<],[>>>])<<<>>>dnl
+substr(<<<$1>>>,<<<$2>>>)<<<>>>dnl
+changequote([,])[]dnl
+])
+
+define([yuck_esc], [dnl
+pushdef([next], index([$1], [$2]))[]dnl
+ifelse(next, [-1], [[$1]], [dnl
+xleft([$1], next)[$3]dnl
+$0(xright([$1], incr(next)), [$2], [$3])[]dnl
 ])[]dnl
 popdef([next])dnl
 ])dnl
 
+## \n -> \\n\\
+define([yuck_esc_newline], [yuck_esc([$1], [
+], [\n\
+])])
+
 ## " -> \"
-define([yuck_esc_quote], [dnl
-pushdef([next], index([$1], ["]))[]dnl "
-ifelse(next, [-1], [$1], [dnl
-substr([$1], 0, next)[\"]$0(substr([$1], incr(next)))[]dnl
-])[]dnl
-popdef([next])[]dnl
-])dnl
+define([yuck_esc_quote], [yuck_esc([$1], ["], [\"])])dnl "
 
 ## \ -> \\
-define([yuck_esc_backslash], [dnl
-pushdef([next], index([$1], [\]))[]dnl
-ifelse(next, [-1], [$1], [dnl
-substr([$1], 0, next)[\\]$0(substr([$1], incr(next)))[]dnl
-])[]dnl
-popdef([next])[]dnl
-])dnl
+define([yuck_esc_backslash], [yuck_esc([$1], [\], [\\])])dnl
 
 define([yuck_C_literal], [dnl
 yuck_esc_newline(yuck_esc_quote(yuck_esc_backslash([$1])))[]dnl
