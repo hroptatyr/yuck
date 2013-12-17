@@ -112,6 +112,127 @@ TESTS += xmpl-subcommands-02.clit
 TESTS += xmpl-subcommands-03.clit
 TESTS += xmpl-subcommands-04.clit
 
+EXTRA_DIST += generic.c
+check_PROGRAMS += generic-muloptarg_01
+generic_muloptarg_01_SOURCES = generic.c
+generic_muloptarg_01_CPPFLAGS = -DYUCC_FILE='"muloptarg_01.yucc"'
+BUILT_SOURCES += muloptarg_01.yucc
+TESTS += generic-muloptarg_01.clit
+
+check_PROGRAMS += generic-muloptarg_02
+generic_muloptarg_02_SOURCES = generic.c
+generic_muloptarg_02_CPPFLAGS = -DYUCC_FILE='"muloptarg_02.yucc"'
+BUILT_SOURCES += muloptarg_02.yucc
+TESTS += generic-muloptarg_02.clit
+
+check_PROGRAMS += generic-muloptarg_03
+generic_muloptarg_03_SOURCES = generic.c
+generic_muloptarg_03_CPPFLAGS = -DYUCC_FILE='"muloptarg_03.yucc"'
+BUILT_SOURCES += muloptarg_03.yucc
+TESTS += generic-muloptarg_03.clit
+
+check_PROGRAMS += generic-muloptarg_04
+generic_muloptarg_04_SOURCES = generic.c
+generic_muloptarg_04_CPPFLAGS = -DYUCC_FILE='"muloptarg_04.yucc"'
+BUILT_SOURCES += muloptarg_04.yucc
+TESTS += generic-muloptarg_04.clit
+
+check_PROGRAMS += generic-mularg_01
+generic_mularg_01_SOURCES = generic.c
+generic_mularg_01_CPPFLAGS = -DYUCC_FILE='"mularg_01.yucc"'
+BUILT_SOURCES += mularg_01.yucc
+TESTS += generic-mularg_01.clit
+
+check_PROGRAMS += generic-mularg_02
+generic_mularg_02_SOURCES = generic.c
+generic_mularg_02_CPPFLAGS = -DYUCC_FILE='"mularg_02.yucc"'
+BUILT_SOURCES += mularg_02.yucc
+TESTS += generic-mularg_02.clit
+
+check_PROGRAMS += generic-mularg_03
+generic_mularg_03_SOURCES = generic.c
+generic_mularg_03_CPPFLAGS = -DYUCC_FILE='"mularg_03.yucc"'
+BUILT_SOURCES += mularg_03.yucc
+TESTS += generic-mularg_03.clit
+
+check_PROGRAMS += generic-mularg_04
+generic_mularg_04_SOURCES = generic.c
+generic_mularg_04_CPPFLAGS = -DYUCC_FILE='"mularg_04.yucc"'
+BUILT_SOURCES += mularg_04.yucc
+TESTS += generic-mularg_04.clit
+
+check_PROGRAMS += generic-optarg_01
+generic_optarg_01_SOURCES = generic.c
+generic_optarg_01_CPPFLAGS = -DYUCC_FILE='"optarg_01.yucc"'
+BUILT_SOURCES += optarg_01.yucc
+TESTS += generic-optarg_01.clit
+
+check_PROGRAMS += generic-optarg_02
+generic_optarg_02_SOURCES = generic.c
+generic_optarg_02_CPPFLAGS = -DYUCC_FILE='"optarg_02.yucc"'
+BUILT_SOURCES += optarg_02.yucc
+TESTS += generic-optarg_02.clit
+
+check_PROGRAMS += generic-optarg_03
+generic_optarg_03_SOURCES = generic.c
+generic_optarg_03_CPPFLAGS = -DYUCC_FILE='"optarg_03.yucc"'
+BUILT_SOURCES += optarg_03.yucc
+TESTS += generic-optarg_03.clit
+
+check_PROGRAMS += generic-optarg_04
+generic_optarg_04_SOURCES = generic.c
+generic_optarg_04_CPPFLAGS = -DYUCC_FILE='"optarg_04.yucc"'
+BUILT_SOURCES += optarg_04.yucc
+TESTS += generic-optarg_04.clit
+
+check_PROGRAMS += generic-option_01
+generic_option_01_SOURCES = generic.c
+generic_option_01_CPPFLAGS = -DYUCC_FILE='"option_01.yucc"'
+BUILT_SOURCES += option_01.yucc
+TESTS += generic-option_01.clit
+
+check_PROGRAMS += generic-option_02
+generic_option_02_SOURCES = generic.c
+generic_option_02_CPPFLAGS = -DYUCC_FILE='"option_02.yucc"'
+BUILT_SOURCES += option_02.yucc
+TESTS += generic-option_02.clit
+
+check_PROGRAMS += generic-option_03
+generic_option_03_SOURCES = generic.c
+generic_option_03_CPPFLAGS = -DYUCC_FILE='"option_03.yucc"'
+BUILT_SOURCES += option_03.yucc
+TESTS += generic-option_03.clit
+
+check_PROGRAMS += generic-option_04
+generic_option_04_SOURCES = generic.c
+generic_option_04_CPPFLAGS = -DYUCC_FILE='"option_04.yucc"'
+BUILT_SOURCES += option_04.yucc
+TESTS += generic-option_04.clit
+
+check_PROGRAMS += generic-option_05
+generic_option_05_SOURCES = generic.c
+generic_option_05_CPPFLAGS = -DYUCC_FILE='"option_05.yucc"'
+BUILT_SOURCES += option_05.yucc
+TESTS += generic-option_05.clit
+
+check_PROGRAMS += generic-option_06
+generic_option_06_SOURCES = generic.c
+generic_option_06_CPPFLAGS = -DYUCC_FILE='"option_06.yucc"'
+BUILT_SOURCES += option_06.yucc
+TESTS += generic-option_06.clit
+
+check_PROGRAMS += generic-option_07
+generic_option_07_SOURCES = generic.c
+generic_option_07_CPPFLAGS = -DYUCC_FILE='"option_07.yucc"'
+BUILT_SOURCES += option_07.yucc
+TESTS += generic-option_07.clit
+
+check_PROGRAMS += generic-option_08
+generic_option_08_SOURCES = generic.c
+generic_option_08_CPPFLAGS = -DYUCC_FILE='"option_08.yucc"'
+BUILT_SOURCES += option_08.yucc
+TESTS += generic-option_08.clit
+
 
 ## yuck rule
 %.yucc: %.yuck $(top_builddir)/src/yuck

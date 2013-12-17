@@ -1,0 +1,12 @@
+#!/usr/bin/clitoris
+
+$ generic-optarg_03 --help
+Usage: plain [OPTION]...
+
+  -h, --help            display this help and exit
+  -V, --version         output version information and exit
+  -x, --execute[=LEVEL]
+
+$
+
+## generic-optarg_03.clit ends here

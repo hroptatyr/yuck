@@ -1,0 +1,13 @@
+#!/usr/bin/clitoris
+
+$ generic-muloptarg_04 --help
+Usage: plain [OPTION]...
+
+  -h, --help            display this help and exit
+  -V, --version         output version information and exit
+  -x, --execute[=LEVEL]...
+                        Execute thoroughly.
+
+$
+
+## generic-muloptarg_04.clit ends here
