@@ -292,21 +292,33 @@ DEFUN void yuck_free(yuck_t tgt[[static 1U]])
 		void *ptr;
 	default:
 		break;
-foreachq([C], yuck_umbcmds(), [dnl
-	case yuck_cmd(defn([C])):
-foreachq([slot], yuck_idents(defn([C])), [dnl
 pushdef([action], [dnl
-		ptr = (char*)NULL + ((const char*)tgt->defn([slot]) - (char*)NULL);
+		ptr = (char*)NULL + ((const char*)tgt->yuck_slot(defn([I]), defn([C])) - (char*)NULL);
 		if (ptr != NULL) {
 			free(ptr);
 		}
 ])dnl
-yuck_iftype(defn([slot]), defn([C]),
-	    [arg,mul], [action],
-	    [arg,mul,opt], [action])[]dnl
-popdef([action])])dnl
+dnl TYPE actions
+pushdef([yuck_flag_action], [])dnl
+pushdef([yuck_arg_action], [])dnl
+pushdef([yuck_arg_opt_action], [])dnl
+pushdef([yuck_arg_mul_action], defn([action]))dnl
+pushdef([yuck_arg_mul_opt_action], defn([action]))dnl
+pushdef([yuck_auto_action], [])dnl
+foreachq([C], yuck_umbcmds(), [dnl
+	case yuck_cmd(defn([C])):
+foreachq([I], yuck_idents(defn([C])), [dnl
+		yuck_option_action(defn([I]), defn([C]));
 		break;
-])
+])[]dnl
+])[]dnl
+popdef([action])dnl
+popdef([yuck_flag_action])dnl
+popdef([yuck_arg_action])dnl
+popdef([yuck_arg_opt_action])dnl
+popdef([yuck_arg_mul_action])dnl
+popdef([yuck_arg_mul_opt_action])dnl
+popdef([yuck_auto_opt_action])dnl
 	}
 	return;
 }
