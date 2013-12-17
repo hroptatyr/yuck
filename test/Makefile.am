@@ -161,6 +161,30 @@ generic_mularg_04_CPPFLAGS = -DYUCC_FILE='"mularg_04.yucc"'
 BUILT_SOURCES += mularg_04.yucc
 TESTS += generic-mularg_04.clit
 
+check_PROGRAMS += generic-optarg_01
+generic_optarg_01_SOURCES = generic.c
+generic_optarg_01_CPPFLAGS = -DYUCC_FILE='"optarg_01.yucc"'
+BUILT_SOURCES += optarg_01.yucc
+TESTS += generic-optarg_01.clit
+
+check_PROGRAMS += generic-optarg_02
+generic_optarg_02_SOURCES = generic.c
+generic_optarg_02_CPPFLAGS = -DYUCC_FILE='"optarg_02.yucc"'
+BUILT_SOURCES += optarg_02.yucc
+TESTS += generic-optarg_02.clit
+
+check_PROGRAMS += generic-optarg_03
+generic_optarg_03_SOURCES = generic.c
+generic_optarg_03_CPPFLAGS = -DYUCC_FILE='"optarg_03.yucc"'
+BUILT_SOURCES += optarg_03.yucc
+TESTS += generic-optarg_03.clit
+
+check_PROGRAMS += generic-optarg_04
+generic_optarg_04_SOURCES = generic.c
+generic_optarg_04_CPPFLAGS = -DYUCC_FILE='"optarg_04.yucc"'
+BUILT_SOURCES += optarg_04.yucc
+TESTS += generic-optarg_04.clit
+
 
 ## yuck rule
 %.yucc: %.yuck $(top_builddir)/src/yuck
