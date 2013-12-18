@@ -39,9 +39,6 @@ AC_C_BIGENDIAN
 AC_PROG_RANLIB
 
 
-AM_MISSING_PROG([HELP2MAN], [help2man], ["${missing_dir}"])
-
-
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([src/Makefile])
 AC_CONFIG_FILES([info/Makefile])
