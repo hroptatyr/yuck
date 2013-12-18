@@ -39,6 +39,8 @@ AC_C_BIGENDIAN
 AC_PROG_RANLIB
 
 
+AC_CHECK_HEADERS([strings.h])
+
 AC_CHECK_FUNCS([getline])
 AC_CHECK_FUNCS([fgetln])
 
