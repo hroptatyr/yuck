@@ -756,18 +756,30 @@ snarf_f(FILE *f)
 {
 	char *line = NULL;
 	size_t llen = 0U;
-	ssize_t nrd;
 
-	while ((nrd = getline(&line, &llen, f)) > 0) {
+#if defined HAVE_GETLINE
+	for (ssize_t nrd; (nrd = getline(&line, &llen, f)) > 0;) {
 		if (*line == '#') {
 			continue;
 		}
 		snarf_ln(line, nrd);
 	}
+#elif defined HAVE_FGETLN
+	while ((line = fgetln(f, &llen)) != NULL) {
+		if (*line == '#') {
+			continue;
+		}
+		snarf_ln(line, llen);
+	}
+#else
+# error neither getline() nor fgetln() available, cannot read file line by line
+#endif	/* GETLINE/FGETLN */
 	/* drain */
 	snarf_ln(NULL, 0U);
 
+#if defined HAVE_GETLINE
 	free(line);
+#endif	/* HAVE_GETLINE */
 	return 0;
 }
 
