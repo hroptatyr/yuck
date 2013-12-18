@@ -27,4 +27,8 @@ DISTCLEANFILES += men_built.stamp
 men_built.stamp: $(top_srcdir)/version.m4
 	@touch $@
 
+dist-hook:
+	@touch men_built.stamp
+	$(MAKE) $(BUILT_MANS)
+
 ## Makefile.am ends here
