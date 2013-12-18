@@ -106,12 +106,13 @@ foreachq([cmd], yuck_cmds(), [dnl
 ])
 
 pushdef([DECLF], ifdef([YUCK_HEADER], [extern], [static]))[]dnl
-DECLF int yuck_parse(yuck_t[[static 1U]], int argc, char *const argv[[]]);
-DECLF void yuck_free(yuck_t[[static 1U]]);
+DECLF __attribute__((nonnull(1))) int
+yuck_parse(yuck_t*, int argc, char *const argv[[]]);
+DECLF __attribute__((nonnull(1))) void yuck_free(yuck_t*);
 
-DECLF void yuck_auto_help(const yuck_t[[static 1U]]);
-DECLF void yuck_auto_usage(const yuck_t[[static 1U]]);
-DECLF void yuck_auto_version(const yuck_t[[static 1U]]);
+DECLF __attribute__((nonnull(1))) void yuck_auto_help(const yuck_t*);
+DECLF __attribute__((nonnull(1))) void yuck_auto_usage(const yuck_t*);
+DECLF __attribute__((nonnull(1))) void yuck_auto_version(const yuck_t*);
 popdef([DECLF])[]dnl
 
 #endif	/* INCLUDED_yuck_h_ */
