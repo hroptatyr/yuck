@@ -23,6 +23,6 @@ BUILT_MANS += yuck.man
 		-o $@ $<
 
 men_built.stamp: $(top_srcdir)/version.m4
-	touch $@
+	@touch $@
 
 ## Makefile.am ends here
