@@ -14,7 +14,7 @@ dnl Local copyright notices.
 dnl -------------------------------------------------------------------------
 
 AC_COPYRIGHT([dnl
-#### Configuration script for clitoris
+#### Configuration script for yuck
 #### Copyright (C) 2013  Sebastian Freundt
 
 ### Don't edit this script!
