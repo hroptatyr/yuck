@@ -15,7 +15,6 @@ man1_MANS += $(BUILT_MANS)
 
 BUILT_MANS += yuck.man
 
-EXTRA_DIST += men_built.stamp
 DISTCLEANFILES = men_built.stamp
 
 
@@ -27,9 +26,5 @@ DISTCLEANFILES = men_built.stamp
 
 men_built.stamp: $(top_srcdir)/version.m4
 	@touch $@
-
-## retrigger man building
-dist-hook:
-	@touch men_built.stamp
 
 ## Makefile.am ends here
