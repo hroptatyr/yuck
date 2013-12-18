@@ -15,6 +15,9 @@ man1_MANS += $(BUILT_MANS)
 
 BUILT_MANS += yuck.man
 
+EXTRA_DIST += men_built.stamp
+DISTCLEANFILES = men_built.stamp
+
 
 ## help2man helpers
 %.man: $(top_srcdir)/src/%.yuck men_built.stamp
