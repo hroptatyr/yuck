@@ -39,6 +39,10 @@ AC_C_BIGENDIAN
 AC_PROG_RANLIB
 
 
+AC_CHECK_FUNCS([getline])
+AC_CHECK_FUNCS([fgetln])
+
+
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([src/Makefile])
 AC_CONFIG_FILES([info/Makefile])
