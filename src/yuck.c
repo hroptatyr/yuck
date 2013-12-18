@@ -43,6 +43,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <strings.h>
 #include <assert.h>
 #include <errno.h>
 #include <ctype.h>
@@ -72,6 +73,13 @@
 	for (args, *paste(__ep, __LINE__) = (void*)1;			\
 	     paste(__ep, __LINE__); paste(__ep, __LINE__) = 0)
 #endif	/* !with */
+
+#if !defined HAVE_GETLINE && !defined HAVE_FGETLN
+/* as a service to people including this file in their project
+ * but who might not necessarily run the corresponding AC_CHECK_FUNS
+ * we assume that a getline() is available. */
+# define HAVE_GETLINE	1
+#endif	/* !HAVE_GETLINE && !HAVE_FGETLN */
 
 struct usg_s {
 	char *umb;
