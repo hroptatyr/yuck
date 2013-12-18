@@ -17,9 +17,12 @@ BUILT_MANS += yuck.man
 
 
 ## help2man helpers
-%.man: $(top_srcdir)/src/%.yuck $(top_srcdir)/version.m4
+%.man: $(top_srcdir)/src/%.yuck men_built.stamp
 	$(AM_V_GEN) YUCK_TEMPLATE_PATH="$(abs_top_srcdir)/src" \
 		$(top_builddir)/src/yuck genman --version=$(VERSION) \
 		-o $@ $<
+
+men_built.stamp: $(top_srcdir)/version.m4
+	touch $@
 
 ## Makefile.am ends here
