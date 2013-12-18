@@ -14,7 +14,7 @@ dnl Local copyright notices.
 dnl -------------------------------------------------------------------------
 
 AC_COPYRIGHT([dnl
-#### Configuration script for clitoris
+#### Configuration script for yuck
 #### Copyright (C) 2013  Sebastian Freundt
 
 ### Don't edit this script!
@@ -37,13 +37,6 @@ SXE_CHECK_CFLAGS
 AC_CHECK_TOOLS([AR], [xiar ar], [false])
 AC_C_BIGENDIAN
 AC_PROG_RANLIB
-
-## check for getopt.h
-AC_CHECK_HEADERS([getopt.h])
-AM_CONDITIONAL([NEED_GETOPT_H], [test "${ac_cv_header_getopt_h}" != "yes"])
-
-
-AM_MISSING_PROG([HELP2MAN], [help2man], ["${missing_dir}"])
 
 
 AC_CONFIG_FILES([Makefile])
