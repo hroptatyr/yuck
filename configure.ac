@@ -44,6 +44,9 @@ AC_CHECK_HEADERS([strings.h])
 AC_CHECK_FUNCS([getline])
 AC_CHECK_FUNCS([fgetln])
 
+## check for yuck helper
+AX_CHECK_YUCK([with_included_yuck="yes"])
+
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([src/Makefile])
