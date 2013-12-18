@@ -1,0 +1,3 @@
+#include "version.h"
+
+const char yuck_version_string[] = "yuck @VERSION@";

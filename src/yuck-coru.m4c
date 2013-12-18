@@ -3,6 +3,9 @@ changecom([#])dnl
 #if defined HAVE_CONFIG_H
 # include "config.h"
 #endif	/* HAVE_CONFIG_H */
+#if defined HAVE_VERSION_H
+# include "version.h"
+#endif	/* HAVE_VERSION_H */
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
@@ -385,7 +388,15 @@ DEFUN void yuck_auto_version(const yuck_t src[[static 1U]])
 ifdef([YUCK_VER], [dnl
 		puts("YUCK_UMB YUCK_VER");
 ], [dnl
-#if defined PACKAGE_VERSION
+#if 0
+
+#elif defined package_string
+		puts(package_string);
+#elif defined package_version
+		printf("YUCK_UMB %s\n", package_version);
+#elif defined PACKAGE_STRING
+		puts(PACKAGE_STRING);
+#elif defined PACKAGE_VERSION
 		puts("YUCK_UMB " PACKAGE_VERSION);
 #elif defined VERSION
 		puts("YUCK_UMB " VERSION);

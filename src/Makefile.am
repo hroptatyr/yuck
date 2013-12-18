@@ -23,6 +23,9 @@ EXTRA_DIST = $(BUILT_SOURCES)
 CLEANFILES =
 
 
+EXTRA_DIST += version.c.in
+CLEANFILES += version.c
+
 noinst_PROGRAMS += yuck-bootstrap
 yuck_bootstrap_SOURCES = yuck.c
 yuck_bootstrap_CPPFLAGS = $(AM_CPPFLAGS)
@@ -30,6 +33,9 @@ yuck_bootstrap_CPPFLAGS += -DBOOTSTRAP
 
 bin_PROGRAMS += yuck
 yuck_SOURCES = yuck.c yuck.yuck
+yuck_SOURCES += version.c version.h
+yuck_CPPFLAGS = $(AM_CPPFLAGS)
+yuck_CPPFLAGS += -DHAVE_VERSION_H
 BUILT_SOURCES += yuck.yucc
 CLEANFILES += yuck.m4i yuck.yucc
 
@@ -40,10 +46,13 @@ pkgdata_DATA += yuck.m4man
 EXTRA_DIST += $(pkgdata_DATA)
 
 
+## version rules
+version.c: version.c.in $(top_builddir)/version.mk
+	sed -e 's,[@]VERSION[@],$(VERSION),' < $< > $@
+
 ## bootstrapping rules
 yuck.m4i: yuck.yuck $(builddir)/yuck-bootstrap $(top_builddir)/version.mk
 	$(AM_V_GEN) $(builddir)/yuck-bootstrap $< > $@
-	@echo "define([YUCK_VER], [$(VERSION)])dnl" >> $@
 
 yuck.yucc: yuck.m4 yuck.m4i yuck-coru.m4h yuck-coru.m4c
 	$${M4:-m4} $+ > $@ || rm -f -- $@
