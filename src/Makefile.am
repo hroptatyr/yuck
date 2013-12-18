@@ -55,7 +55,7 @@ yuck.m4i: yuck.yuck $(builddir)/yuck-bootstrap $(top_builddir)/version.mk
 	$(AM_V_GEN) $(builddir)/yuck-bootstrap $< > $@
 
 yuck.yucc: yuck.m4 yuck.m4i yuck-coru.m4h yuck-coru.m4c
-	$${M4:-m4} $+ > $@ || rm -f -- $@
+	$(AM_V_GEN) $${M4:-m4} $+ > $@ || rm -f -- $@
 
 ## for dist or dist check we need binaries, so help2man can work
 dist-hook: $(bin_PROGRAMS)
