@@ -9,14 +9,14 @@ LC_ALL=C
 BUILT_SOURCES =
 BUILT_MANS =
 EXTRA_DIST = $(BUILT_SOURCES) $(BUILT_MANS)
+DISTCLEANFILES = $(EXTRA_DIST)
 
 man1_MANS =
 man1_MANS += $(BUILT_MANS)
 
 BUILT_MANS += yuck.man
 
-DISTCLEANFILES = men_built.stamp
-
+DISTCLEANFILES += men_built.stamp
 
 ## help2man helpers
 %.man: $(top_srcdir)/src/%.yuck men_built.stamp
