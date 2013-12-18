@@ -25,4 +25,8 @@ BUILT_MANS += yuck.man
 men_built.stamp: $(top_srcdir)/version.m4
 	@touch $@
 
+## retrigger man building
+dist-hook:
+	@touch men_built.stamp
+
 ## Makefile.am ends here
