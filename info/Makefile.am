@@ -9,26 +9,16 @@ LC_ALL=C
 BUILT_SOURCES =
 BUILT_MANS =
 EXTRA_DIST = $(BUILT_SOURCES) $(BUILT_MANS)
-DISTCLEANFILES = $(EXTRA_DIST)
 
 man1_MANS =
 man1_MANS += $(BUILT_MANS)
 
 BUILT_MANS += yuck.man
 
-DISTCLEANFILES += men_built.stamp
-
 ## help2man helpers
-%.man: $(top_srcdir)/src/%.yuck men_built.stamp
+%.man: $(top_srcdir)/src/%.yuck $(top_srcdir)/configure $(top_srcdir)/version.m4
 	$(AM_V_GEN) YUCK_TEMPLATE_PATH="$(abs_top_srcdir)/src" \
 		$(top_builddir)/src/yuck genman --version=$(VERSION) \
 		-o $@ $<
-
-men_built.stamp: $(top_srcdir)/version.m4
-	@touch $@
-
-dist-hook:
-	@touch men_built.stamp
-	$(MAKE) $(BUILT_MANS)
 
 ## Makefile.am ends here
