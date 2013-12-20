@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ yuck gen "${srcdir}/option_10.yuck" | grep -- "--perform"
+      --perform         Print, write, or, to end the line in a comma,\n\
+$
+
+## option_12.clit ends here

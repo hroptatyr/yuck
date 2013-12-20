@@ -66,6 +66,13 @@ EXTRA_DIST += option_07.yuck
 TESTS += option_08.clit
 EXTRA_DIST += option_08.yuck
 
+TESTS += option_09.clit
+EXTRA_DIST += option_09.yuck
+TESTS += option_10.clit
+EXTRA_DIST += option_10.yuck
+TESTS += option_11.clit
+TESTS += option_12.clit
+
 TESTS += optarg_01.clit
 EXTRA_DIST += optarg_01.yuck
 TESTS += optarg_02.clit
