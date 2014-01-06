@@ -264,8 +264,8 @@ define([yuck_indent_line], [dnl
 pushdef([next], index([$1], [
 ]))[]dnl
 ifelse([$1], [], [], dnl
-next, [-1], [                        [$1]], [dnl
-[                        substr([$1], 0, ]next[)
+next, [-1], [                        $1], [dnl
+[                        ]substr([$1], 0, next)[
 ]$0(substr([$1], incr(next)))[]dnl
 ])[]dnl
 popdef([next])dnl
@@ -274,7 +274,7 @@ popdef([next])dnl
 ## yuck_option_help_line([ident], [[cmd]])
 define([yuck_option_help_line], [dnl
 pushdef([lhs], yuck_option_help_lhs([$1], [$2]))dnl
-pushdef([desc], [yuck_option_desc([$1], [$2])])dnl
+pushdef([desc], yuck_option_desc([$1], [$2]))dnl
 pushdef([indesc], yuck_indent_line(defn([desc])))dnl
 pushdef([lenlhs], len(defn([lhs])))dnl
 ifelse(defn([indesc]), [], [defn([lhs])],
