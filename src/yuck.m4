@@ -281,10 +281,10 @@ popdef([next])dnl
 ## yuck_option_help_line([ident], [[cmd]])
 define([yuck_option_help_line], [backquote([_$0([$1], [$2])])])
 define([_yuck_option_help_line], [dnl
-pushdef([lhs], backquote([yuck_option_help_lhs([$1], [$2])]))dnl
+pushdef([lhs], [backquote([yuck_option_help_lhs([$1], [$2])])])dnl
 pushdef([desc], backquote([yuck_option_desc([$1], [$2])]))dnl
 pushdef([indesc], backquote([yuck_indent_line(defn([desc]))]))dnl
-pushdef([lenlhs], len(defn([lhs])))dnl
+pushdef([lenlhs], len(lhs))dnl
 ifelse(defn([indesc]), [], [defn([lhs])],
 eval(lenlhs >= 23), [0], [dnl
 defn([lhs])[]substr(defn([indesc]), lenlhs)[]dnl
