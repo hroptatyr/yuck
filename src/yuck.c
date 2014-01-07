@@ -1018,7 +1018,7 @@ run_m4(const char *outfn, ...)
 		dup2(outfd, STDOUT_FILENO);
 	}
 
-	execvp("m4", m4_cmdline);
+	execvp(m4_cmdline[0U], m4_cmdline);
 	error("execvp(m4) failed");
 bollocks:
 	_exit(EXIT_FAILURE);
