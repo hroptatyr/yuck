@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ yuck gen "${srcdir}/option_09.yuck" | grep -- "--perform"
+      --perform         Print, write, or otherwise output\n\
+$
+
+## option_11.clit ends here
