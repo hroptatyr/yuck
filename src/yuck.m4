@@ -263,10 +263,9 @@ popdef([yuck_arg_mul_opt_action])dnl
 define([yuck_indent_line], [dnl
 pushdef([next], index([$1], [
 ]))[]dnl
-ifelse([$1], [], [], dnl
-next, [-1], [                        $1], [dnl
-[                        ]substr([$1], 0, next)[
-]$0(substr([$1], incr(next)))[]dnl
+ifelse([$1], [], [], next, [-1], [                        $1], [dnl
+[                        ]xleft([$1], next)[
+]$0(xright([$1], incr(next)))[]dnl
 ])[]dnl
 popdef([next])dnl
 ])dnl
