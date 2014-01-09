@@ -1,0 +1,5 @@
+Usage: plain
+
+  -x  Tricky, with lone [ and " and \ and
+      newlines
+

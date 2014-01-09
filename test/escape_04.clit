@@ -1,0 +1,13 @@
+#!/usr/bin/clitoris
+
+$ generic-escape_04 --help
+Usage: plain [OPTION]...
+
+  -h, --help            display this help and exit
+  -V, --version         output version information and exit
+  -x [FOO]              Tricky, with lone [ and " and \ and
+                        newlines
+
+$
+
+## escape_04.clit ends here
