@@ -250,9 +250,9 @@ pushdef([l], yuck_long([$1], [$2]))dnl
 pushdef([type], yuck_option_type([$1], [$2]))dnl
 pushdef([prel], ifelse(defn([l]), [], [], [=]))dnl
 pushdef([yuck_arg_action], [defn([prel])[]yuck_type_name(yuck_option_type([$1], [$2]))])dnl
-pushdef([yuck_arg_opt_action], [dquote(defn([prel])[]yuck_type_name(yuck_option_type([$1], [$2])))])dnl
+pushdef([yuck_arg_opt_action], [defn([prel])[]yuck_type_name(yuck_option_type([$1], [$2]))])dnl
 pushdef([yuck_arg_mul_action], [defn([prel])[]yuck_type_name(yuck_option_type([$1], [$2]))...])dnl
-pushdef([yuck_arg_mul_opt_action], [dquote(defn([prel])[]yuck_type_name(yuck_option_type([$1], [$2])))...])dnl
+pushdef([yuck_arg_mul_opt_action], [defn([prel])[]yuck_type_name(yuck_option_type([$1], [$2]))...])dnl
 [  ]ifelse(defn([s]), [], [    ], [-defn([s])ifelse(defn([l]), [], [], [[, ]])])[]dnl
 ifelse(defn([l]), [], [], [--]defn([l]))[]dnl
 ifelse(yuck_type(defn([type])), [arg], [dnl
@@ -279,12 +279,11 @@ popdef([next])dnl
 ])dnl
 
 ## yuck_option_help_line([ident], [[cmd]])
-define([yuck_option_help_line], [backquote([_$0([$1], [$2])])])
-define([_yuck_option_help_line], [dnl
-pushdef([lhs], [backquote([yuck_option_help_lhs([$1], [$2])])])dnl
+define([yuck_option_help_line], [dnl
+pushdef([lhs], backquote([yuck_option_help_lhs([$1], [$2])]))dnl
 pushdef([desc], backquote([yuck_option_desc([$1], [$2])]))dnl
 pushdef([indesc], backquote([yuck_indent_line(defn([desc]))]))dnl
-pushdef([lenlhs], len(lhs))dnl
+pushdef([lenlhs], len(defn([lhs])))dnl
 ifelse(defn([indesc]), [], [defn([lhs])],
 eval(lenlhs >= 23), [0], [dnl
 defn([lhs])[]substr(defn([indesc]), lenlhs)[]dnl
@@ -325,7 +324,7 @@ define([yuck_esc_quote], [yuck_esc([$1], ["], [\"])])dnl "
 define([yuck_esc_backslash], [yuck_esc([$1], [\], [\\])])dnl
 
 define([yuck_C_literal], [dnl
-yuck_esc_newline(yuck_esc_quote(yuck_esc_backslash([$1])))[]dnl
+yuck_esc_newline(backquote([yuck_esc_quote(backquote([yuck_esc_backslash([$1])]))]))[]dnl
 ])dnl
 
 
