@@ -322,6 +322,7 @@ popdef([yuck_arg_opt_action])dnl
 popdef([yuck_arg_mul_action])dnl
 popdef([yuck_arg_mul_opt_action])dnl
 popdef([yuck_auto_opt_action])dnl
+		break;
 	}
 	return;
 }
