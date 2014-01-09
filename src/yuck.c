@@ -232,6 +232,29 @@ massage_desc(char *str)
 	return;
 }
 
+#if !defined BOOTSTRAP
+static void
+unmassage_buf(char *restrict buf, size_t bsz)
+{
+/* turn m4 quoting character substitutes into brackets again */
+	for (char *restrict sp = buf, *const ep = buf + bsz; sp < ep; sp++) {
+		switch (*sp) {
+		default:
+			break;
+		case '\002':
+			/* unmap STX (start of text) */
+			*sp = '[';
+			break;
+		case '\003':
+			/* unmap ETX (end of text) */
+			*sp = ']';
+			break;
+		}
+	}
+	return;
+}
+#endif	/* !BOOTSTRAP */
+
 
 /* bang buffers */
 typedef struct {
@@ -958,6 +981,18 @@ find_dsl(void)
 	return find_aux(dslfn, sizeof(dslfn), "yuck.m4");
 }
 
+static void
+unmassage_fd(int tgtfd, int srcfd)
+{
+	static char buf[4096U];
+
+	for (ssize_t nrd; (nrd = read(srcfd, buf, sizeof(buf))) > 0;) {
+		unmassage_buf(buf, nrd);
+		write(tgtfd, buf, nrd);
+	}
+	return;
+}
+
 static __attribute__((noinline)) int
 run_m4(const char *outfn, ...)
 {
@@ -966,6 +1001,13 @@ run_m4(const char *outfn, ...)
 	};
 	va_list vap;
 	pid_t m4p;
+	/* to snarf off traffic from the child */
+	int intfd[2];
+
+	if (pipe(intfd) < 0) {
+		error("pipe setup to/from m4 failed");
+		return -1;
+	}
 
 	switch ((m4p = vfork())) {
 	case -1:
@@ -977,6 +1019,24 @@ run_m4(const char *outfn, ...)
 		/* i am the parent */
 		int rc;
 		int st;
+
+		if (outfn != NULL) {
+			/* --output given */
+			const int outfl = O_RDWR | O_CREAT | O_TRUNC;
+			int outfd;
+
+			if ((outfd = open(outfn, outfl, 0666)) < 0) {
+				/* bollocks */
+				error("cannot open outfile `%s'", outfn);
+				goto bollocks;
+			}
+
+			/* really redir now */
+			dup2(outfd, STDOUT_FILENO);
+		}
+
+		close(intfd[1]);
+		unmassage_fd(STDOUT_FILENO, intfd[0]);
 
 		rc = 2;
 		while (waitpid(m4p, &st, 0) != m4p);
@@ -1003,20 +1063,8 @@ run_m4(const char *outfn, ...)
 		     (m4_cmdline[i] = va_arg(vap, char*)) != NULL; i++);
 	va_end(vap);
 
-	if (outfn != NULL) {
-		/* --output given */
-		const int outfl = O_RDWR | O_CREAT | O_TRUNC;
-		int outfd;
-
-		if ((outfd = open(outfn, outfl, 0666)) < 0) {
-			/* bollocks */
-			error("cannot open outfile `%s'", outfn);
-			goto bollocks;
-		}
-
-		/* really redir now */
-		dup2(outfd, STDOUT_FILENO);
-	}
+	dup2(intfd[1], STDOUT_FILENO);
+	close(intfd[0]);
 
 	execvp("m4", m4_cmdline);
 	error("execvp(m4) failed");
