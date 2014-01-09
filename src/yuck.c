@@ -429,8 +429,8 @@ optionp(const char *line, size_t llen)
 
 	/* overread whitespace */
 	for (; sp < ep && isspace(*sp); sp++);
-	if (sp - line >= 8) {
-		/* we dont expect option specs that far out */
+	if (sp - line >= 2 && *sp != '-' && (cur_opt.sopt || cur_opt.lopt)) {
+		/* should be description */
 		goto desc;
 	}
 
