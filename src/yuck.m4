@@ -302,10 +302,7 @@ popdef([lhs])dnl
 define([xleft], [substr([$1], 0, [$2])])
 define([xright], [substr([$1], [$2])])
 
-define([yuck_esc], [_$0(backquote([$0_requote([$1])]), [$2], [$3])])
-define([yuck_esc_requote], [dnl
-translit(backquote([_yuck_esc(backquote([_yuck_esc(backquote([translit([$1], [[]], [])]), [], [])]), [], [])]), [], [[]])[]dnl
-])
+define([yuck_esc], [backquote([_$0([$1], [$2], [$3])])])
 define([_yuck_esc], [dnl
 pushdef([next], index([$1], [$2]))[]dnl
 ifelse(defn([next]), [-1], [[$1]], [dnl
