@@ -1,0 +1,5 @@
+Usage: plain
+
+  -x [FOO]  Tricky, with lone [ and " and \ and
+            newlines
+
