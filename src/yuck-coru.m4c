@@ -372,7 +372,7 @@ foreachq([C], yuck_cmds(), [  yuck_cmd_string(defn([C]))\n\
 	case yuck_cmd(defn([C])):
 		puts("\n\
 foreachq([I], yuck_idents(defn([C])), [dnl
-yuck_C_literal(yuck_option_help_line(defn([I]), defn([C])))[]dnl
+yuck_C_literal(backquote([yuck_option_help_line(defn([I]), defn([C]))]))[]dnl
 ])dnl
 "
 #if defined PACKAGE_BUGREPORT
