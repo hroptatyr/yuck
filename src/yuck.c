@@ -1300,11 +1300,33 @@ cmd_gendsl(const struct yuck_cmd_gendsl_s argi[static 1U])
 }
 
 static int
-cmd_ver(const struct yuck_cmd_ver_s UNUSED(argi[static 1U]))
+cmd_ver(const struct yuck_cmd_ver_s argi[static 1U])
 {
-	git_version();
-	hg_version();
-	bzr_version();
+	yuck_version_t v[1U];
+
+	if (yuck_version(v, argi->args[0U]) < 0) {
+		error("cannot determine SCM");
+		return 1;
+	}
+
+	fputs(v->vtag, stdout);
+	if (v->scm > YUCK_SCM_TARBALL && v->dist) {
+		switch (v->scm) {
+		default:
+			break;
+		case YUCK_SCM_GIT:
+			fputs(".git", stdout);
+			break;
+		case YUCK_SCM_BZR:
+			fputs(".bzr", stdout);
+			break;
+		case YUCK_SCM_HG:
+			fputs(".hg", stdout);
+			break;
+		}
+		fprintf(stdout, "%u.%x", v->dist, v->rvsn);
+	}
+	fputc('\n', stdout);
 	return 0;
 }
 
