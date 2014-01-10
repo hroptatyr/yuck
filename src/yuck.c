@@ -1302,7 +1302,7 @@ cmd_gendsl(const struct yuck_cmd_gendsl_s argi[static 1U])
 static int
 cmd_ver(const struct yuck_cmd_ver_s argi[static 1U])
 {
-	yuck_version_t v[1U];
+	struct yuck_version_s v[1U];
 
 	if (yuck_version(v, argi->args[0U]) < 0) {
 		error("cannot determine SCM");
