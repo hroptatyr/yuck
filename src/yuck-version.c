@@ -331,25 +331,24 @@ git_version(struct yuck_version_s v[static 1U])
 	return rc;
 }
 
-int
-hg_version(void)
+static int
+hg_version(struct yuck_version_s v[static 1U])
 {
-	int rc;
 	pid_t chld;
 	int fd[1U];
-	const char *ver = NULL;
-	const char *dist = NULL;
-	const char *rev = NULL;
+	int rc = 0;
 
 	if ((chld = run(fd, "hg", "log",
 			"--rev", ".",
 			"--template",
 			"{latesttag}\t{latesttagdistance}\t{node|short}\n",
 			NULL)) < 0) {
-		return 2;
+		return -1;
 	}
 	/* shouldn't be heaps, so just use a single read */
 	with (char buf[256U]) {
+		const char *vtag;
+		const char *dist;
 		char *bp;
 		ssize_t nrd;
 
@@ -360,23 +359,35 @@ hg_version(void)
 		buf[nrd - 1U/* for \n*/] = '\0';
 		/* parse buf */
 		bp = buf;
-		if (*bp++ != 'v' || (bp = strchr(ver = bp, '\t')) == NULL) {
-			ver = NULL;
+		if (*bp++ != 'v') {
+			/* technically we could request the latest v-tag
+			 * but i'm no hg buff so fuck it */
+			rc = -1;
 			break;
+		} else if ((bp = strchr(vtag = bp, '\t')) != NULL) {
+			/* tokenise */
+			*bp++ = '\0';
 		}
-		/* otherwise that's our ver */
-		*bp++ = '\0';
-		if ((bp = strchr(dist = bp, '\t')) == NULL) {
-			dist = NULL;
+		/* bang vtag */
+		xstrlcpy(v->vtag, vtag, sizeof(v->vtag));
+
+		if (UNLIKELY(bp == NULL)) {
+			/* huh? */
+			rc = -1;
 			break;
+		} else if ((bp = strchr(dist = bp, '\t')) != NULL) {
+			/* tokenise */
+			*bp++ = '\0';
 		}
-		*bp++ = '\0';
-		rev = bp;
+		/* bang distance */
+		v->dist = strtoul(dist, NULL, 10);
+
+		/* bang revision */
+		v->rvsn = hextou(bp, NULL);
 	}
 	close(*fd);
-	if ((rc = fin(chld)) == 0) {
-		/* output parser results */
-		printf("%s.hg%s.%s\n", ver, dist, rev);
+	if (fin(chld) != 0) {
+		rc = -1;
 	}
 	return rc;
 }
