@@ -1043,6 +1043,8 @@ run_m4(const char *outfn, ...)
 		if (WIFEXITED(st)) {
 			rc = WEXITSTATUS(st);
 		}
+		/* clean up the rest of the pipe */
+		close(intfd[0]);
 		return rc;
 
 	case 0:;
