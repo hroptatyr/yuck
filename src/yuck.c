@@ -1074,69 +1074,6 @@ bollocks:
 	_exit(EXIT_FAILURE);
 }
 
-static __attribute__((noinline)) pid_t
-run(int *fd, ...)
-{
-	static char *cmdline[16U];
-	va_list vap;
-	pid_t p;
-	/* to snarf off traffic from the child */
-	int intfd[2];
-
-	va_start(vap, fd);
-	for (size_t i = 0U;
-	     i < countof(cmdline) &&
-		     (cmdline[i] = va_arg(vap, char*)) != NULL; i++);
-	va_end(vap);
-
-	if (pipe(intfd) < 0) {
-		error("pipe setup to/from %s failed", cmdline[0U]);
-		return -1;
-	}
-
-	switch ((p = vfork())) {
-	case -1:
-		/* i am an error */
-		error("vfork for %s failed", cmdline[0U]);
-		return -1;
-
-	default:
-		/* i am the parent */
-		close(intfd[1]);
-		if (fd != NULL) {
-			*fd = intfd[0];
-		} else {
-			close(intfd[0]);
-		}
-		return p;
-
-	case 0:
-		/* i am the child */
-		break;
-	}
-
-	/* child code here */
-	close(intfd[0]);
-	dup2(intfd[1], STDOUT_FILENO);
-
-	execvp(cmdline[0U], cmdline);
-	error("execvp(%s) failed", cmdline[0U]);
-	_exit(EXIT_FAILURE);
-}
-
-static int
-fin(pid_t p)
-{
-	int rc = 2;
-	int st;
-
-	while (waitpid(p, &st, 0) != p);
-	if (WIFEXITED(st)) {
-		rc = WEXITSTATUS(st);
-	}
-	return rc;
-}
-
 static int
 wr_intermediary(char *const args[], size_t nargs)
 {
@@ -1220,6 +1157,173 @@ wr_version(const char ver[static 1U])
 	return 0;
 }
 #endif	/* !BOOTSTRAP */
+
+
+/* version snarfers */
+static __attribute__((noinline)) pid_t
+run(int *fd, ...)
+{
+	static char *cmdline[16U];
+	va_list vap;
+	pid_t p;
+	/* to snarf off traffic from the child */
+	int intfd[2];
+
+	va_start(vap, fd);
+	for (size_t i = 0U;
+	     i < countof(cmdline) &&
+		     (cmdline[i] = va_arg(vap, char*)) != NULL; i++);
+	va_end(vap);
+
+	if (pipe(intfd) < 0) {
+		error("pipe setup to/from %s failed", cmdline[0U]);
+		return -1;
+	}
+
+	switch ((p = vfork())) {
+	case -1:
+		/* i am an error */
+		error("vfork for %s failed", cmdline[0U]);
+		return -1;
+
+	default:
+		/* i am the parent */
+		close(intfd[1]);
+		if (fd != NULL) {
+			*fd = intfd[0];
+		} else {
+			close(intfd[0]);
+		}
+		return p;
+
+	case 0:
+		/* i am the child */
+		break;
+	}
+
+	/* child code here */
+	close(intfd[0]);
+	dup2(intfd[1], STDOUT_FILENO);
+
+	execvp(cmdline[0U], cmdline);
+	error("execvp(%s) failed", cmdline[0U]);
+	_exit(EXIT_FAILURE);
+}
+
+static int
+fin(pid_t p)
+{
+	int rc = 2;
+	int st;
+
+	while (waitpid(p, &st, 0) != p);
+	if (WIFEXITED(st)) {
+		rc = WEXITSTATUS(st);
+	}
+	return rc;
+}
+
+static int
+git_version(void)
+{
+	int rc;
+	pid_t chld;
+	int fd[1U];
+	const char *ver = NULL;
+	const char *dist = NULL;
+	const char *rev = NULL;
+	const char *suf = NULL;
+
+	if ((chld = run(fd, "git", "describe",
+			"--match=v[0-9]*", "--dirty", NULL)) < 0) {
+		return 2;
+	}
+	/* shouldn't be heaps, so just use a single read */
+	with (char buf[256U]) {
+		char *bp;
+		ssize_t nrd;
+
+		if ((nrd = read(*fd, buf, sizeof(buf))) <= 0) {
+			/* no version then aye */
+			break;
+		}
+		buf[nrd - 1U/* for \n*/] = '\0';
+		/* parse buf */
+		bp = buf;
+		if (*bp++ != 'v' || (bp = strchr(ver = bp, '-')) == NULL) {
+			ver = NULL;
+			break;
+		}
+		/* otherwise that's our ver */
+		*bp++ = '\0';
+		if ((bp = strchr(dist = bp, '-')) == NULL) {
+			dist = NULL;
+			break;
+		}
+		*bp++ = '\0';
+		if (*bp++ == 'g' && (bp = strchr(rev = bp, '-')) != NULL) {
+			/* we've got a suffix */
+			*bp++ = '\0';
+			suf = bp;
+		}
+	}
+	close(*fd);
+	if ((rc = fin(chld)) == 0) {
+		/* output parser results */
+		printf("%s.git%s.%s.%s\n", ver, dist, rev, suf);
+	}
+	return rc;
+}
+
+static int
+hg_version(void)
+{
+	int rc;
+	pid_t chld;
+	int fd[1U];
+	const char *ver = NULL;
+	const char *dist = NULL;
+	const char *rev = NULL;
+
+	if ((chld = run(fd, "hg", "log",
+			"--rev", ".",
+			"--template",
+			"{latesttag}\t{latesttagdistance}\t{node|short}\n",
+			NULL)) < 0) {
+		return 2;
+	}
+	/* shouldn't be heaps, so just use a single read */
+	with (char buf[256U]) {
+		char *bp;
+		ssize_t nrd;
+
+		if ((nrd = read(*fd, buf, sizeof(buf))) <= 0) {
+			/* no version then aye */
+			break;
+		}
+		buf[nrd - 1U/* for \n*/] = '\0';
+		/* parse buf */
+		bp = buf;
+		if (*bp++ != 'v' || (bp = strchr(ver = bp, '\t')) == NULL) {
+			ver = NULL;
+			break;
+		}
+		/* otherwise that's our ver */
+		*bp++ = '\0';
+		if ((bp = strchr(dist = bp, '\t')) == NULL) {
+			dist = NULL;
+			break;
+		}
+		*bp++ = '\0';
+		rev = bp;
+	}
+	close(*fd);
+	if ((rc = fin(chld)) == 0) {
+		/* output parser results */
+		printf("%s.hg%s.%s\n", ver, dist, rev);
+	}
+	return rc;
+}
 
 
 #if !defined BOOTSTRAP
@@ -1364,53 +1468,9 @@ cmd_gendsl(const struct yuck_cmd_gendsl_s argi[static 1U])
 static int
 cmd_ver(const struct yuck_cmd_ver_s UNUSED(argi[static 1U]))
 {
-	int rc;
-	pid_t chld;
-	int fd[1U];
-	const char *ver = NULL;
-	const char *dist = NULL;
-	const char *rev = NULL;
-	const char *suf = NULL;
-
-	if ((chld = run(fd, "git", "describe",
-			"--match=v[0-9]*", "--dirty", NULL)) < 0) {
-		return 2;
-	}
-	/* shouldn't be heaps, so just use a single read */
-	with (char buf[256U]) {
-		char *bp;
-		ssize_t nrd;
-
-		if ((nrd = read(*fd, buf, sizeof(buf))) <= 0) {
-			/* no version then aye */
-			break;
-		}
-		buf[nrd - 1U/* for \n*/] = '\0';
-		/* parse buf */
-		bp = buf;
-		if (*bp++ != 'v' || (bp = strchr(ver = bp, '-')) == NULL) {
-			ver = NULL;
-			break;
-		}
-		/* otherwise that's our ver */
-		*bp++ = '\0';
-		if ((bp = strchr(dist = bp, '-')) == NULL) {
-			dist = NULL;
-			break;
-		}
-		*bp++ = '\0';
-		if (*bp++ == 'g' && (bp = strchr(rev = bp, '-')) != NULL) {
-			/* we've got a suffix */
-			*bp++ = '\0';
-			suf = bp;
-		}
-	}
-	close(*fd);
-	if ((rc = fin(chld)) == 0) {
-		/* output parser results */
-		printf("%s.git%s.%s.%s\n", ver, dist, rev, suf);
-	}
-	return rc;
+	git_version();
+	hg_version();
+	return 0;
 }
 
 int
