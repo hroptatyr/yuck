@@ -49,6 +49,7 @@ typedef enum {
 
 struct yuck_version_s {
 	yuck_scm_t scm;
+	unsigned int dirty:1U;
 	char vtag[16U];
 	unsigned int dist;
 	unsigned int rvsn;
