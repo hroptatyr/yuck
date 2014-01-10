@@ -525,10 +525,16 @@ bzr_version(struct yuck_version_s v[static 1U])
 int
 yuck_version(struct yuck_version_s v[static 1U], const char *path)
 {
+	char cwd[PATH_MAX];
 	char fn[PATH_MAX];
+	int rc;
 
 	/* initialise result structure */
 	memset(v, 0, sizeof(*v));
+
+	if (getcwd(cwd, sizeof(cwd)) < 0) {
+		return -1;
+	}
 
 	switch ((v->scm = find_scm(fn, sizeof(fn), path))) {
 	case YUCK_SCM_ERROR:
@@ -536,15 +542,29 @@ yuck_version(struct yuck_version_s v[static 1U], const char *path)
 	case YUCK_SCM_TARBALL:
 	default:
 		/* can't determine version numbers in tarball, can we? */
+		rc = 0;
 		break;
 	case YUCK_SCM_GIT:
-		break;
 	case YUCK_SCM_BZR:
-		break;
 	case YUCK_SCM_HG:
+		chdir(fn);
+		switch (v->scm) {
+		case YUCK_SCM_GIT:
+			rc = git_version(v);
+			break;
+		case YUCK_SCM_BZR:
+			rc = bzr_version(v);
+			break;
+		case YUCK_SCM_HG:
+			rc = hg_version(v);
+			break;
+		default:
+			break;
+		}
+		chdir(cwd);
 		break;
 	}
-	return 0;
+	return rc;
 }
 
 /* yuck-version.c ends here */
