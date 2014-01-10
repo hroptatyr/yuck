@@ -58,9 +58,4 @@ struct yuck_version_s {
 /* public api */
 extern int yuck_version(yuck_version_t v[static 1U], const char *path);
 
-/* private api, testing */
-extern int git_version(void);
-extern int hg_version(void);
-extern int bzr_version(void);
-
 #endif	/* INCLUDED_yuck_version_h_ */
