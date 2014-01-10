@@ -1326,6 +1326,9 @@ cmd_ver(const struct yuck_cmd_ver_s argi[static 1U])
 		}
 		fprintf(stdout, "%u.%08x", v->dist, v->rvsn);
 	}
+	if (v->dirty) {
+		fputs(".dirty", stdout);
+	}
 	fputc('\n', stdout);
 	return 0;
 }
