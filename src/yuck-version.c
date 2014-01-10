@@ -89,6 +89,38 @@ error(const char *fmt, ...)
 	return;
 }
 
+static __attribute__((unused)) size_t
+xstrlcpy(char *restrict dst, const char *src, size_t dsz)
+{
+	size_t ssz = strlen(src);
+	if (ssz > dsz) {
+		ssz = dsz - 1U;
+	}
+	memcpy(dst, src, ssz);
+	dst[ssz] = '\0';
+	return ssz;
+}
+
+static char*
+xdirname(char *restrict fn, const char *fp)
+{
+/* find next dir in FN from FP backwards */
+	if (fp == NULL) {
+		fp = fn + strlen(fn);
+	}
+
+	while (--fp >= fn && *fp != '/');
+	while (fp >= fn && *fp-- == '/');
+	if (fp >= fn) {
+		/* replace / by \nul and return pointer */
+		char *dp = fn + (fp - fn);
+		*++dp = '\0';
+		return dp;
+	}
+	/* return \nul */
+	return NULL;
+}
+
 
 /* version snarfers */
 static __attribute__((noinline)) pid_t
@@ -334,6 +366,90 @@ bzr_version(void)
 		printf("%s.bzr%u.%u\n", ver, dist, rev);
 	}
 	return rc;
+}
+
+/* public api */
+#if !defined PATH_MAX
+# define PATH_MAX	(256U)
+#endif	/* !PATH_MAX */
+
+int
+yuck_version(yuck_version_t v[static 1U], const char *path)
+{
+	struct stat st[1U];
+	char fn[PATH_MAX];
+	char *dp = fn;
+
+	/* make a copy so we can fiddle with it */
+	if (path == NULL ||
+	    (dp += xstrlcpy(fn, path, sizeof(fn))) == fn) {
+	cwd:
+		/* just use "." then */
+		*dp++ = '.';
+		*dp = '\0';
+	}
+again:
+	fprintf(stderr, "statting %s\n", fn);
+	if (stat(fn, st) < 0) {
+		return -1;
+	} else if (UNLIKELY((size_t)(dp - fn) + 5U >= sizeof(fn))) {
+		/* not enough space */
+		return -1;
+	} else if (!S_ISDIR(st->st_mode)) {
+		/* not a directory, get the dir bit and start over */
+		if ((dp = xdirname(fn, dp)) == NULL) {
+			goto cwd;
+		}
+		goto again;
+	}
+
+scm_chk:
+	/* now check for .git, .bzr, .hg */
+	xstrlcpy(dp, "/.git", sizeof(fn) - (dp - fn));
+	fprintf(stderr, "checking %s\n", fn);
+	if (stat(fn, st) == 0 && S_ISDIR(st->st_mode)) {
+		/* yay it's a .git */
+		return YUCK_SCM_GIT;
+	}
+
+	xstrlcpy(dp, "/.bzr", sizeof(fn) - (dp - fn));
+	fprintf(stderr, "checking %s\n", fn);
+	if (stat(fn, st) == 0 && S_ISDIR(st->st_mode)) {
+		/* yay it's a .git */
+		return YUCK_SCM_BZR;
+	}
+
+	xstrlcpy(dp, "/.hg", sizeof(fn) - (dp - fn));
+	fprintf(stderr, "checking %s\n", fn);
+	if (stat(fn, st) == 0 && S_ISDIR(st->st_mode)) {
+		/* yay it's a .git */
+		return YUCK_SCM_HG;
+	}
+	/* nothing then, traverse upwards */
+	if (*fn != '/') {
+		/* make sure we don't go up indefinitely
+		 * comparing the current inode to ./.. */
+		with (ino_t curino) {
+			*dp = '\0';
+			if (stat(fn, st) < 0) {
+				break;
+			}
+			/* memorise inode */
+			curino = st->st_ino;
+			/* go upwards by appending /.. */
+			dp += xstrlcpy(dp, "/..", sizeof(fn) - (dp - fn));
+			/* check inode again */
+			if (stat(fn, st) < 0) {
+				break;
+			} else if (st->st_ino == curino) {
+				break;
+			}
+			goto scm_chk;
+		}
+	} else if ((dp = xdirname(fn, dp)) != NULL) {
+		goto scm_chk;
+	}
+	return YUCK_SCM_TARBALL;
 }
 
 /* yuck-version.c ends here */

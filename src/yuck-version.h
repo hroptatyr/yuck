@@ -37,6 +37,25 @@
 #if !defined INCLUDED_yuck_version_h_
 #define INCLUDED_yuck_version_h_
 
+typedef struct yuck_version_s yuck_version_t;
+
+struct yuck_version_s {
+	enum {
+		YUCK_SCM_TARBALL,
+		YUCK_SCM_GIT,
+		YUCK_SCM_BZR,
+		YUCK_SCM_HG,
+	} scm;
+	char vtag[16U];
+	unsigned int dist;
+	unsigned int rvsn;
+};
+
+
+/* public api */
+extern int yuck_version(yuck_version_t v[static 1U], const char *path);
+
+/* private api, testing */
 extern int git_version(void);
 extern int hg_version(void);
 extern int bzr_version(void);
