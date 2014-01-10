@@ -39,13 +39,16 @@
 
 typedef struct yuck_version_s yuck_version_t;
 
+typedef enum {
+	YUCK_SCM_ERROR = -1,
+	YUCK_SCM_TARBALL,
+	YUCK_SCM_GIT,
+	YUCK_SCM_BZR,
+	YUCK_SCM_HG,
+} yuck_scm_t;
+
 struct yuck_version_s {
-	enum {
-		YUCK_SCM_TARBALL,
-		YUCK_SCM_GIT,
-		YUCK_SCM_BZR,
-		YUCK_SCM_HG,
-	} scm;
+	yuck_scm_t scm;
 	char vtag[16U];
 	unsigned int dist;
 	unsigned int rvsn;
