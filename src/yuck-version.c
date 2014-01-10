@@ -263,54 +263,70 @@ scm_chk:
 }
 
 
-int
-git_version(void)
+static int
+git_version(struct yuck_version_s v[static 1U])
 {
-	int rc;
 	pid_t chld;
 	int fd[1U];
-	const char *ver = NULL;
-	const char *dist = NULL;
-	const char *rev = NULL;
-	const char *suf = NULL;
+	int rc = 0;
 
 	if ((chld = run(fd, "git", "describe",
-			"--match=v[0-9]*", "--dirty", NULL)) < 0) {
-		return 2;
+			"--match=v[0-9]*",
+			"--abbrev=8", "--dirty", NULL)) < 0) {
+		return -1;
 	}
 	/* shouldn't be heaps, so just use a single read */
 	with (char buf[256U]) {
+		const char *vtag;
+		const char *dist;
 		char *bp;
 		ssize_t nrd;
 
 		if ((nrd = read(*fd, buf, sizeof(buf))) <= 0) {
 			/* no version then aye */
+			rc = -1;
 			break;
 		}
 		buf[nrd - 1U/* for \n*/] = '\0';
 		/* parse buf */
 		bp = buf;
-		if (*bp++ != 'v' || (bp = strchr(ver = bp, '-')) == NULL) {
-			ver = NULL;
+		if (*bp++ != 'v') {
+			/* weird, we req'd v-tags though */
+			rc = -1;
 			break;
-		}
-		/* otherwise that's our ver */
-		*bp++ = '\0';
-		if ((bp = strchr(dist = bp, '-')) == NULL) {
-			dist = NULL;
-			break;
-		}
-		*bp++ = '\0';
-		if (*bp++ == 'g' && (bp = strchr(rev = bp, '-')) != NULL) {
-			/* we've got a suffix */
+		} else if ((bp = strchr(vtag = bp, '-')) != NULL) {
+			/* tokenise sting */
 			*bp++ = '\0';
-			suf = bp;
+		}
+		/* bang vtag */
+		xstrlcpy(v->vtag, vtag, sizeof(v->vtag));
+
+		/* snarf distance */
+		if (bp == NULL) {
+			break;
+		} else if ((bp = strchr(dist = bp, '-')) != NULL) {
+			/* tokenize */
+			*bp++ = '\0';
+		}
+		/* read distance */
+		v->dist = strtoul(dist, &bp, 10);
+
+		if (*++bp == 'g') {
+			/* read scm revision */
+			v->rvsn = strtoul(++bp, &bp, 16);
+		}
+		if (*bp == '\0') {
+			break;
+		} else if (*bp == '-') {
+			bp++;
+		}
+		if (!strcmp(bp, "dirty")) {
+			v->dirty = 1U;
 		}
 	}
 	close(*fd);
-	if ((rc = fin(chld)) == 0) {
-		/* output parser results */
-		printf("%s.git%s.%s.%s\n", ver, dist, rev, suf);
+	if (fin(chld) != 0) {
+		rc = -1;
 	}
 	return rc;
 }
