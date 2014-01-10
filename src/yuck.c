@@ -1325,6 +1325,85 @@ hg_version(void)
 	return rc;
 }
 
+static int
+bzr_version(void)
+{
+	int rc;
+	pid_t chld;
+	int fd[1U];
+	const char *ver = NULL;
+	unsigned int dist = 0U;
+	unsigned int rev = 0U;
+
+	/* first get current revision number */
+	if ((chld = run(fd, "bzr", "revno", NULL)) < 0) {
+		return 2;
+	}
+	/* shouldn't be heaps, so just use a single read */
+	with (char buf[256U]) {
+		ssize_t nrd;
+
+		if ((nrd = read(*fd, buf, sizeof(buf))) <= 0) {
+			/* no version then aye */
+			break;
+		}
+		rev = strtoul(buf, NULL, 10);
+	}
+	close(*fd);
+	if ((rc = fin(chld)) != 0) {
+		return 2;
+	}
+
+	if ((chld = run(fd, "bzr", "tags",
+			"--sort=time", NULL)) < 0) {
+		return 2;
+	}
+	/* could be a lot, we only need the last line though */
+	with (char buf[4096U]) {
+		size_t bz;
+		char *bp;
+		ssize_t nrd;
+
+		bp = buf;
+		bz = sizeof(buf);
+		while ((nrd = read(*fd, bp, bz)) == bz) {
+			/* find last line */
+			char *lp = bp + bz;
+			while (--lp >= buf && *lp != '\n');
+			bz = sizeof(buf) - (++lp - buf);
+			bp = buf + bz;
+			memmove(buf, lp, bz);
+		}
+		if (nrd <= 0) {
+			/* no version then aye */
+			break;
+		}
+		buf[nrd - 1U/* for \n*/] = '\0';
+		/* find last line */
+		bp = buf + nrd;
+		while (--bp >= buf && *bp != '\n');
+
+		/* parse buf */
+		if (*++bp != 'v' || (bp = strchr(ver = bp, ' ')) == NULL) {
+			ver = NULL;
+			break;
+		}
+		/* otherwise that's our ver */
+		*bp = '\0';
+		/* read over all the whitespace to find the tag's revno */
+		while (*++bp == ' ');
+		with (unsigned int rno = strtoul(bp, NULL, 10)) {
+			dist = rev - rno;
+		}
+	}
+	close(*fd);
+	if ((rc = fin(chld)) == 0) {
+		/* output parser results */
+		printf("%s.bzr%u.%u\n", ver, dist, rev);
+	}
+	return rc;
+}
+
 
 #if !defined BOOTSTRAP
 #include "yuck.yucc"
@@ -1470,6 +1549,7 @@ cmd_ver(const struct yuck_cmd_ver_s UNUSED(argi[static 1U]))
 {
 	git_version();
 	hg_version();
+	bzr_version();
 	return 0;
 }
 
