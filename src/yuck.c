@@ -1324,7 +1324,7 @@ cmd_ver(const struct yuck_cmd_ver_s argi[static 1U])
 			fputs(".hg", stdout);
 			break;
 		}
-		fprintf(stdout, "%u.%x", v->dist, v->rvsn);
+		fprintf(stdout, "%u.%08x", v->dist, v->rvsn);
 	}
 	fputc('\n', stdout);
 	return 0;
