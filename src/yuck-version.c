@@ -120,6 +120,45 @@ xdirname(char *restrict fn, const char *fp)
 	return NULL;
 }
 
+static unsigned int
+hextou(const char *sp, char **ep)
+{
+	register unsigned int res = 0U;
+	size_t i;
+
+	if (UNLIKELY(sp == NULL)) {
+		return 0U;
+	} else if (*sp == '\0') {
+		goto out;
+	}
+	for (i = 0U; i < sizeof(res) * 8U / 4U; sp++, i++) {
+		register unsigned int this;
+		switch (*sp) {
+		case '0' ... '9':
+			this = *sp - '0';
+			break;
+		case 'a' ... 'f':
+			this = *sp - 'a' + 10U;
+			break;
+		case 'A' ... 'F':
+			this = *sp - 'A' + 10U;
+			break;
+		default:
+			goto fucked;
+		}
+
+		res <<= 4U;
+		res |= this;
+	}
+fucked:
+	for (; i < sizeof(res) * 8U / 4U; i++, res <<= 4U);
+out:
+	if (ep != NULL) {
+		*ep = (char*)0U + (sp - (char*)0U);
+	}
+	return res;
+}
+
 
 /* version snarfers */
 static __attribute__((noinline)) pid_t
@@ -313,7 +352,7 @@ git_version(struct yuck_version_s v[static 1U])
 
 		if (*++bp == 'g') {
 			/* read scm revision */
-			v->rvsn = strtoul(++bp, &bp, 16);
+			v->rvsn = hextou(++bp, &bp);
 		}
 		if (*bp == '\0') {
 			break;
