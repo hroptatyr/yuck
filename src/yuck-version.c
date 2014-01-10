@@ -368,13 +368,14 @@ bzr_version(void)
 	return rc;
 }
 
+
 /* public api */
 #if !defined PATH_MAX
 # define PATH_MAX	(256U)
 #endif	/* !PATH_MAX */
 
 int
-yuck_version(yuck_version_t v[static 1U], const char *path)
+yuck_version(struct yuck_version_s v[static 1U], const char *path)
 {
 	struct stat st[1U];
 	char fn[PATH_MAX];

@@ -37,7 +37,7 @@
 #if !defined INCLUDED_yuck_version_h_
 #define INCLUDED_yuck_version_h_
 
-typedef struct yuck_version_s yuck_version_t;
+typedef struct yuck_version_s *yuck_version_t;
 
 typedef enum {
 	YUCK_SCM_ERROR = -1,
@@ -56,6 +56,6 @@ struct yuck_version_s {
 
 
 /* public api */
-extern int yuck_version(yuck_version_t v[static 1U], const char *path);
+extern int yuck_version(struct yuck_version_s v[static 1U], const char *path);
 
 #endif	/* INCLUDED_yuck_version_h_ */
