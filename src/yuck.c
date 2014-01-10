@@ -1367,6 +1367,10 @@ cmd_ver(const struct yuck_cmd_ver_s UNUSED(argi[static 1U]))
 	int rc;
 	pid_t chld;
 	int fd[1U];
+	const char *ver = NULL;
+	const char *dist = NULL;
+	const char *rev = NULL;
+	const char *suf = NULL;
 
 	if ((chld = run(fd, "git", "describe",
 			"--match=v[0-9]*", "--dirty", NULL)) < 0) {
@@ -1374,6 +1378,7 @@ cmd_ver(const struct yuck_cmd_ver_s UNUSED(argi[static 1U]))
 	}
 	/* shouldn't be heaps, so just use a single read */
 	with (char buf[256U]) {
+		char *bp;
 		ssize_t nrd;
 
 		if ((nrd = read(*fd, buf, sizeof(buf))) <= 0) {
@@ -1381,10 +1386,30 @@ cmd_ver(const struct yuck_cmd_ver_s UNUSED(argi[static 1U]))
 			break;
 		}
 		buf[nrd - 1U/* for \n*/] = '\0';
-		puts(buf);
+		/* parse buf */
+		bp = buf;
+		if (*bp++ != 'v' || (bp = strchr(ver = bp, '-')) == NULL) {
+			ver = NULL;
+			break;
+		}
+		/* otherwise that's our ver */
+		*bp++ = '\0';
+		if ((bp = strchr(dist = bp, '-')) == NULL) {
+			dist = NULL;
+			break;
+		}
+		*bp++ = '\0';
+		if (*bp++ == 'g' && (bp = strchr(rev = bp, '-')) != NULL) {
+			/* we've got a suffix */
+			*bp++ = '\0';
+			suf = bp;
+		}
 	}
 	close(*fd);
-	rc = fin(chld);
+	if ((rc = fin(chld)) == 0) {
+		/* output parser results */
+		printf("%s.git%s.%s.%s\n", ver, dist, rev, suf);
+	}
 	return rc;
 }
 
