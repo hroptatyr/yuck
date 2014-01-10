@@ -36,6 +36,7 @@ yuck_bootstrap_CPPFLAGS += -DBOOTSTRAP
 bin_PROGRAMS += yuck
 yuck_SOURCES = yuck.c yuck.yuck
 yuck_SOURCES += version.c version.h
+yuck_SOURCES += yuck-version.c yuck-version.h
 yuck_CPPFLAGS = $(AM_CPPFLAGS)
 yuck_CPPFLAGS += -DHAVE_VERSION_H
 BUILT_SOURCES += yuck.yucc

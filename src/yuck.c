@@ -51,6 +51,7 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <yuck-version.h>
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect((_x), 1)
@@ -1043,6 +1044,8 @@ run_m4(const char *outfn, ...)
 		if (WIFEXITED(st)) {
 			rc = WEXITSTATUS(st);
 		}
+		/* clean up the rest of the pipe */
+		close(intfd[0]);
 		return rc;
 
 	case 0:;
@@ -1296,6 +1299,40 @@ cmd_gendsl(const struct yuck_cmd_gendsl_s argi[static 1U])
 	return rc;
 }
 
+static int
+cmd_ver(const struct yuck_cmd_ver_s argi[static 1U])
+{
+	struct yuck_version_s v[1U];
+
+	if (yuck_version(v, argi->args[0U]) < 0) {
+		error("cannot determine SCM");
+		return 1;
+	}
+
+	fputs(v->vtag, stdout);
+	if (v->scm > YUCK_SCM_TARBALL && v->dist) {
+		switch (v->scm) {
+		default:
+			break;
+		case YUCK_SCM_GIT:
+			fputs(".git", stdout);
+			break;
+		case YUCK_SCM_BZR:
+			fputs(".bzr", stdout);
+			break;
+		case YUCK_SCM_HG:
+			fputs(".hg", stdout);
+			break;
+		}
+		fprintf(stdout, "%u.%08x", v->dist, v->rvsn);
+	}
+	if (v->dirty) {
+		fputs(".dirty", stdout);
+	}
+	fputc('\n', stdout);
+	return 0;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -1326,6 +1363,11 @@ See --help to obtain a list of available commands.\n", stderr);
 		break;
 	case YUCK_CMD_GENMAN:
 		if ((rc = cmd_genman((const void*)argi)) < 0) {
+			rc = 1;
+		}
+		break;
+	case YUCK_CMD_VER:
+		if ((rc = cmd_ver((const void*)argi)) < 0) {
 			rc = 1;
 		}
 		break;
