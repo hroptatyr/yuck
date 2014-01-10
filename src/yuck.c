@@ -1074,6 +1074,69 @@ bollocks:
 	_exit(EXIT_FAILURE);
 }
 
+static __attribute__((noinline)) pid_t
+run(int *fd, ...)
+{
+	static char *cmdline[16U];
+	va_list vap;
+	pid_t p;
+	/* to snarf off traffic from the child */
+	int intfd[2];
+
+	va_start(vap, fd);
+	for (size_t i = 0U;
+	     i < countof(cmdline) &&
+		     (cmdline[i] = va_arg(vap, char*)) != NULL; i++);
+	va_end(vap);
+
+	if (pipe(intfd) < 0) {
+		error("pipe setup to/from %s failed", cmdline[0U]);
+		return -1;
+	}
+
+	switch ((p = vfork())) {
+	case -1:
+		/* i am an error */
+		error("vfork for %s failed", cmdline[0U]);
+		return -1;
+
+	default:
+		/* i am the parent */
+		close(intfd[1]);
+		if (fd != NULL) {
+			*fd = intfd[0];
+		} else {
+			close(intfd[0]);
+		}
+		return p;
+
+	case 0:
+		/* i am the child */
+		break;
+	}
+
+	/* child code here */
+	close(intfd[0]);
+	dup2(intfd[1], STDOUT_FILENO);
+
+	execvp(cmdline[0U], cmdline);
+	error("execvp(%s) failed", cmdline[0U]);
+	_exit(EXIT_FAILURE);
+}
+
+static int
+fin(pid_t p)
+{
+	int rc = 2;
+	int st;
+
+	while (waitpid(p, &st, 0) != p);
+	if (WIFEXITED(st)) {
+		rc = WEXITSTATUS(st);
+	}
+	return rc;
+}
+
 static int
 wr_intermediary(char *const args[], size_t nargs)
 {
@@ -1298,6 +1361,33 @@ cmd_gendsl(const struct yuck_cmd_gendsl_s argi[static 1U])
 	return rc;
 }
 
+static int
+cmd_ver(const struct yuck_cmd_ver_s UNUSED(argi[static 1U]))
+{
+	int rc;
+	pid_t chld;
+	int fd[1U];
+
+	if ((chld = run(fd, "git", "describe",
+			"--match=v[0-9]*", "--dirty", NULL)) < 0) {
+		return 2;
+	}
+	/* shouldn't be heaps, so just use a single read */
+	with (char buf[256U]) {
+		ssize_t nrd;
+
+		if ((nrd = read(*fd, buf, sizeof(buf))) <= 0) {
+			/* no version then aye */
+			break;
+		}
+		buf[nrd - 1U/* for \n*/] = '\0';
+		puts(buf);
+	}
+	close(*fd);
+	rc = fin(chld);
+	return rc;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -1328,6 +1418,11 @@ See --help to obtain a list of available commands.\n", stderr);
 		break;
 	case YUCK_CMD_GENMAN:
 		if ((rc = cmd_genman((const void*)argi)) < 0) {
+			rc = 1;
+		}
+		break;
+	case YUCK_CMD_VER:
+		if ((rc = cmd_ver((const void*)argi)) < 0) {
 			rc = 1;
 		}
 		break;
