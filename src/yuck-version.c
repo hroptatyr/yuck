@@ -381,19 +381,16 @@ hg_version(void)
 	return rc;
 }
 
-int
-bzr_version(void)
+static int
+bzr_version(struct yuck_version_s v[static 1U])
 {
-	int rc;
 	pid_t chld;
 	int fd[1U];
-	const char *ver = NULL;
-	unsigned int dist = 0U;
-	unsigned int rev = 0U;
+	int rc = 0;
 
 	/* first get current revision number */
 	if ((chld = run(fd, "bzr", "revno", NULL)) < 0) {
-		return 2;
+		return -1;
 	}
 	/* shouldn't be heaps, so just use a single read */
 	with (char buf[256U]) {
@@ -403,19 +400,20 @@ bzr_version(void)
 			/* no version then aye */
 			break;
 		}
-		rev = strtoul(buf, NULL, 10);
+		v->rvsn = strtoul(buf, NULL, 10);
 	}
 	close(*fd);
-	if ((rc = fin(chld)) != 0) {
-		return 2;
+	if (fin(chld) != 0) {
+		return -1;
 	}
 
 	if ((chld = run(fd, "bzr", "tags",
 			"--sort=time", NULL)) < 0) {
-		return 2;
+		return -1;
 	}
 	/* could be a lot, we only need the last line though */
 	with (char buf[4096U]) {
+		const char *vtag;
 		size_t bz;
 		char *bp;
 		ssize_t nrd;
@@ -434,28 +432,36 @@ bzr_version(void)
 			/* no version then aye */
 			break;
 		}
-		buf[nrd - 1U/* for \n*/] = '\0';
+		bp[nrd - 1U/* for \n*/] = '\0';
 		/* find last line */
-		bp = buf + nrd;
+		bp += nrd;
 		while (--bp >= buf && *bp != '\n');
 
 		/* parse buf */
-		if (*++bp != 'v' || (bp = strchr(ver = bp, ' ')) == NULL) {
-			ver = NULL;
+		if (*++bp != 'v') {
+			/* we want v tags, we could go back and see if
+			 * there are any */
+			rc = -1;
+			break;
+		} else if ((bp = strchr(vtag = ++bp, ' ')) != NULL) {
+			/* tokenise */
+			*bp++ = '\0';
+		}
+		/* bang vtag */
+		xstrlcpy(v->vtag, vtag, sizeof(v->vtag));
+
+		if (bp == NULL) {
 			break;
 		}
-		/* otherwise that's our ver */
-		*bp = '\0';
 		/* read over all the whitespace to find the tag's revno */
 		while (*++bp == ' ');
 		with (unsigned int rno = strtoul(bp, NULL, 10)) {
-			dist = rev - rno;
+			v->dist = v->rvsn - rno;
 		}
 	}
 	close(*fd);
-	if ((rc = fin(chld)) == 0) {
-		/* output parser results */
-		printf("%s.bzr%u.%u\n", ver, dist, rev);
+	if (fin(chld) != 0) {
+		rc = -1;
 	}
 	return rc;
 }
