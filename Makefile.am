@@ -26,9 +26,8 @@ EXTRA_DIST += yuck.pc.in
 CLEANFILES += yuck.pc
 
 yuck.pc: yuck.pc.in
-yuck.pc: yuck.pc.in $(top_builddir)/src/yuck-scmver version.mk
-	$(AM_V_GEN) $(top_builddir)/src/yuck-scmver $< | \
-		m4 - $< | \
+yuck.pc: yuck.pc.in $(top_builddir)/src/yuck version.mk
+	$(AM_V_GEN) $(top_builddir)/src/yuck scmver $< | \
 		$(SHELL) $(builddir)/config.status --file=- >$@
 
 dist-hook:
