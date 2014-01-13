@@ -32,6 +32,6 @@ if omitted.
   --version=VERSION  Hardwire version number.
 
 ## VER
-Usage: yuck ver
+Usage: yuck scmver
 
 Try and guess the version based on SCM-controlled cwd.

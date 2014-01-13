@@ -32,6 +32,7 @@ noinst_PROGRAMS += yuck-bootstrap
 yuck_bootstrap_SOURCES = yuck.c
 yuck_bootstrap_CPPFLAGS = $(AM_CPPFLAGS)
 yuck_bootstrap_CPPFLAGS += -DBOOTSTRAP
+yuck_bootstrap_CPPFLAGS += -DWITH_SCMVER
 
 bin_PROGRAMS += yuck
 yuck_SOURCES = yuck.c yuck.yuck
@@ -39,6 +40,7 @@ yuck_SOURCES += version.c version.h
 yuck_SOURCES += yuck-version.c yuck-version.h
 yuck_CPPFLAGS = $(AM_CPPFLAGS)
 yuck_CPPFLAGS += -DHAVE_VERSION_H
+yuck_CPPFLAGS += -DWITH_SCMVER
 BUILT_SOURCES += yuck.yucc
 CLEANFILES += yuck.m4i yuck.yucc
 
