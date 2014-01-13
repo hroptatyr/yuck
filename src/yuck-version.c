@@ -530,7 +530,7 @@ bzr_version(struct yuck_version_s v[static 1U])
 #endif	/* !PATH_MAX */
 
 int
-yuck_version(struct yuck_version_s v[static 1U], const char *path)
+yuck_version(struct yuck_version_s *restrict v, const char *path)
 {
 	char cwd[PATH_MAX];
 	char fn[PATH_MAX];

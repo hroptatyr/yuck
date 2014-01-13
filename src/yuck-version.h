@@ -57,6 +57,6 @@ struct yuck_version_s {
 
 
 /* public api */
-extern int yuck_version(struct yuck_version_s v[static 1U], const char *path);
+extern int yuck_version(struct yuck_version_s *restrict v, const char *path);
 
 #endif	/* INCLUDED_yuck_version_h_ */
