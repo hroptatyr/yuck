@@ -1305,9 +1305,17 @@ static int
 cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 {
 #if defined WITH_SCMVER
+	static const char *yscm_strs[] = {
+		[YUCK_SCM_TARBALL] = "tarball",
+		[YUCK_SCM_GIT] = "git",
+		[YUCK_SCM_BZR] = "bzr",
+		[YUCK_SCM_HG] = "hg",
+	};
 	struct yuck_version_s v[1U];
+	const char *infn = argi->args[0U];
+	int rc = 0;
 
-	if (yuck_version(v, argi->args[0U]) < 0) {
+	if (yuck_version(v, infn) < 0) {
 		error("cannot determine SCM");
 		return 1;
 	}
@@ -1315,19 +1323,8 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 	if (argi->verbose_flag) {
 		fputs(v->vtag, stdout);
 		if (v->scm > YUCK_SCM_TARBALL && v->dist) {
-			switch (v->scm) {
-			default:
-				break;
-			case YUCK_SCM_GIT:
-				fputs(".git", stdout);
-				break;
-			case YUCK_SCM_BZR:
-				fputs(".bzr", stdout);
-				break;
-			case YUCK_SCM_HG:
-				fputs(".hg", stdout);
-				break;
-			}
+			fputc('.', stdout);
+			fputs(yscm_strs[v->scm], stdout);
 			fprintf(stdout, "%u.%08x", v->dist, v->rvsn);
 		}
 		if (v->dirty) {
