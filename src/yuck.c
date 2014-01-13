@@ -1311,6 +1311,7 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 		[YUCK_SCM_BZR] = "bzr",
 		[YUCK_SCM_HG] = "hg",
 	};
+	static char scmver[PATH_MAX];
 	struct yuck_version_s v[1U];
 	const char *infn = argi->args[0U];
 	int rc = 0;
@@ -1318,6 +1319,9 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 	if (yuck_version(v, infn) < 0) {
 		error("cannot determine SCM");
 		return 1;
+	} else if (find_aux(scmver, sizeof(scmver), "yuck-version.m4") < 0) {
+		error("cannot find yuck template for version strings");
+		xstrlcpy(scmver, "/dev/null", sizeof(scmver));
 	}
 
 	if (argi->verbose_flag) {
@@ -1337,9 +1341,9 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 		static const char *flag_d0 = "-DYUCK_SCMVER_FLAG_CLEAN";
 		static const char *flag_d1 = "-DYUCK_SCMVER_FLAG_DIRTY";
 		char vtag[64U];
-		char vscm[16U];
-		char dist[16U];
-		char rvsn[16U];
+		char vscm[32U];
+		char dist[32U];
+		char rvsn[32U];
 		const char *drty;
 
 		snprintf(vtag, sizeof(vtag),
@@ -1352,7 +1356,12 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 			 "-DYUCK_SCMVER_RVSN=%08x", v->rvsn);
 		drty = !v->dirty ? flag_d0 : flag_d1;
 
-		rc = run_m4(outfn, vtag, vscm, dist, rvsn, drty, infn, NULL);
+		rc = run_m4(
+			outfn,
+			/* flags */
+			vtag, vscm, dist, rvsn, drty,
+			/* our template and the in-file */
+			scmver, infn, NULL);
 	}
 	return rc;
 #else  /* !WITH_SCMVER */
