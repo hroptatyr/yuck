@@ -71,6 +71,8 @@
 	     paste(__ep, __LINE__); paste(__ep, __LINE__) = 0)
 #endif	/* !with */
 
+#define DEBUG(args...)
+
 
 static __attribute__((format(printf, 1, 2))) void
 error(const char *fmt, ...)
@@ -256,6 +258,7 @@ again:
 scm_chk:
 	/* now check for .git, .bzr, .hg */
 	xstrlcpy(dp, "/.git", fz - (dp - fn));
+	DEBUG("trying %s ...\n", fn);
 	if (stat(fn, st) == 0 && S_ISDIR(st->st_mode)) {
 		/* yay it's a .git */
 		*dp = '\0';
@@ -263,6 +266,7 @@ scm_chk:
 	}
 
 	xstrlcpy(dp, "/.bzr", fz - (dp - fn));
+	DEBUG("trying %s ...\n", fn);
 	if (stat(fn, st) == 0 && S_ISDIR(st->st_mode)) {
 		/* yay it's a .git */
 		*dp = '\0';
@@ -270,6 +274,7 @@ scm_chk:
 	}
 
 	xstrlcpy(dp, "/.hg", fz - (dp - fn));
+	DEBUG("trying %s ...\n", fn);
 	if (stat(fn, st) == 0 && S_ISDIR(st->st_mode)) {
 		/* yay it's a .git */
 		*dp = '\0';
