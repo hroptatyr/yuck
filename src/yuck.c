@@ -1300,7 +1300,7 @@ cmd_gendsl(const struct yuck_cmd_gendsl_s argi[static 1U])
 }
 
 static int
-cmd_ver(const struct yuck_cmd_ver_s argi[static 1U])
+cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 {
 	struct yuck_version_s v[1U];
 
@@ -1366,8 +1366,8 @@ See --help to obtain a list of available commands.\n", stderr);
 			rc = 1;
 		}
 		break;
-	case YUCK_CMD_VER:
-		if ((rc = cmd_ver((const void*)argi)) < 0) {
+	case YUCK_CMD_SCMVER:
+		if ((rc = cmd_scmver((const void*)argi)) < 0) {
 			rc = 1;
 		}
 		break;
