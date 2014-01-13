@@ -25,17 +25,11 @@ pkgconfig_DATA += yuck.pc
 EXTRA_DIST += yuck.pc.in
 CLEANFILES += yuck.pc
 
-# do_subst, inspired by the automake project
-do_subst = ( sed \
-  -e 's,[@]VERSION[@],$(VERSION),g' \
-  -e 's,[@]PACKAGE_VERSION[@],$(PACKAGE_VERSION),g' \
-  -e 's,[@]PACKAGE_STRING[@],$(PACKAGE_STRING),g' \
-  | $(SHELL) ./config.status --file=- \
-  )
-
 yuck.pc: yuck.pc.in
-yuck.pc: yuck.pc.in version.mk
-	$(AM_V_GEN) $(do_subst) <$< >$@
+yuck.pc: yuck.pc.in $(top_builddir)/src/yuck-scmver version.mk
+	$(AM_V_GEN) $(top_builddir)/src/yuck-scmver $< | \
+		m4 - $< | \
+		$(SHELL) $(builddir)/config.status --file=- >$@
 
 dist-hook:
 	echo $(VERSION) > $(distdir)/version \

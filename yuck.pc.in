@@ -4,4 +4,4 @@ yuckdir = @datarootdir@/@PACKAGE@
 
 Name: @PACKAGE_NAME@
 Description: Your Umbrella Command Kit
-Version: @VERSION@
+Version: YUCK_SCMVER_VERSION
