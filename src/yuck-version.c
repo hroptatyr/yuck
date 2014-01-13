@@ -71,6 +71,8 @@
 	     paste(__ep, __LINE__); paste(__ep, __LINE__) = 0)
 #endif	/* !with */
 
+#define DEBUG(args...)
+
 
 static __attribute__((format(printf, 1, 2))) void
 error(const char *fmt, ...)
@@ -109,11 +111,11 @@ xdirname(char *restrict fn, const char *fp)
 	}
 
 	while (--fp >= fn && *fp != '/');
-	while (fp >= fn && *fp-- == '/');
+	while (fp >= fn && *--fp == '/');
 	if (fp >= fn) {
 		/* replace / by \nul and return pointer */
-		char *dp = fn + (fp - fn);
-		*++dp = '\0';
+		char *dp = fn + (++fp - fn);
+		*dp = '\0';
 		return dp;
 	}
 	/* return \nul */
@@ -231,12 +233,13 @@ find_scm(char *restrict fn, size_t fz, const char *path)
 	char *restrict dp = fn;
 
 	/* make a copy so we can fiddle with it */
-	if (path == NULL ||
-	    (dp += xstrlcpy(fn, path, fz)) == fn) {
+	if (UNLIKELY(path == NULL)) {
 	cwd:
 		/* just use "." then */
 		*dp++ = '.';
 		*dp = '\0';
+	} else if ((dp += xstrlcpy(fn, path, fz)) == fn) {
+		goto cwd;
 	}
 again:
 	if (stat(fn, st) < 0) {
@@ -247,6 +250,7 @@ again:
 	} else if (!S_ISDIR(st->st_mode)) {
 		/* not a directory, get the dir bit and start over */
 		if ((dp = xdirname(fn, dp)) == NULL) {
+			dp = fn;
 			goto cwd;
 		}
 		goto again;
@@ -255,6 +259,7 @@ again:
 scm_chk:
 	/* now check for .git, .bzr, .hg */
 	xstrlcpy(dp, "/.git", fz - (dp - fn));
+	DEBUG("trying %s ...\n", fn);
 	if (stat(fn, st) == 0 && S_ISDIR(st->st_mode)) {
 		/* yay it's a .git */
 		*dp = '\0';
@@ -262,6 +267,7 @@ scm_chk:
 	}
 
 	xstrlcpy(dp, "/.bzr", fz - (dp - fn));
+	DEBUG("trying %s ...\n", fn);
 	if (stat(fn, st) == 0 && S_ISDIR(st->st_mode)) {
 		/* yay it's a .git */
 		*dp = '\0';
@@ -269,6 +275,7 @@ scm_chk:
 	}
 
 	xstrlcpy(dp, "/.hg", fz - (dp - fn));
+	DEBUG("trying %s ...\n", fn);
 	if (stat(fn, st) == 0 && S_ISDIR(st->st_mode)) {
 		/* yay it's a .git */
 		*dp = '\0';

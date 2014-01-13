@@ -1312,27 +1312,29 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 		return 1;
 	}
 
-	fputs(v->vtag, stdout);
-	if (v->scm > YUCK_SCM_TARBALL && v->dist) {
-		switch (v->scm) {
-		default:
-			break;
-		case YUCK_SCM_GIT:
-			fputs(".git", stdout);
-			break;
-		case YUCK_SCM_BZR:
-			fputs(".bzr", stdout);
-			break;
-		case YUCK_SCM_HG:
-			fputs(".hg", stdout);
-			break;
+	if (argi->verbose_flag) {
+		fputs(v->vtag, stdout);
+		if (v->scm > YUCK_SCM_TARBALL && v->dist) {
+			switch (v->scm) {
+			default:
+				break;
+			case YUCK_SCM_GIT:
+				fputs(".git", stdout);
+				break;
+			case YUCK_SCM_BZR:
+				fputs(".bzr", stdout);
+				break;
+			case YUCK_SCM_HG:
+				fputs(".hg", stdout);
+				break;
+			}
+			fprintf(stdout, "%u.%08x", v->dist, v->rvsn);
 		}
-		fprintf(stdout, "%u.%08x", v->dist, v->rvsn);
+		if (v->dirty) {
+			fputs(".dirty", stdout);
+		}
+		fputc('\n', stdout);
 	}
-	if (v->dirty) {
-		fputs(".dirty", stdout);
-	}
-	fputc('\n', stdout);
 	return 0;
 #else  /* !WITH_SCMVER */
 	fputs("scmver support not built in\n", stderr);
