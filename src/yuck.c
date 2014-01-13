@@ -51,7 +51,9 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <time.h>
-#include <yuck-version.h>
+#if defined WITH_SCMVER
+# include <yuck-version.h>
+#endif	/* WITH_SCMVER */
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect((_x), 1)
@@ -1302,6 +1304,7 @@ cmd_gendsl(const struct yuck_cmd_gendsl_s argi[static 1U])
 static int
 cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 {
+#if defined WITH_SCMVER
 	struct yuck_version_s v[1U];
 
 	if (yuck_version(v, argi->args[0U]) < 0) {
@@ -1331,6 +1334,10 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 	}
 	fputc('\n', stdout);
 	return 0;
+#else  /* !WITH_SCMVER */
+	fputs("scmver support not built in\n", stderr);
+	return argi->cmd == YUCK_CMD_SCMVER;
+#endif	/* WITH_SCMVER */
 }
 
 int
