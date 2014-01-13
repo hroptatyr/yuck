@@ -1324,6 +1324,16 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 		xstrlcpy(scmver, "/dev/null", sizeof(scmver));
 	}
 
+	if (argi->reference_arg) {
+		struct yuck_version_s ref[1U];
+
+		yuck_version_read(ref, argi->reference_arg);
+		if (memcmp(v, ref, sizeof(*ref))) {
+			/* version stamps differ */
+			yuck_version_write(argi->reference_arg, v);
+		}
+	}
+
 	if (argi->verbose_flag) {
 		fputs(v->vtag, stdout);
 		if (v->scm > YUCK_SCM_TARBALL && v->dist) {

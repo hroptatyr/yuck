@@ -36,5 +36,7 @@ Usage: yuck scmver [FILE]
 
   -o, --output=FILE  Output goes into FILE instead of stdout.
   -v, --verbose      Also print version information on stdout.
+      --reference=FILE  Store version reference in FILE and don't touch
+                        the output file if nothing has changed.
 
 Try and guess the version based on SCM-controlled cwd.
