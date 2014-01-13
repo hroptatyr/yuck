@@ -109,11 +109,11 @@ xdirname(char *restrict fn, const char *fp)
 	}
 
 	while (--fp >= fn && *fp != '/');
-	while (fp >= fn && *fp-- == '/');
+	while (fp >= fn && *--fp == '/');
 	if (fp >= fn) {
 		/* replace / by \nul and return pointer */
-		char *dp = fn + (fp - fn);
-		*++dp = '\0';
+		char *dp = fn + (++fp - fn);
+		*dp = '\0';
 		return dp;
 	}
 	/* return \nul */
