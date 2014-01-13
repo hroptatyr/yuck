@@ -999,8 +999,8 @@ unmassage_fd(int tgtfd, int srcfd)
 static __attribute__((noinline)) int
 run_m4(const char *outfn, ...)
 {
-	static char *m4_cmdline[6U] = {
-		"m4", dslfn,
+	static char *m4_cmdline[16U] = {
+		"m4",
 	};
 	va_list vap;
 	pid_t m4p;
@@ -1063,7 +1063,7 @@ run_m4(const char *outfn, ...)
 	}
 	/* child code here */
 	va_start(vap, outfn);
-	for (size_t i = 2U;
+	for (size_t i = 1U;
 	     i < countof(m4_cmdline) &&
 		     (m4_cmdline[i] = va_arg(vap, char*)) != NULL; i++);
 	va_end(vap);
@@ -1216,15 +1216,15 @@ cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 	with (const char *outfn = argi->output_arg, *hdrfn) {
 		if ((hdrfn = argi->header_arg) != NULL) {
 			/* run a special one for the header */
-			if ((rc = run_m4(hdrfn, deffn, genhfn, NULL))) {
+			if ((rc = run_m4(hdrfn, dslfn, deffn, genhfn, NULL))) {
 				break;
 			}
 			/* now run the whole shebang for the beef code */
-			rc = run_m4(outfn, deffn, gencfn, NULL);
+			rc = run_m4(outfn, dslfn, deffn, gencfn, NULL);
 			break;
 		}
 		/* standard case: pipe directives, then header, then code */
-		rc = run_m4(outfn, deffn, genhfn, gencfn, NULL);
+		rc = run_m4(outfn, dslfn, deffn, genhfn, gencfn, NULL);
 	}
 out:
 	if (!0/*argi->keep_intermediate*/) {
@@ -1271,7 +1271,7 @@ cmd_genman(const struct yuck_cmd_genman_s argi[static 1U])
 	/* now route that stuff through m4 */
 	with (const char *outfn = argi->output_arg) {
 		/* standard case: pipe directives, then header, then code */
-		rc = run_m4(outfn, deffn, genmfn, NULL);
+		rc = run_m4(outfn, dslfn, deffn, genmfn, NULL);
 	}
 out:
 	if (!0/*argi->keep_intermediate*/) {
@@ -1305,29 +1305,30 @@ static int
 cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 {
 #if defined WITH_SCMVER
+	static const char *yscm_strs[] = {
+		[YUCK_SCM_TARBALL] = "tarball",
+		[YUCK_SCM_GIT] = "git",
+		[YUCK_SCM_BZR] = "bzr",
+		[YUCK_SCM_HG] = "hg",
+	};
+	static char scmver[PATH_MAX];
 	struct yuck_version_s v[1U];
+	const char *infn = argi->args[0U];
+	int rc = 0;
 
-	if (yuck_version(v, argi->args[0U]) < 0) {
+	if (yuck_version(v, infn) < 0) {
 		error("cannot determine SCM");
 		return 1;
+	} else if (find_aux(scmver, sizeof(scmver), "yuck-version.m4") < 0) {
+		error("cannot find yuck template for version strings");
+		xstrlcpy(scmver, "/dev/null", sizeof(scmver));
 	}
 
 	if (argi->verbose_flag) {
 		fputs(v->vtag, stdout);
 		if (v->scm > YUCK_SCM_TARBALL && v->dist) {
-			switch (v->scm) {
-			default:
-				break;
-			case YUCK_SCM_GIT:
-				fputs(".git", stdout);
-				break;
-			case YUCK_SCM_BZR:
-				fputs(".bzr", stdout);
-				break;
-			case YUCK_SCM_HG:
-				fputs(".hg", stdout);
-				break;
-			}
+			fputc('.', stdout);
+			fputs(yscm_strs[v->scm], stdout);
 			fprintf(stdout, "%u.%08x", v->dist, v->rvsn);
 		}
 		if (v->dirty) {
@@ -1335,7 +1336,34 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 		}
 		fputc('\n', stdout);
 	}
-	return 0;
+	if (argi->nargs) {
+		const char *outfn = argi->output_arg;
+		static const char *flag_d0 = "-DYUCK_SCMVER_FLAG_CLEAN";
+		static const char *flag_d1 = "-DYUCK_SCMVER_FLAG_DIRTY";
+		char vtag[64U];
+		char vscm[32U];
+		char dist[32U];
+		char rvsn[32U];
+		const char *drty;
+
+		snprintf(vtag, sizeof(vtag),
+			 "-DYUCK_SCMVER_VTAG=%s", v->vtag);
+		snprintf(vscm, sizeof(vscm),
+			 "-DYUCK_SCMVER_SCM=%s", yscm_strs[v->scm]);
+		snprintf(dist, sizeof(dist),
+			 "-DYUCK_SCMVER_DIST=%u", v->dist);
+		snprintf(rvsn, sizeof(rvsn),
+			 "-DYUCK_SCMVER_RVSN=%08x", v->rvsn);
+		drty = !v->dirty ? flag_d0 : flag_d1;
+
+		rc = run_m4(
+			outfn,
+			/* flags */
+			vtag, vscm, dist, rvsn, drty,
+			/* our template and the in-file */
+			scmver, infn, NULL);
+	}
+	return rc;
 #else  /* !WITH_SCMVER */
 	fputs("scmver support not built in\n", stderr);
 	return argi->cmd == YUCK_CMD_SCMVER;
