@@ -999,8 +999,8 @@ unmassage_fd(int tgtfd, int srcfd)
 static __attribute__((noinline)) int
 run_m4(const char *outfn, ...)
 {
-	static char *m4_cmdline[6U] = {
-		"m4", dslfn,
+	static char *m4_cmdline[8U] = {
+		"m4",
 	};
 	va_list vap;
 	pid_t m4p;
@@ -1063,7 +1063,7 @@ run_m4(const char *outfn, ...)
 	}
 	/* child code here */
 	va_start(vap, outfn);
-	for (size_t i = 2U;
+	for (size_t i = 1U;
 	     i < countof(m4_cmdline) &&
 		     (m4_cmdline[i] = va_arg(vap, char*)) != NULL; i++);
 	va_end(vap);
@@ -1216,15 +1216,15 @@ cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 	with (const char *outfn = argi->output_arg, *hdrfn) {
 		if ((hdrfn = argi->header_arg) != NULL) {
 			/* run a special one for the header */
-			if ((rc = run_m4(hdrfn, deffn, genhfn, NULL))) {
+			if ((rc = run_m4(hdrfn, dslfn, deffn, genhfn, NULL))) {
 				break;
 			}
 			/* now run the whole shebang for the beef code */
-			rc = run_m4(outfn, deffn, gencfn, NULL);
+			rc = run_m4(outfn, dslfn, deffn, gencfn, NULL);
 			break;
 		}
 		/* standard case: pipe directives, then header, then code */
-		rc = run_m4(outfn, deffn, genhfn, gencfn, NULL);
+		rc = run_m4(outfn, dslfn, deffn, genhfn, gencfn, NULL);
 	}
 out:
 	if (!0/*argi->keep_intermediate*/) {
@@ -1271,7 +1271,7 @@ cmd_genman(const struct yuck_cmd_genman_s argi[static 1U])
 	/* now route that stuff through m4 */
 	with (const char *outfn = argi->output_arg) {
 		/* standard case: pipe directives, then header, then code */
-		rc = run_m4(outfn, deffn, genmfn, NULL);
+		rc = run_m4(outfn, dslfn, deffn, genmfn, NULL);
 	}
 out:
 	if (!0/*argi->keep_intermediate*/) {
