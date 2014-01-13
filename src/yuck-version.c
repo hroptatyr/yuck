@@ -325,6 +325,7 @@ static int
 rd_version(struct yuck_version_s *restrict v, const char *buf, size_t bsz)
 {
 /* reads a normalised version string vX.Y.Z-DIST-SCM RVSN[-dirty] */
+	static const char dflag[] = "dirty";
 	const char *vtag;
 	const char *dist;
 	const char *bp = buf;
@@ -374,13 +375,16 @@ rd_version(struct yuck_version_s *restrict v, const char *buf, size_t bsz)
 	/* read scm revision */
 	with (char *on) {
 		v->rvsn = hextou(++bp, &on);
-		if (on >= ep) {
-			break;
-		} else if (*(bp = on) == '-') {
-			bp++;
-		}
+		bp = on;
 	}
-	if (!strcmp(bp, "dirty")) {
+
+	if (bp >= ep) {
+		;
+	} else if (*bp++ != '-') {
+		;
+	} else if (bp + sizeof(dflag) - 1U < ep) {
+		;
+	} else if (!memcmp(bp, dflag, sizeof(dflag) - 1U)) {
 		v->dirty = 1U;
 	}
 	return 0;
@@ -713,13 +717,8 @@ yuck_version_read(struct yuck_version_s *restrict ref, const char *fn)
 			rc = -1;
 			break;
 		}
-		/* kill trailing newline */
-		if (buf[nrd - 1U] == '\n') {
-			buf[nrd - 1U/* for \n*/] = '\0';
-		} else {
-			/* finalise with \nul */
-			buf[nrd] = '\0';
-		}
+		/* finalise with \nul */
+		buf[nrd] = '\0';
 		/* otherwise just read him */
 		rc = rd_version(ref, buf, nrd);
 	}
