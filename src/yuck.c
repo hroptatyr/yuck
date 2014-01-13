@@ -999,7 +999,7 @@ unmassage_fd(int tgtfd, int srcfd)
 static __attribute__((noinline)) int
 run_m4(const char *outfn, ...)
 {
-	static char *m4_cmdline[8U] = {
+	static char *m4_cmdline[16U] = {
 		"m4",
 	};
 	va_list vap;
