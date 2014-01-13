@@ -45,6 +45,7 @@
 #include <string.h>
 #include <assert.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <yuck-version.h>
@@ -94,6 +95,17 @@ static __attribute__((unused)) size_t
 xstrlcpy(char *restrict dst, const char *src, size_t dsz)
 {
 	size_t ssz = strlen(src);
+	if (ssz > dsz) {
+		ssz = dsz - 1U;
+	}
+	memcpy(dst, src, ssz);
+	dst[ssz] = '\0';
+	return ssz;
+}
+
+static __attribute__((unused)) size_t
+xstrlncpy(char *restrict dst, size_t dsz, const char *src, size_t ssz)
+{
 	if (ssz > dsz) {
 		ssz = dsz - 1U;
 	}
@@ -309,6 +321,116 @@ scm_chk:
 }
 
 
+static int
+rd_version(struct yuck_version_s *restrict v, const char *buf, size_t bsz)
+{
+/* reads a normalised version string vX.Y.Z-DIST-SCM RVSN[-dirty] */
+	static const char dflag[] = "dirty";
+	const char *vtag;
+	const char *dist;
+	const char *bp = buf;
+	const char *const ep = buf + bsz;
+
+	/* parse buf */
+	if (*bp++ != 'v') {
+		/* weird, we req'd v-tags */
+		return -1;
+	} else if ((bp = memchr(vtag = bp, '-', ep - bp)) == NULL) {
+		/* last field */
+		bp = ep;
+	}
+	/* bang vtag */
+	xstrlncpy(v->vtag, sizeof(v->vtag), vtag, bp - vtag);
+
+	/* snarf distance */
+	if (bp++ == ep) {
+		return 0;
+	} else if ((bp = memchr(dist = bp, '-', ep - bp)) == NULL) {
+		/* last field */
+		bp = ep;
+	}
+	/* read distance */
+	v->dist = strtoul(dist, NULL, 10);
+
+	if (bp == ep) {
+		return 0;
+	}
+	switch (*++bp) {
+	case 'g':
+		/* git repo */
+		v->scm = YUCK_SCM_GIT;
+		break;
+	case 'h':
+		/* hg repo */
+		v->scm = YUCK_SCM_HG;
+		break;
+	case 'b':
+		/* bzr repo */
+		v->scm = YUCK_SCM_BZR;
+		break;
+	default:
+		/* don't know */
+		return 0;
+	}
+	/* read scm revision */
+	with (char *on) {
+		v->rvsn = hextou(++bp, &on);
+		bp = on;
+	}
+
+	if (bp >= ep) {
+		;
+	} else if (*bp++ != '-') {
+		;
+	} else if (bp + sizeof(dflag) - 1U < ep) {
+		;
+	} else if (!memcmp(bp, dflag, sizeof(dflag) - 1U)) {
+		v->dirty = 1U;
+	}
+	return 0;
+}
+
+static ssize_t
+wr_version(char *restrict buf, size_t bsz, const struct yuck_version_s *v)
+{
+	static const char yscm_abbr[] = "tgbh";
+	const char *const ep = buf + bsz;
+	char *bp = buf;
+
+	if (UNLIKELY(buf == NULL || bsz == 0U)) {
+		return -1;
+	}
+	*bp++ = 'v';
+	bp += xstrlcpy(bp, v->vtag, ep - bp);
+	if (!v->dist) {
+		goto out;
+	} else if (bp + 1U >= ep) {
+		/* not enough space */
+		return -1;
+	}
+	/* get the dist bit on the wire */
+	*bp++ = '-';
+	bp += snprintf(bp, ep - bp, "%u", v->dist);
+	if (!v->rvsn || v->scm <= YUCK_SCM_TARBALL) {
+		goto out;
+	} else if (bp + 2U + 8U >= ep) {
+		/* not enough space */
+		return -1;
+	}
+	*bp++ = '-';
+	*bp++ = yscm_abbr[v->scm];
+	bp += snprintf(bp, ep - bp, "%08x", v->rvsn);
+	if (!v->dirty) {
+		goto out;
+	} else if (bp + 1U + 5U >= ep) {
+		/* not enough space */
+		return -1;
+	}
+	bp += xstrlcpy(bp, "-dirty", ep - bp);
+out:
+	return bp - buf;
+}
+
 static int
 git_version(struct yuck_version_s v[static 1U])
 {
@@ -571,6 +693,63 @@ yuck_version(struct yuck_version_s *restrict v, const char *path)
 		chdir(cwd);
 		break;
 	}
+	return rc;
+}
+
+int
+yuck_version_read(struct yuck_version_s *restrict ref, const char *fn)
+{
+	int rc = 0;
+	int fd;
+
+	/* initialise result structure */
+	memset(ref, 0, sizeof(*ref));
+
+	if ((fd = open(fn, O_RDONLY)) < 0) {
+		return -1;
+	}
+	/* otherwise read and parse the string */
+	with (char buf[256U]) {
+		ssize_t nrd;
+
+		if ((nrd = read(fd, buf, sizeof(buf))) <= 0) {
+			/* no version then aye */
+			rc = -1;
+			break;
+		}
+		/* finalise with \nul */
+		buf[nrd] = '\0';
+		/* otherwise just read him */
+		rc = rd_version(ref, buf, nrd);
+	}
+	close(fd);
+	return rc;
+}
+
+int
+yuck_version_write(const char *fn, const struct yuck_version_s *ref)
+{
+	int rc = 0;
+	int fd;
+
+	if ((fd = open(fn, O_RDWR | O_CREAT | O_TRUNC, 0666)) < 0) {
+		return -1;
+	}
+	with (char buf[256U]) {
+		ssize_t nwr;
+
+		if ((nwr = wr_version(buf, sizeof(buf), ref)) <= 0) {
+			rc = -1;
+			break;
+		}
+		/* otherwise write */
+		buf[nwr++] = '\n';
+		if (write(fd, buf, nwr) != nwr) {
+			rc = -1;
+			break;
+		}
+	}
+	close(fd);
 	return rc;
 }
 

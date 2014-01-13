@@ -57,6 +57,16 @@ struct yuck_version_s {
 
 
 /* public api */
+/**
+ * Determine SCM version of file(s) in PATH. */
 extern int yuck_version(struct yuck_version_s *restrict v, const char *path);
+
+/**
+ * Read a reference file FN and return scm version information. */
+extern int yuck_version_read(struct yuck_version_s *restrict, const char *fn);
+
+/**
+ * Write scm version information in V to reference file FN. */
+extern int yuck_version_write(const char *fn, const struct yuck_version_s *v);
 
 #endif	/* INCLUDED_yuck_version_h_ */
