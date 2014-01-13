@@ -247,6 +247,7 @@ again:
 	} else if (!S_ISDIR(st->st_mode)) {
 		/* not a directory, get the dir bit and start over */
 		if ((dp = xdirname(fn, dp)) == NULL) {
+			dp = fn;
 			goto cwd;
 		}
 		goto again;
