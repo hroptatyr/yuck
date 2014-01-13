@@ -233,12 +233,13 @@ find_scm(char *restrict fn, size_t fz, const char *path)
 	char *restrict dp = fn;
 
 	/* make a copy so we can fiddle with it */
-	if (path == NULL ||
-	    (dp += xstrlcpy(fn, path, fz)) == fn) {
+	if (UNLIKELY(path == NULL)) {
 	cwd:
 		/* just use "." then */
 		*dp++ = '.';
 		*dp = '\0';
+	} else if ((dp += xstrlcpy(fn, path, fz)) == fn) {
+		goto cwd;
 	}
 again:
 	if (stat(fn, st) < 0) {
