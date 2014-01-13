@@ -34,6 +34,7 @@ if omitted.
 ## VER
 Usage: yuck scmver [FILE]
 
+  -o, --output=FILE  Output goes into FILE instead of stdout.
   -v, --verbose      Also print version information on stdout.
 
 Try and guess the version based on SCM-controlled cwd.

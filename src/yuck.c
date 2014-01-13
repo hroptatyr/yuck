@@ -1332,7 +1332,29 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 		}
 		fputc('\n', stdout);
 	}
-	return 0;
+	if (argi->nargs) {
+		const char *outfn = argi->output_arg;
+		static const char *flag_d0 = "-DYUCK_SCMVER_FLAG_CLEAN";
+		static const char *flag_d1 = "-DYUCK_SCMVER_FLAG_DIRTY";
+		char vtag[64U];
+		char vscm[16U];
+		char dist[16U];
+		char rvsn[16U];
+		const char *drty;
+
+		snprintf(vtag, sizeof(vtag),
+			 "-DYUCK_SCMVER_VTAG=%s", v->vtag);
+		snprintf(vscm, sizeof(vscm),
+			 "-DYUCK_SCMVER_SCM=%s", yscm_strs[v->scm]);
+		snprintf(dist, sizeof(dist),
+			 "-DYUCK_SCMVER_DIST=%u", v->dist);
+		snprintf(rvsn, sizeof(rvsn),
+			 "-DYUCK_SCMVER_RVSN=%08x", v->rvsn);
+		drty = !v->dirty ? flag_d0 : flag_d1;
+
+		rc = run_m4(outfn, vtag, vscm, dist, rvsn, drty, infn, NULL);
+	}
+	return rc;
 #else  /* !WITH_SCMVER */
 	fputs("scmver support not built in\n", stderr);
 	return argi->cmd == YUCK_CMD_SCMVER;
