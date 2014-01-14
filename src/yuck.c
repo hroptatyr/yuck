@@ -291,6 +291,13 @@ mkftempps(char *restrict tmpl[static 1U], int prefixlen, int suffixlen)
 	*tmpl = bp;
 	return fdopen(fd, "w");
 }
+
+static bool
+regfilep(const char *fn)
+{
+	struct stat st[1U];
+	return stat(fn, st) == 0 && S_ISREG(st->st_mode);
+}
 #endif	/* !BOOTSTRAP */
 
 
@@ -1448,7 +1455,7 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 		}
 	}
 
-	if (infn != NULL) {
+	if (infn != NULL && regfilep(infn)) {
 		static char _scmvfn[] = P_tmpdir "/" "yscm_XXXXXX.m4i";
 		char *scmvfn = _scmvfn;
 
