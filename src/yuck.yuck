@@ -2,6 +2,8 @@ Usage: yuck COMMAND [ARG]...
 
 Generate command line option parsers for umbrella commands.
 
+  -k, --keep         Keep intermediary files.
+
 ## Usages of the single commands
 Usage: yuck [OPTION]... gen [FILE]...
 
