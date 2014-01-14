@@ -391,8 +391,8 @@ DEFUN void yuck_auto_version(const yuck_t src[[static 1U]])
 {
 	switch (src->cmd) {
 	default:
-ifdef([YUCK_VER], [dnl
-		puts("YUCK_UMB YUCK_VER");
+ifdef([YUCK_VERSION], [dnl
+		puts("YUCK_UMB YUCK_VERSION");
 ], [dnl
 #if 0
 
