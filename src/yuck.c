@@ -1179,12 +1179,7 @@ divert([-1])\n", outf);
 		} else {
 			fputs("define([YUCK_SCMVER_FLAG_DIRTY])\n", outf);
 		}
-	}
-	if (vlit != NULL) {
-		fputs("define([YUCK_SCMVER_VERSION], [", outf);
-		fputs(vlit, outf);
-		fputs("])\n", outf);
-	} else if (v != NULL) {
+
 		/* for convenience */
 		fputs("define([YUCK_SCMVER_VERSION], [", outf);
 		fputs(v->vtag, outf);
@@ -1196,6 +1191,11 @@ divert([-1])\n", outf);
 		if (v->dirty) {
 			fputs(".dirty", outf);
 		}
+		fputs("])\n", outf);
+	}
+	if (vlit != NULL) {
+		fputs("define([YUCK_VERSION], [", outf);
+		fputs(vlit, outf);
 		fputs("])\n", outf);
 	}
 	fputs("\
