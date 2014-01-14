@@ -1113,13 +1113,30 @@ bollocks:
 }
 
 static int
+wr_pre(void)
+{
+	fputs("\
+changequote`'changequote([,])dnl\n\
+divert([-1])\n", outf);
+	return 0;
+}
+
+static int
+wr_suf(void)
+{
+	fputs("\
+changequote`'dnl\n\
+changecom(//)dnl\n\
+divert`'\n", outf);
+	return 0;
+}
+
+static int
 wr_intermediary(char *const args[], size_t nargs)
 {
 	int rc = 0;
 
-	fputs("\
-changequote([,])dnl\n\
-divert([-1])\n", outf);
+	wr_pre();
 
 	if (nargs == 0U) {
 		if (snarf_f(stdin) < 0) {
@@ -1143,10 +1160,8 @@ divert([-1])\n", outf);
 		/* clean up */
 		fclose(yf);
 	}
-	/* make sure we close the outfile */
-	fputs("\n\
-changecom([//])\n\
-divert[]dnl\n", outf);
+	/* reset to sane values */
+	wr_suf();
 	return rc;
 }
 
@@ -1163,7 +1178,9 @@ wr_header(const char hdr[static 1U])
 		} else {
 			hp++;
 		};
+		wr_pre();
 		fprintf(outf, "define([YUCK_HEADER], [%s])dnl\n", hp);
+		wr_suf();
 	}
 	return 0;
 }
@@ -1183,7 +1200,9 @@ wr_man_date(void)
 	} else if (!strftime(buf, sizeof(buf), "%B %Y", tp)) {
 		rc = -1;
 	} else {
+		wr_pre();
 		fprintf(outf, "define([YUCK_MAN_DATE], [%s])dnl\n", buf);
+		wr_suf();
 	}
 	return rc;
 }
@@ -1191,9 +1210,7 @@ wr_man_date(void)
 static int
 wr_version(const struct yuck_version_s *v, const char *vlit)
 {
-	fputs("\
-changequote`'changequote([,])dnl\n\
-divert([-1])\n", outf);
+	wr_pre();
 
 	if (v != NULL) {
 		const char *yscm = yscm_strs[v->scm];
@@ -1226,9 +1243,7 @@ divert([-1])\n", outf);
 		fputs(vlit, outf);
 		fputs("])\n", outf);
 	}
-	fputs("\
-changequote`'dnl\n\
-divert`'dnl\n", outf);
+	wr_suf();
 	return 0;
 }
 #endif	/* !BOOTSTRAP */
