@@ -68,7 +68,7 @@ define([select_divert], [divert[]undivert($1)[]divert(-1)[]undivert[]divert(0)])
 
 
 define([yuck_set_version], [dnl
-	define([YUCK_VER], [$1])
+	define([YUCK_VERSION], [$1])
 ])
 
 ## yuck_set_umbrella([ident], [umbrella], [[posarg]])
