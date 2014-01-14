@@ -100,6 +100,15 @@ struct opt_s {
 	unsigned int marg:1U;
 };
 
+#if !defined BOOTSTRAP && defined WITH_SCMVER
+static const char *yscm_strs[] = {
+	[YUCK_SCM_TARBALL] = "tarball",
+	[YUCK_SCM_GIT] = "git",
+	[YUCK_SCM_BZR] = "bzr",
+	[YUCK_SCM_HG] = "hg",
+};
+#endif	/* WITH_SCMVER */
+
 
 static __attribute__((format(printf, 1, 2))) void
 error(const char *fmt, ...)
@@ -1159,6 +1168,45 @@ wr_version(const char ver[static 1U])
 	fprintf(outf, "define([YUCK_VER], [%s])dnl\n", ver);
 	return 0;
 }
+
+#if defined WITH_SCMVER
+static int
+wr_version_s(const struct yuck_version_s v[static 1U])
+{
+	const char *yscm = yscm_strs[v->scm];
+
+	fputs("\
+changequote`'changequote([,])dnl\n\
+divert([-1])\n", outf);
+
+	fprintf(outf, "define([YUCK_SCMVER_VTAG], [%s])\n", v->vtag);
+	fprintf(outf, "define([YUCK_SCMVER_SCM], [%s])\n", yscm);
+	fprintf(outf, "define([YUCK_SCMVER_DIST], [%u])\n", v->dist);
+	fprintf(outf, "define([YUCK_SCMVER_RVSN], [%08x])\n", v->rvsn);
+	if (!v->dirty) {
+		fputs("define([YUCK_SCMVER_FLAG_CLEAN])\n", outf);
+	} else {
+		fputs("define([YUCK_SCMVER_FLAG_DIRTY])\n", outf);
+	}
+	/* for convenience */
+	fputs("define([YUCK_SCMVER_VERSION], [", outf);
+	fputs(v->vtag, outf);
+	if (v->scm > YUCK_SCM_TARBALL && v->dist) {
+		fputc('.', outf);
+		fputs(yscm_strs[v->scm], outf);
+		fprintf(outf, "%u.%08x", v->dist, v->rvsn);
+	}
+	if (v->dirty) {
+		fputs(".dirty", outf);
+	}
+	fputs("])dnl\n", outf);
+
+	fputs("\
+changequote`'dnl\n\
+divert`'dnl\n", outf);
+	return 0;
+}
+#endif	/* WITH_SCMVER */
 #endif	/* !BOOTSTRAP */
 
 
@@ -1305,13 +1353,7 @@ static int
 cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 {
 #if defined WITH_SCMVER
-	static const char *yscm_strs[] = {
-		[YUCK_SCM_TARBALL] = "tarball",
-		[YUCK_SCM_GIT] = "git",
-		[YUCK_SCM_BZR] = "bzr",
-		[YUCK_SCM_HG] = "hg",
-	};
-	static char scmver[PATH_MAX];
+	static char tmplfn[PATH_MAX];
 	struct yuck_version_s v[1U];
 	const char *infn = argi->args[0U];
 	int rc = 0;
@@ -1319,9 +1361,9 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 	if (yuck_version(v, infn) < 0) {
 		error("cannot determine SCM");
 		return 1;
-	} else if (find_aux(scmver, sizeof(scmver), "yuck-version.m4") < 0) {
+	} else if (find_aux(tmplfn, sizeof(tmplfn), "yuck-version.m4") < 0) {
 		error("cannot find yuck template for version strings");
-		xstrlcpy(scmver, "/dev/null", sizeof(scmver));
+		xstrlcpy(tmplfn, "/dev/null", sizeof(tmplfn));
 	}
 
 	if (argi->verbose_flag) {
@@ -1344,6 +1386,8 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 		if (memcmp(v, ref, sizeof(*ref))) {
 			/* version stamps differ */
 			yuck_version_write(argi->reference_arg, v);
+			/* reserve exit code 3 for `updated reference file' */
+			rc = 3;
 		}
 		if (!0/*argi->force_flag*/) {
 			/* don't worry about anything then */
@@ -1351,32 +1395,26 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 		}
 	}
 
-	if (argi->nargs) {
-		const char *outfn = argi->output_arg;
-		static const char *flag_d0 = "-DYUCK_SCMVER_FLAG_CLEAN";
-		static const char *flag_d1 = "-DYUCK_SCMVER_FLAG_DIRTY";
-		char vtag[64U];
-		char vscm[32U];
-		char dist[32U];
-		char rvsn[32U];
-		const char *drty;
+	if (infn != NULL) {
+		static char scmvfn[] = "yscm_xxxxxxxx.m4i";
 
-		snprintf(vtag, sizeof(vtag),
-			 "-DYUCK_SCMVER_VTAG=%s", v->vtag);
-		snprintf(vscm, sizeof(vscm),
-			 "-DYUCK_SCMVER_SCM=%s", yscm_strs[v->scm]);
-		snprintf(dist, sizeof(dist),
-			 "-DYUCK_SCMVER_DIST=%u", v->dist);
-		snprintf(rvsn, sizeof(rvsn),
-			 "-DYUCK_SCMVER_RVSN=%08x", v->rvsn);
-		drty = !v->dirty ? flag_d0 : flag_d1;
+		if (UNLIKELY((outf = fopen(scmvfn, "w")) == NULL)) {
+			error("cannot open intermediate file `%s'", scmvfn);
+			rc = 1;
+		} else {
+			const char *outfn = argi->output_arg;
 
-		rc = run_m4(
-			outfn,
-			/* flags */
-			vtag, vscm, dist, rvsn, drty,
-			/* our template and the in-file */
-			scmver, infn, NULL);
+			/* write the actual version info */
+			rc += wr_version_s(v);
+			/* and we're finished with the intermediary */
+			fclose(outf);
+			/* macro massage, vtmpfn is the template file */
+			rc = run_m4(outfn, scmvfn, tmplfn, infn, NULL);
+
+			if (!0/*argi->keep_intermediate*/) {
+				unlink(scmvfn);
+			}
+		}
 	}
 	return rc;
 #else  /* !WITH_SCMVER */
