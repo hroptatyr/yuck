@@ -16,6 +16,7 @@ CLEANFILES =
 
 EXTRA_DIST += build-aux/git-version-gen
 EXTRA_DIST += version.m4
+EXTRA_DIST += version.mk.in
 
 DISTCLEANFILES += version.mk
 DISTCLEANFILES += yuck.version
