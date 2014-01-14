@@ -1126,7 +1126,6 @@ wr_suf(void)
 {
 	fputs("\
 changequote`'dnl\n\
-changecom(//)dnl\n\
 divert`'\n", outf);
 	return 0;
 }
