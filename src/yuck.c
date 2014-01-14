@@ -263,6 +263,34 @@ unmassage_buf(char *restrict buf, size_t bsz)
 	}
 	return;
 }
+
+static FILE*
+mkftempps(char *restrict tmpl[static 1U], int prefixlen, int suffixlen)
+{
+	char *bp = *tmpl + prefixlen;
+	char *ep = *tmpl + strlen(*tmpl) - suffixlen;
+	int fd;
+
+	if (ep[-6] != 'X' || ep[-5] != 'X' || ep[-4] != 'X' ||
+	    ep[-3] != 'X' || ep[-2] != 'X' || ep[-1] != 'X') {
+		if ((fd = open(bp, O_RDWR | O_CREAT | O_EXCL, 0666)) < 0 &&
+		    (bp -= prefixlen,
+		     fd = open(bp, O_RDWR | O_CREAT | O_EXCL, 0666)) < 0) {
+			/* fuck that then */
+			return NULL;
+		}
+	} else if (UNLIKELY((fd = mkstemps(bp, suffixlen)) < 0) &&
+		   UNLIKELY((bp -= prefixlen,
+			     /* reset to XXXXXX */
+			     memset(ep - 6, 'X', 6U),
+			     fd = mkstemps(bp, suffixlen)) < 0)) {
+		/* at least we tried */
+		return NULL;
+	}
+	/* store result */
+	*tmpl = bp;
+	return fdopen(fd, "w");
+}
 #endif	/* !BOOTSTRAP */
 
 
@@ -1212,10 +1240,10 @@ divert`'dnl\n", outf);
 static int
 cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 {
-	static char deffn[] = "yuck_XXXXXX.m4i";
+	static char _deffn[] = P_tmpdir "/" "yuck_XXXXXX.m4i";
 	static char gencfn[PATH_MAX];
 	static char genhfn[PATH_MAX];
-	int deffd;
+	char *deffn = _deffn;
 	int rc = 0;
 
 	if (argi->no_auto_flags_flag) {
@@ -1226,8 +1254,7 @@ cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 	}
 
 	/* deal with the output first */
-	if (UNLIKELY((deffd = mkstemps(deffn, 4/*suffix*/)) < 0) ||
-	    UNLIKELY((outf = fdopen(deffd, "w")) == NULL)) {
+	if (UNLIKELY((outf = mkftempps(&deffn, sizeof(P_tmpdir), 4)) == NULL)) {
 		error("cannot open intermediate file `%s'", deffn);
 		return -1;
 	}
@@ -1282,14 +1309,13 @@ out:
 static int
 cmd_genman(const struct yuck_cmd_genman_s argi[static 1U])
 {
-	static char deffn[] = "yuck_XXXXXX.m4i";
+	static char _deffn[] = P_tmpdir "/" "yuck_XXXXXX.m4i";
 	static char genmfn[PATH_MAX];
-	int deffd;
+	char *deffn = _deffn;
 	int rc = 0;
 
 	/* deal with the output first */
-	if (UNLIKELY((deffd = mkstemps(deffn, 4/*suffix*/)) < 0) ||
-	    UNLIKELY((outf = fdopen(deffd, "w")) == NULL)) {
+	if (UNLIKELY((outf = mkftempps(&deffn, sizeof(P_tmpdir), 4)) == NULL)) {
 		error("cannot open intermediate file `%s'", deffn);
 		return -1;
 	}
@@ -1396,11 +1422,11 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 	}
 
 	if (infn != NULL) {
-		static char scmvfn[] = "yscm_XXXXXX.m4i";
-		int scmvfd;
+		static char _scmvfn[] = P_tmpdir "/" "yscm_XXXXXX.m4i";
+		char *scmvfn = _scmvfn;
 
-		if ((scmvfd = mkstemps(scmvfn, 4/*suffix*/)) < 0 ||
-		    (outf = fdopen(scmvfd, "w")) == NULL) {
+		/* try the local dir first */
+		if ((outf = mkftempps(&scmvfn, sizeof(P_tmpdir), 4)) == NULL) {
 			error("cannot open intermediate file `%s'", scmvfn);
 			rc = 1;
 		} else {
