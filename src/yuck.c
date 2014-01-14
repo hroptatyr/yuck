@@ -1314,7 +1314,7 @@ cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 		rc = run_m4(outfn, dslfn, deffn, genhfn, gencfn, NULL);
 	}
 out:
-	if (!0/*argi->keep_intermediate*/) {
+	if (!argi->keep_flag) {
 		unlink(deffn);
 	}
 	return rc;
@@ -1362,7 +1362,7 @@ cmd_genman(const struct yuck_cmd_genman_s argi[static 1U])
 		rc = run_m4(outfn, dslfn, deffn, genmfn, NULL);
 	}
 out:
-	if (!0/*argi->keep_intermediate*/) {
+	if (!argi->keep_flag) {
 		unlink(deffn);
 	}
 	return rc;
@@ -1453,7 +1453,7 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 			/* macro massage, vtmpfn is the template file */
 			rc = run_m4(outfn, scmvfn, tmplfn, infn, NULL);
 
-			if (!0/*argi->keep_intermediate*/) {
+			if (!argi->keep_flag) {
 				unlink(scmvfn);
 			}
 		}
