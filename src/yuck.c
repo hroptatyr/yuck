@@ -51,9 +51,7 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <time.h>
-#if defined WITH_SCMVER
-# include <yuck-version.h>
-#endif	/* WITH_SCMVER */
+#include <yuck-version.h>
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect((_x), 1)
@@ -1163,50 +1161,48 @@ wr_man_date(void)
 }
 
 static int
-wr_version(const char ver[static 1U])
+wr_version(const struct yuck_version_s *v, const char *vlit)
 {
-	fprintf(outf, "define([YUCK_VER], [%s])dnl\n", ver);
-	return 0;
-}
-
-#if defined WITH_SCMVER
-static int
-wr_version_s(const struct yuck_version_s v[static 1U])
-{
-	const char *yscm = yscm_strs[v->scm];
-
 	fputs("\
 changequote`'changequote([,])dnl\n\
 divert([-1])\n", outf);
 
-	fprintf(outf, "define([YUCK_SCMVER_VTAG], [%s])\n", v->vtag);
-	fprintf(outf, "define([YUCK_SCMVER_SCM], [%s])\n", yscm);
-	fprintf(outf, "define([YUCK_SCMVER_DIST], [%u])\n", v->dist);
-	fprintf(outf, "define([YUCK_SCMVER_RVSN], [%08x])\n", v->rvsn);
-	if (!v->dirty) {
-		fputs("define([YUCK_SCMVER_FLAG_CLEAN])\n", outf);
-	} else {
-		fputs("define([YUCK_SCMVER_FLAG_DIRTY])\n", outf);
-	}
-	/* for convenience */
-	fputs("define([YUCK_SCMVER_VERSION], [", outf);
-	fputs(v->vtag, outf);
-	if (v->scm > YUCK_SCM_TARBALL && v->dist) {
-		fputc('.', outf);
-		fputs(yscm_strs[v->scm], outf);
-		fprintf(outf, "%u.%08x", v->dist, v->rvsn);
-	}
-	if (v->dirty) {
-		fputs(".dirty", outf);
-	}
-	fputs("])dnl\n", outf);
+	if (v != NULL) {
+		const char *yscm = yscm_strs[v->scm];
 
+		fprintf(outf, "define([YUCK_SCMVER_VTAG], [%s])\n", v->vtag);
+		fprintf(outf, "define([YUCK_SCMVER_SCM], [%s])\n", yscm);
+		fprintf(outf, "define([YUCK_SCMVER_DIST], [%u])\n", v->dist);
+		fprintf(outf, "define([YUCK_SCMVER_RVSN], [%08x])\n", v->rvsn);
+		if (!v->dirty) {
+			fputs("define([YUCK_SCMVER_FLAG_CLEAN])\n", outf);
+		} else {
+			fputs("define([YUCK_SCMVER_FLAG_DIRTY])\n", outf);
+		}
+	}
+	if (vlit != NULL) {
+		fputs("define([YUCK_SCMVER_VERSION], [", outf);
+		fputs(vlit, outf);
+		fputs("])\n", outf);
+	} else if (v != NULL) {
+		/* for convenience */
+		fputs("define([YUCK_SCMVER_VERSION], [", outf);
+		fputs(v->vtag, outf);
+		if (v->scm > YUCK_SCM_TARBALL && v->dist) {
+			fputc('.', outf);
+			fputs(yscm_strs[v->scm], outf);
+			fprintf(outf, "%u.%08x", v->dist, v->rvsn);
+		}
+		if (v->dirty) {
+			fputs(".dirty", outf);
+		}
+		fputs("])\n", outf);
+	}
 	fputs("\
 changequote`'dnl\n\
 divert`'dnl\n", outf);
 	return 0;
 }
-#endif	/* WITH_SCMVER */
 #endif	/* !BOOTSTRAP */
 
 
@@ -1237,7 +1233,7 @@ cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 	rc = wr_intermediary(argi->args, argi->nargs);
 	/* deal with hard wired version numbers */
 	if (argi->version_arg) {
-		rc += wr_version(argi->version_arg);
+		rc += wr_version(NULL, argi->version_arg);
 	}
 	/* special directive for the header or is it */
 	if (argi->header_arg != NULL) {
@@ -1296,7 +1292,7 @@ cmd_genman(const struct yuck_cmd_genman_s argi[static 1U])
 	/* write up our findings in DSL language */
 	rc = wr_intermediary(argi->args, argi->nargs);
 	if (argi->version_arg) {
-		rc += wr_version(argi->version_arg);
+		rc += wr_version(NULL, argi->version_arg);
 	}
 	/* at least give the man page template an idea for YUCK_MAN_DATE */
 	rc += wr_man_date();
@@ -1344,7 +1340,7 @@ cmd_gendsl(const struct yuck_cmd_gendsl_s argi[static 1U])
 	outf = stdout;
 	rc += wr_intermediary(argi->args, argi->nargs);
 	if (argi->version_arg) {
-		rc += wr_version(argi->version_arg);
+		rc += wr_version(NULL, argi->version_arg);
 	}
 	return rc;
 }
@@ -1405,7 +1401,7 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 			const char *outfn = argi->output_arg;
 
 			/* write the actual version info */
-			rc += wr_version_s(v);
+			rc += wr_version(v, NULL);
 			/* and we're finished with the intermediary */
 			fclose(outf);
 			/* macro massage, vtmpfn is the template file */
