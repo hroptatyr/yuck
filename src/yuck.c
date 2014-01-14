@@ -1245,6 +1245,23 @@ wr_version(const struct yuck_version_s *v, const char *vlit)
 	wr_suf();
 	return 0;
 }
+
+static int
+rm_intermediary(const char *fn, int keepp)
+{
+	if (!keepp) {
+		if (unlink(fn) < 0) {
+			error("cannot remove intermediary `%s'", fn);
+			return -1;
+		}
+	} else {
+		/* otherwise print a nice message so users know
+		 * the file we created */
+		errno = 0;
+		error("intermediary `%s' kept", fn);
+	}
+	return 0;
+}
 #endif	/* !BOOTSTRAP */
 
 
@@ -1314,9 +1331,7 @@ cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 		rc = run_m4(outfn, dslfn, deffn, genhfn, gencfn, NULL);
 	}
 out:
-	if (!argi->keep_flag) {
-		unlink(deffn);
-	}
+	rm_intermediary(deffn, argi->keep_flag);
 	return rc;
 }
 
@@ -1362,9 +1377,7 @@ cmd_genman(const struct yuck_cmd_genman_s argi[static 1U])
 		rc = run_m4(outfn, dslfn, deffn, genmfn, NULL);
 	}
 out:
-	if (!argi->keep_flag) {
-		unlink(deffn);
-	}
+	rm_intermediary(deffn, argi->keep_flag);
 	return rc;
 }
 
@@ -1453,9 +1466,7 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 			/* macro massage, vtmpfn is the template file */
 			rc = run_m4(outfn, scmvfn, tmplfn, infn, NULL);
 
-			if (!argi->keep_flag) {
-				unlink(scmvfn);
-			}
+			rm_intermediary(scmvfn, argi->keep_flag);
 		}
 	}
 	return rc;
