@@ -1,7 +1,7 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
 $ yuck gendsl "${srcdir}/muloptarg_03.yuck"
-changequote([,])dnl
+changequote`'changequote([,])dnl
 divert([-1])
 
 yuck_set_umbrella([plain], [plain], [])
@@ -11,8 +11,8 @@ yuck_add_option([version], [V], [version], [auto])
 yuck_set_option_desc([version], [output version information and exit])
 yuck_add_option([execute], [x], [execute], [arg, LEVEL, mul, opt]);
 
-changecom([//])
-divert[]dnl
+changequote`'dnl
+divert`'dnl
 $
 
 ## muloptarg_03.clit ends here

@@ -1,7 +1,7 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
 $ yuck gendsl "${srcdir}/subcmd_04.yuck"
-changequote([,])dnl
+changequote`'changequote([,])dnl
 divert([-1])
 
 yuck_set_umbrella([plain], [plain], [FILE...])
@@ -17,8 +17,8 @@ yuck_set_command_desc([foo], [Run plain tool in foo mode.])
 yuck_add_command([bar], [bar], [FILE...])
 yuck_set_command_desc([bar], [Run plain tool in bar mode.])
 
-changecom([//])
-divert[]dnl
+changequote`'dnl
+divert`'dnl
 $
 
 ## subcmd_04.clit ends here

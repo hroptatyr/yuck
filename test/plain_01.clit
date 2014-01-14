@@ -1,7 +1,7 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
 $ yuck gendsl "${srcdir}/plain_01.yuck"
-changequote([,])dnl
+changequote`'changequote([,])dnl
 divert([-1])
 
 yuck_set_umbrella([plain], [plain], [])
@@ -10,8 +10,8 @@ yuck_set_option_desc([help], [display this help and exit])
 yuck_add_option([version], [V], [version], [auto])
 yuck_set_option_desc([version], [output version information and exit])
 
-changecom([//])
-divert[]dnl
+changequote`'dnl
+divert`'dnl
 $
 
 ## plain_01.clit ends here
