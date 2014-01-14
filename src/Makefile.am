@@ -58,7 +58,7 @@ EXTRA_DIST += $(pkgdata_DATA)
 
 
 ## version rules
-version.c: version.c.in $(builddir)/yuck-scmver $(top_builddir)/version.mk
+version.c: version.c.in $(builddir)/yuck-scmver $(top_builddir)/yuck.version
 	$(AM_V_GEN) $(builddir)/yuck-scmver $< | m4 - $< > $@
 
 ## bootstrapping rules

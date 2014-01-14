@@ -8,8 +8,9 @@ ifneq ($(_gl-Makefile),)
 include Makefile
 
 # update the included makefile snippet which sets VERSION variables
-version.mk: FORCE
-	$(AM_V_GEN) $(top_srcdir)/build-aux/git-version-gen $(top_srcdir) $@
+version.mk: version.mk.in FORCE
+	$(AM_V_GEN) test -f $(top_builddir)/src/yuck && \
+		$(top_builddir)/src/yuck scmver --reference yuck.version -o $@ $<
 
 else
 

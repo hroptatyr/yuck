@@ -18,6 +18,7 @@ EXTRA_DIST += build-aux/git-version-gen
 EXTRA_DIST += version.m4
 
 DISTCLEANFILES += version.mk
+DISTCLEANFILES += yuck.version
 
 pkgconfigdir = @libdir@/pkgconfig
 pkgconfig_DATA =
@@ -26,7 +27,7 @@ EXTRA_DIST += yuck.pc.in
 CLEANFILES += yuck.pc
 
 yuck.pc: yuck.pc.in
-yuck.pc: yuck.pc.in $(top_builddir)/src/yuck version.mk
+yuck.pc: yuck.pc.in $(top_builddir)/src/yuck $(top_builddir)/yuck.version
 	$(AM_V_GEN) $(top_builddir)/src/yuck scmver $< | \
 		$(SHELL) $(builddir)/config.status --file=- >$@
 
