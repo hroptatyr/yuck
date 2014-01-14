@@ -1448,8 +1448,7 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 			yuck_version_write(argi->reference_arg, v);
 			/* reserve exit code 3 for `updated reference file' */
 			rc = 3;
-		}
-		if (!0/*argi->force_flag*/) {
+		} else if (!0/*argi->force_flag*/) {
 			/* don't worry about anything then */
 			return 0;
 		}
