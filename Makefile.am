@@ -28,7 +28,8 @@ CLEANFILES += yuck.pc
 
 yuck.pc: yuck.pc.in
 yuck.pc: yuck.pc.in $(top_builddir)/src/yuck $(top_builddir)/yuck.version
-	$(AM_V_GEN) $(top_builddir)/src/yuck scmver $< | \
+	$(AM_V_GEN) YUCK_TEMPLATE_PATH="$(abs_top_srcdir)/src" \
+		$(top_builddir)/src/yuck scmver $< | \
 		$(SHELL) $(builddir)/config.status --file=- >$@
 
 dist-hook:
