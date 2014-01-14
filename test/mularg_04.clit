@@ -1,7 +1,7 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
 $ yuck gendsl "${srcdir}/mularg_04.yuck"
-changequote([,])dnl
+changequote`'changequote([,])dnl
 divert([-1])
 
 yuck_set_umbrella([plain], [plain], [])
@@ -12,8 +12,8 @@ yuck_set_option_desc([version], [output version information and exit])
 yuck_add_option([execute], [x], [execute], [arg, LEVEL, mul]);
 yuck_set_option_desc([execute], [Execute thoroughly.])
 
-changecom([//])
-divert[]dnl
+changequote`'dnl
+divert`'dnl
 $
 
 ## mularg_04.clit ends here

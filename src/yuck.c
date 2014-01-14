@@ -1124,9 +1124,9 @@ divert([-1])\n", outf);
 static int
 wr_suf(void)
 {
-	fputs("\
+	fputs("\n\
 changequote`'dnl\n\
-divert`'\n", outf);
+divert`'dnl\n", outf);
 	return 0;
 }
 

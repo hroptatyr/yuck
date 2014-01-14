@@ -1,7 +1,7 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
 $ yuck gendsl "${srcdir}/escape_03.yuck"
-changequote([,])dnl
+changequote`'changequote([,])dnl
 divert([-1])
 
 yuck_set_umbrella([plain], [plain], [])
@@ -13,8 +13,8 @@ yuck_add_option([dashx], [x], [], [arg, FOO, opt]);
 yuck_set_option_desc([dashx], [Tricky, with lone  and " and \ and
 newlines])
 
-changecom([//])
-divert[]dnl
+changequote`'dnl
+divert`'dnl
 $
 
 ## escape_03.clit ends here
