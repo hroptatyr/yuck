@@ -51,7 +51,7 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <time.h>
-#include <yuck-version.h>
+#include <yuck-scmver.h>
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect((_x), 1)
@@ -1414,7 +1414,7 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 	if (yuck_version(v, infn) < 0) {
 		error("cannot determine SCM");
 		return 1;
-	} else if (find_aux(tmplfn, sizeof(tmplfn), "yuck-version.m4") < 0) {
+	} else if (find_aux(tmplfn, sizeof(tmplfn), "yuck-scmver.m4") < 0) {
 		error("cannot find yuck template for version strings");
 		xstrlcpy(tmplfn, "/dev/null", sizeof(tmplfn));
 	}
