@@ -1212,9 +1212,10 @@ divert`'dnl\n", outf);
 static int
 cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 {
-	static const char deffn[] = "yuck.m4i";
+	static char deffn[] = "yuck_XXXXXX.m4i";
 	static char gencfn[PATH_MAX];
 	static char genhfn[PATH_MAX];
+	int deffd;
 	int rc = 0;
 
 	if (argi->no_auto_flags_flag) {
@@ -1225,7 +1226,8 @@ cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 	}
 
 	/* deal with the output first */
-	if (UNLIKELY((outf = fopen(deffn, "w")) == NULL)) {
+	if (UNLIKELY((deffd = mkstemps(deffn, 4/*suffix*/)) < 0) ||
+	    UNLIKELY((outf = fdopen(deffd, "w")) == NULL)) {
 		error("cannot open intermediate file `%s'", deffn);
 		return -1;
 	}
@@ -1280,12 +1282,14 @@ out:
 static int
 cmd_genman(const struct yuck_cmd_genman_s argi[static 1U])
 {
-	static const char deffn[] = "yuck.m4i";
+	static char deffn[] = "yuck_XXXXXX.m4i";
 	static char genmfn[PATH_MAX];
+	int deffd;
 	int rc = 0;
 
 	/* deal with the output first */
-	if (UNLIKELY((outf = fopen(deffn, "w")) == NULL)) {
+	if (UNLIKELY((deffd = mkstemps(deffn, 4/*suffix*/)) < 0) ||
+	    UNLIKELY((outf = fdopen(deffd, "w")) == NULL)) {
 		error("cannot open intermediate file `%s'", deffn);
 		return -1;
 	}
@@ -1392,9 +1396,11 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 	}
 
 	if (infn != NULL) {
-		static char scmvfn[] = "yscm_xxxxxxxx.m4i";
+		static char scmvfn[] = "yscm_XXXXXX.m4i";
+		int scmvfd;
 
-		if (UNLIKELY((outf = fopen(scmvfn, "w")) == NULL)) {
+		if ((scmvfd = mkstemps(scmvfn, 4/*suffix*/)) < 0 ||
+		    (outf = fdopen(scmvfd, "w")) == NULL) {
 			error("cannot open intermediate file `%s'", scmvfn);
 			rc = 1;
 		} else {
