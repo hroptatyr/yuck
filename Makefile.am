@@ -16,8 +16,10 @@ CLEANFILES =
 
 EXTRA_DIST += build-aux/git-version-gen
 EXTRA_DIST += version.m4
+EXTRA_DIST += version.mk.in
 
 DISTCLEANFILES += version.mk
+DISTCLEANFILES += yuck.version
 
 pkgconfigdir = @libdir@/pkgconfig
 pkgconfig_DATA =
@@ -25,17 +27,11 @@ pkgconfig_DATA += yuck.pc
 EXTRA_DIST += yuck.pc.in
 CLEANFILES += yuck.pc
 
-# do_subst, inspired by the automake project
-do_subst = ( sed \
-  -e 's,[@]VERSION[@],$(VERSION),g' \
-  -e 's,[@]PACKAGE_VERSION[@],$(PACKAGE_VERSION),g' \
-  -e 's,[@]PACKAGE_STRING[@],$(PACKAGE_STRING),g' \
-  | $(SHELL) ./config.status --file=- \
-  )
-
 yuck.pc: yuck.pc.in
-yuck.pc: yuck.pc.in version.mk
-	$(AM_V_GEN) $(do_subst) <$< >$@
+yuck.pc: yuck.pc.in $(top_builddir)/src/yuck $(top_builddir)/yuck.version
+	$(AM_V_GEN) YUCK_TEMPLATE_PATH="$(abs_top_srcdir)/src" \
+		$(top_builddir)/src/yuck scmver $< | \
+		$(SHELL) $(builddir)/config.status --file=- >$@
 
 dist-hook:
 	echo $(VERSION) > $(distdir)/version \

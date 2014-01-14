@@ -1,3 +1,4 @@
+/* -*- c -*- */
 #include "version.h"
 
-const char yuck_version_string[] = "yuck @VERSION@";
+const char yuck_version_string[] = "yuck YUCK_SCMVER_VERSION";

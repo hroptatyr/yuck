@@ -1,7 +1,6 @@
 # Help the Developers and yourself. Just use the C locale and settings
 # for the compilation. They can still be overriden by make LANG=<whatever>
 # but that is general a not very good idea
-include $(top_builddir)/version.mk
 
 LANG = C
 LC_ALL = C
@@ -58,8 +57,8 @@ EXTRA_DIST += $(pkgdata_DATA)
 
 
 ## version rules
-version.c: version.c.in $(top_builddir)/version.mk
-	sed -e 's,[@]VERSION[@],$(VERSION),' < $< > $@
+version.c: version.c.in $(builddir)/yuck-scmver $(top_builddir)/yuck.version
+	$(AM_V_GEN) $(builddir)/yuck-scmver $< | m4 - $< > $@
 
 ## bootstrapping rules
 yuck.m4i: yuck.yuck $(builddir)/yuck-bootstrap $(top_builddir)/version.mk

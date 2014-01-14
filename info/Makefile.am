@@ -1,5 +1,3 @@
-include $(top_builddir)/version.mk
-
 # Help the Developers and yourself.  Just use the C locale and settings
 # for the compilation. They can still be overriden by make LANG=<whatever>
 # but that is general a not very good idea
@@ -18,7 +16,6 @@ BUILT_MANS += yuck.man
 ## help2man helpers
 %.man: $(top_srcdir)/src/%.yuck $(top_srcdir)/configure $(top_srcdir)/version.m4
 	$(AM_V_GEN) YUCK_TEMPLATE_PATH="$(abs_top_srcdir)/src" \
-		$(top_builddir)/src/yuck genman --version=$(VERSION) \
-		-o $@ $<
+		$(top_builddir)/src/yuck genman -o $@ $<
 
 ## Makefile.am ends here
