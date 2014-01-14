@@ -9,8 +9,12 @@ include Makefile
 
 # update the included makefile snippet which sets VERSION variables
 version.mk: version.mk.in FORCE
-	$(AM_V_GEN) test -f $(top_builddir)/src/yuck && \
-		$(top_builddir)/src/yuck scmver --reference yuck.version -o $@ $<
+	$(AM_V_GEN) if test -f $(top_builddir)/src/yuck; then \
+		$(top_builddir)/src/yuck scmver \
+			--reference yuck.version -o $@ $< \
+	; else \
+		touch yuck.version \
+	; fi
 
 else
 
