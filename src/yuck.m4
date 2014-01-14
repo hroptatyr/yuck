@@ -1,4 +1,4 @@
-changequote([,])dnl
+changequote`'changequote([,])dnl
 divert([-1])
 
 ## this is a little domain language for the yuck processor

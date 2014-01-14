@@ -263,6 +263,34 @@ unmassage_buf(char *restrict buf, size_t bsz)
 	}
 	return;
 }
+
+static FILE*
+mkftempps(char *restrict tmpl[static 1U], int prefixlen, int suffixlen)
+{
+	char *bp = *tmpl + prefixlen;
+	char *ep = *tmpl + strlen(*tmpl) - suffixlen;
+	int fd;
+
+	if (ep[-6] != 'X' || ep[-5] != 'X' || ep[-4] != 'X' ||
+	    ep[-3] != 'X' || ep[-2] != 'X' || ep[-1] != 'X') {
+		if ((fd = open(bp, O_RDWR | O_CREAT | O_EXCL, 0666)) < 0 &&
+		    (bp -= prefixlen,
+		     fd = open(bp, O_RDWR | O_CREAT | O_EXCL, 0666)) < 0) {
+			/* fuck that then */
+			return NULL;
+		}
+	} else if (UNLIKELY((fd = mkstemps(bp, suffixlen)) < 0) &&
+		   UNLIKELY((bp -= prefixlen,
+			     /* reset to XXXXXX */
+			     memset(ep - 6, 'X', 6U),
+			     fd = mkstemps(bp, suffixlen)) < 0)) {
+		/* at least we tried */
+		return NULL;
+	}
+	/* store result */
+	*tmpl = bp;
+	return fdopen(fd, "w");
+}
 #endif	/* !BOOTSTRAP */
 
 
@@ -1085,13 +1113,29 @@ bollocks:
 }
 
 static int
+wr_pre(void)
+{
+	fputs("\
+changequote`'changequote([,])dnl\n\
+divert([-1])\n", outf);
+	return 0;
+}
+
+static int
+wr_suf(void)
+{
+	fputs("\
+changequote`'dnl\n\
+divert`'\n", outf);
+	return 0;
+}
+
+static int
 wr_intermediary(char *const args[], size_t nargs)
 {
 	int rc = 0;
 
-	fputs("\
-changequote([,])dnl\n\
-divert([-1])\n", outf);
+	wr_pre();
 
 	if (nargs == 0U) {
 		if (snarf_f(stdin) < 0) {
@@ -1115,10 +1159,8 @@ divert([-1])\n", outf);
 		/* clean up */
 		fclose(yf);
 	}
-	/* make sure we close the outfile */
-	fputs("\n\
-changecom([//])\n\
-divert[]dnl\n", outf);
+	/* reset to sane values */
+	wr_suf();
 	return rc;
 }
 
@@ -1135,7 +1177,9 @@ wr_header(const char hdr[static 1U])
 		} else {
 			hp++;
 		};
+		wr_pre();
 		fprintf(outf, "define([YUCK_HEADER], [%s])dnl\n", hp);
+		wr_suf();
 	}
 	return 0;
 }
@@ -1155,7 +1199,9 @@ wr_man_date(void)
 	} else if (!strftime(buf, sizeof(buf), "%B %Y", tp)) {
 		rc = -1;
 	} else {
+		wr_pre();
 		fprintf(outf, "define([YUCK_MAN_DATE], [%s])dnl\n", buf);
+		wr_suf();
 	}
 	return rc;
 }
@@ -1163,9 +1209,7 @@ wr_man_date(void)
 static int
 wr_version(const struct yuck_version_s *v, const char *vlit)
 {
-	fputs("\
-changequote`'changequote([,])dnl\n\
-divert([-1])\n", outf);
+	wr_pre();
 
 	if (v != NULL) {
 		const char *yscm = yscm_strs[v->scm];
@@ -1198,9 +1242,7 @@ divert([-1])\n", outf);
 		fputs(vlit, outf);
 		fputs("])\n", outf);
 	}
-	fputs("\
-changequote`'dnl\n\
-divert`'dnl\n", outf);
+	wr_suf();
 	return 0;
 }
 #endif	/* !BOOTSTRAP */
@@ -1212,9 +1254,10 @@ divert`'dnl\n", outf);
 static int
 cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 {
-	static const char deffn[] = "yuck.m4i";
+	static char _deffn[] = P_tmpdir "/" "yuck_XXXXXX.m4i";
 	static char gencfn[PATH_MAX];
 	static char genhfn[PATH_MAX];
+	char *deffn = _deffn;
 	int rc = 0;
 
 	if (argi->no_auto_flags_flag) {
@@ -1225,7 +1268,7 @@ cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 	}
 
 	/* deal with the output first */
-	if (UNLIKELY((outf = fopen(deffn, "w")) == NULL)) {
+	if (UNLIKELY((outf = mkftempps(&deffn, sizeof(P_tmpdir), 4)) == NULL)) {
 		error("cannot open intermediate file `%s'", deffn);
 		return -1;
 	}
@@ -1280,12 +1323,13 @@ out:
 static int
 cmd_genman(const struct yuck_cmd_genman_s argi[static 1U])
 {
-	static const char deffn[] = "yuck.m4i";
+	static char _deffn[] = P_tmpdir "/" "yuck_XXXXXX.m4i";
 	static char genmfn[PATH_MAX];
+	char *deffn = _deffn;
 	int rc = 0;
 
 	/* deal with the output first */
-	if (UNLIKELY((outf = fopen(deffn, "w")) == NULL)) {
+	if (UNLIKELY((outf = mkftempps(&deffn, sizeof(P_tmpdir), 4)) == NULL)) {
 		error("cannot open intermediate file `%s'", deffn);
 		return -1;
 	}
@@ -1392,9 +1436,11 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 	}
 
 	if (infn != NULL) {
-		static char scmvfn[] = "yscm_xxxxxxxx.m4i";
+		static char _scmvfn[] = P_tmpdir "/" "yscm_XXXXXX.m4i";
+		char *scmvfn = _scmvfn;
 
-		if (UNLIKELY((outf = fopen(scmvfn, "w")) == NULL)) {
+		/* try the local dir first */
+		if ((outf = mkftempps(&scmvfn, sizeof(P_tmpdir), 4)) == NULL) {
 			error("cannot open intermediate file `%s'", scmvfn);
 			rc = 1;
 		} else {

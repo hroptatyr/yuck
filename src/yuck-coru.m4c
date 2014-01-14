@@ -1,4 +1,5 @@
 /* -*- c -*- */
+changequote`'changequote([,])dnl
 changecom([#])dnl
 #if defined HAVE_CONFIG_H
 # include "config.h"
@@ -424,3 +425,4 @@ popdef([DEFUN])dnl
 #  pragma GCC diagnostic pop
 # endif	 /* GCC version */
 #endif	/* __INTEL_COMPILER */
+changequote`'dnl

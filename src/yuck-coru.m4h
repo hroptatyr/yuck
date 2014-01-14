@@ -1,4 +1,5 @@
 /* -*- c -*- */
+changequote`'changequote([,])dnl
 changecom([#])dnl
 #if !defined INCLUDED_yuck_h_
 #define INCLUDED_yuck_h_
@@ -116,3 +117,4 @@ DECLF __attribute__((nonnull(1))) void yuck_auto_version(const yuck_t*);
 popdef([DECLF])[]dnl
 
 #endif	/* INCLUDED_yuck_h_ */
+changequote`'dnl
