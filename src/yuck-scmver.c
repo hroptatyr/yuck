@@ -753,4 +753,43 @@ yuck_version_write(const char *fn, const struct yuck_version_s *ref)
 	return rc;
 }
 
+
+#if defined BOOTSTRAP
+static const char *yscm_strs[] = {
+	[YUCK_SCM_TARBALL] = "tarball",
+	[YUCK_SCM_GIT] = "git",
+	[YUCK_SCM_BZR] = "bzr",
+	[YUCK_SCM_HG] = "hg",
+};
+
+int
+main(int argc, char *argv[])
+{
+	static struct yuck_version_s v[1U];
+	const char *infn = NULL;
+	int rc = 0;
+
+	if (argc > 1) {
+		infn = argv[1U];
+	}
+	if ((rc = yuck_version(v, infn)) < 0) {
+		/* pity */
+		;
+	} else {
+		fputs("define(YUCK_SCMVER_VERSION, ", stdout);
+		fputs(v->vtag, stdout);
+		if (v->scm > YUCK_SCM_TARBALL && v->dist) {
+			fputc('.', stdout);
+			fputs(yscm_strs[v->scm], stdout);
+			fprintf(stdout, "%u.%08x", v->dist, v->rvsn);
+		}
+		if (v->dirty) {
+			fputs(".dirty", stdout);
+		}
+		fputs(")\n", stdout);
+	}
+	return -rc;
+}
+#endif	/* BOOTSTRAP */
+
 /* yuck-scmver.c ends here */

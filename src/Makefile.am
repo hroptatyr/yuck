@@ -34,6 +34,11 @@ yuck_bootstrap_CPPFLAGS = $(AM_CPPFLAGS)
 yuck_bootstrap_CPPFLAGS += -DBOOTSTRAP
 yuck_bootstrap_CPPFLAGS += -DWITH_SCMVER
 
+noinst_PROGRAMS += yuck-scmver
+yuck_scmver_SOURCES = yuck-scmver.c yuck-scmver.h
+yuck_scmver_CPPFLAGS = $(AM_CPPFLAGS)
+yuck_scmver_CPPFLAGS += -DBOOTSTRAP
+
 bin_PROGRAMS += yuck
 yuck_SOURCES = yuck.c yuck.yuck
 yuck_SOURCES += version.c version.h
