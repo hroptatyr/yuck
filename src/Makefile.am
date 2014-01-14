@@ -45,6 +45,7 @@ BUILT_SOURCES += yuck.yucc
 CLEANFILES += yuck.m4i yuck.yucc
 
 pkgdata_DATA += yuck.m4
+pkgdata_DATA += yuck-scmver.m4
 pkgdata_DATA += yuck-coru.m4c
 pkgdata_DATA += yuck-coru.m4h
 pkgdata_DATA += yuck.m4man
