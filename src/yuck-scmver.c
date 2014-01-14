@@ -1,4 +1,4 @@
-/*** yuck-version.c -- snarf versions off project cwds
+/*** yuck-scmver.c -- snarf versions off project cwds
  *
  * Copyright (C) 2013-2014 Sebastian Freundt
  *
@@ -48,7 +48,7 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
-#include <yuck-version.h>
+#include <yuck-scmver.h>
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect((_x), 1)
@@ -753,4 +753,4 @@ yuck_version_write(const char *fn, const struct yuck_version_s *ref)
 	return rc;
 }
 
-/* yuck-version.c ends here */
+/* yuck-scmver.c ends here */
