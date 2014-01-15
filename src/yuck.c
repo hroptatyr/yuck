@@ -1444,6 +1444,10 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 
 		yuck_version_read(ref, argi->reference_arg);
 		if (memcmp(v, ref, sizeof(*ref))) {
+			if (argi->verbose_flag) {
+				errno = 0;
+				error("scm version differs from reference");
+			}
 			/* version stamps differ */
 			yuck_version_write(argi->reference_arg, v);
 			/* reserve exit code 3 for `updated reference file' */
