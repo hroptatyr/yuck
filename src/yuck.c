@@ -1413,17 +1413,42 @@ static int
 cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 {
 #if defined WITH_SCMVER
-	static char tmplfn[PATH_MAX];
 	struct yuck_version_s v[1U];
-	const char *infn = argi->args[0U];
+	struct yuck_version_s ref[1U];
+	const char *const reffn = argi->reference_arg;
+	const char *const infn = argi->args[0U];
 	int rc = 0;
 
-	if (yuck_version(v, infn) < 0) {
+	/* read the reference file before it goes out of fashion */
+	if (reffn && yuck_version_read(ref, reffn) < 0 &&
+	    /* only be fatal if we actually want to use the reference file */
+	    argi->use_reference_flag) {
+		error("cannot read reference file `%s'", reffn);
+		return 1;
+	} else if (reffn == NULL && argi->use_reference_flag) {
+		errno = 0, error("\
+flag -n|--use-reference requires -r|--reference parameter");
+		return 1;
+	} else if (!argi->use_reference_flag && yuck_version(v, infn) < 0) {
 		error("cannot determine SCM");
 		return 1;
-	} else if (find_aux(tmplfn, sizeof(tmplfn), "yuck-scmver.m4") < 0) {
-		error("cannot find yuck template for version strings");
-		xstrlcpy(tmplfn, "/dev/null", sizeof(tmplfn));
+	}
+
+	if (reffn && argi->use_reference_flag) {
+		/* must populate v then */
+		*v = *ref;
+	} else if (reffn && memcmp(v, ref, sizeof(*ref))) {
+		if (argi->verbose_flag) {
+			errno = 0;
+			error("scm version differs from reference");
+		}
+		/* version stamps differ */
+		yuck_version_write(argi->reference_arg, v);
+		/* reserve exit code 3 for `updated reference file' */
+		rc = 3;
+	} else if (!argi->force_flag) {
+		/* don't worry about anything then */
+		return 0;
 	}
 
 	if (argi->verbose_flag) {
@@ -1439,32 +1464,18 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 		fputc('\n', stdout);
 	}
 
-	if (argi->reference_arg) {
-		struct yuck_version_s ref[1U];
-
-		yuck_version_read(ref, argi->reference_arg);
-		if (memcmp(v, ref, sizeof(*ref))) {
-			if (argi->verbose_flag) {
-				errno = 0;
-				error("scm version differs from reference");
-			}
-			/* version stamps differ */
-			yuck_version_write(argi->reference_arg, v);
-			/* reserve exit code 3 for `updated reference file' */
-			rc = 3;
-		} else if (!argi->force_flag) {
-			/* don't worry about anything then */
-			return 0;
-		}
-	}
-
 	if (infn != NULL && regfilep(infn)) {
 		static char _scmvfn[] = P_tmpdir "/" "yscm_XXXXXX.m4i";
+		static char tmplfn[PATH_MAX];
 		char *scmvfn = _scmvfn;
 
 		/* try the local dir first */
 		if ((outf = mkftempps(&scmvfn, sizeof(P_tmpdir), 4)) == NULL) {
 			error("cannot open intermediate file `%s'", scmvfn);
+			rc = 1;
+		} else if (find_aux(tmplfn, sizeof(tmplfn),
+				    "yuck-scmver.m4") < 0) {
+			error("cannot find yuck template for version strings");
 			rc = 1;
 		} else {
 			const char *outfn = argi->output_arg;
