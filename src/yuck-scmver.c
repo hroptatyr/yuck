@@ -382,7 +382,8 @@ rd_version(struct yuck_version_s *restrict v, const char *buf, size_t bsz)
 		;
 	} else if (*bp++ != '-') {
 		;
-	} else if (bp + sizeof(dflag) - 1U < ep) {
+	} else if (bp + sizeof(dflag) - 1U >= ep) {
+		/* too short to fit `dirty' */
 		;
 	} else if (!memcmp(bp, dflag, sizeof(dflag) - 1U)) {
 		v->dirty = 1U;
