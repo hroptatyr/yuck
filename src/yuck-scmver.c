@@ -712,14 +712,20 @@ yuck_version_read(struct yuck_version_s *restrict ref, const char *fn)
 	/* otherwise read and parse the string */
 	with (char buf[256U]) {
 		ssize_t nrd;
+		char *bp;
 
 		if ((nrd = read(fd, buf, sizeof(buf))) <= 0) {
 			/* no version then aye */
 			rc = -1;
 			break;
+		} else if ((bp = memchr(buf, '\n', nrd)) != NULL) {
+			/* just go with the first line */
+			*bp = '\0';
+			nrd = bp - buf;
+		} else {
+			/* finalise with \nul */
+			buf[nrd] = '\0';
 		}
-		/* finalise with \nul */
-		buf[nrd] = '\0';
 		/* otherwise just read him */
 		rc = rd_version(ref, buf, nrd);
 	}
