@@ -40,5 +40,7 @@ Usage: yuck scmver [FILE]
   -v, --verbose      Also print version information on stdout.
       --reference=FILE  Store version reference in FILE and don't touch
                         the output file if nothing has changed.
+  -f, --force        Force operation even if the current scm version
+                     coincides with the reference version.
 
 Try and guess the version based on SCM-controlled cwd.
