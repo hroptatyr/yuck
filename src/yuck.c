@@ -435,7 +435,7 @@ overread:
 	if (cur_usg.cmd && !strncasecmp(cur_usg.cmd, cp, sp - cp)) {
 		/* nothing new and fresh */
 		;
-	} else if ((*cp != '<' || cp[--sp - cp++] == '>') &&
+	} else if ((*cp != '<' || (cp++, *--sp == '>')) &&
 		   !strncasecmp(cp, "command", sp - cp)) {
 		/* special command COMMAND or <command> */
 		cur_usg.cmd = NULL;
