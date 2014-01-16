@@ -1,12 +1,8 @@
 
 AC_DEFUN([GIT_VERSION_MAGIC], [dnl
-## initially generate version.mk here because only GNU make can do this
-## at make time
-AC_MSG_CHECKING([git-version-gen])
-if  "${srcdir}/build-aux/git-version-gen" "${srcdir}" version.mk 2>/dev/null \
-    && git_version="`head -n 1 version.mk`" ;then
-  AC_MSG_RESULT([${git_version}])
-else
-  AC_MSG_FAILURE([failed])
-fi
+## initially generate version.mk and yuck.version here
+## because only GNU make can do this at make time
+	echo "v${PACKAGE_VERSION}" > yuck.version
+	${M4:-m4} -DYUCK_SCMVER_VERSION="${PACKAGE_VERSION}" \
+		"${srcdir}/version.mk.in" > version.mk
 ])

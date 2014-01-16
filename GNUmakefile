@@ -5,6 +5,8 @@
 _gl-Makefile := $(wildcard [M]akefile)
 ifneq ($(_gl-Makefile),)
 
+_dist-target_p ?= $(filter-out %clean, $(filter dist%,$(MAKECMDGOALS)))
+
 include Makefile
 
 # update the included makefile snippet which sets VERSION variables
@@ -13,6 +15,9 @@ version.mk: version.mk.in FORCE
 		YUCK_TEMPLATE_PATH="$(abs_top_srcdir)/src" \
 		$(top_builddir)/src/yuck scmver \
 			--reference yuck.version -o $@ $< \
+	; elif test -n "$(_dist-target_p)"; then \
+		echo "WARNING: you're running a dist target with wrong version information)" >&2 \
+		touch yuck.version \
 	; else \
 		touch yuck.version \
 	; fi

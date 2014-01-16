@@ -14,7 +14,6 @@ EXTRA_DIST =
 DISTCLEANFILES =
 CLEANFILES =
 
-EXTRA_DIST += build-aux/git-version-gen
 EXTRA_DIST += version.m4
 EXTRA_DIST += version.mk.in
 
@@ -28,11 +27,10 @@ EXTRA_DIST += yuck.pc.in
 CLEANFILES += yuck.pc
 
 yuck.pc: yuck.pc.in
-yuck.pc: yuck.pc.in $(top_builddir)/src/yuck $(top_builddir)/yuck.version
+yuck.pc: yuck.pc.in $(top_builddir)/src/yuck yuck.version
 	$(AM_V_GEN) YUCK_TEMPLATE_PATH="$(abs_top_srcdir)/src" \
-		$(top_builddir)/src/yuck scmver $< | \
+		$(top_builddir)/src/yuck scmver -n --reference yuck.version $< | \
 		$(SHELL) $(builddir)/config.status --file=- >$@
 
-dist-hook:
-	echo $(VERSION) > $(distdir)/version \
-	&& touch -r $(top_builddir)/version.mk $(distdir)/version
+dist-hook: version.mk yuck.version
+	cp -p $^ $(distdir)/
