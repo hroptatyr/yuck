@@ -600,7 +600,7 @@ bzr_version(struct yuck_version_s v[static 1U])
 
 		bp = buf;
 		bz = sizeof(buf);
-		while ((nrd = read(*fd, bp, bz)) == bz) {
+		while ((nrd = read(*fd, bp, bz)) == (ssize_t)bz) {
 			/* find last line */
 			char *lp = bp + bz;
 			while (--lp >= buf && *lp != '\n');
