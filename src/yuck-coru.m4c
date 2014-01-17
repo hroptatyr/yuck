@@ -344,7 +344,9 @@ yuck_C_literal(yuck_umb_desc())");
 		break;
 foreachq([C], yuck_cmds(), [
 	case yuck_cmd(defn([C])):
-		puts("Usage: YUCK_UMB [[OPTION]]... yuck_cmd_string(defn([C]))[]dnl
+		puts("Usage: YUCK_UMB dnl
+yuck_cmd_string(defn([C]))[]dnl
+ifelse(yuck_idents(defn([C])), [], [], [ [[OPTION]]...])[]dnl
 ifelse(yuck_cmd_posarg(defn([C])), [], [], [ yuck_cmd_posarg(defn([C]))])");
 ifelse(yuck_cmd_desc(defn([C])), [], [], [dnl
 		puts("\n\
@@ -373,6 +375,15 @@ foreachq([C], yuck_cmds(), [  yuck_cmd_string(defn([C]))\n\
 	default:foreachq([C], yuck_umbcmds(), [
 	case yuck_cmd(defn([C])):
 		puts("\n\
+ifelse(defn([C]), [], [ifelse(yuck_cmds(), [], [], [dnl
+Options accepted by all commands:\n\
+])], [Common options:\n\
+foreachq([I], yuck_idents([]), [dnl
+yuck_C_literal(backquote([yuck_option_help_line(defn([I]), [])]))[]dnl
+])dnl
+\n\
+Command-specific options:\n\
+])dnl
 foreachq([I], yuck_idents(defn([C])), [dnl
 yuck_C_literal(backquote([yuck_option_help_line(defn([I]), defn([C]))]))[]dnl
 ])dnl
