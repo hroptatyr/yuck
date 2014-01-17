@@ -1429,7 +1429,9 @@ cmd_scmver(const struct yuck_cmd_scmver_s argi[static 1U])
 		errno = 0, error("\
 flag -n|--use-reference requires -r|--reference parameter");
 		return 1;
-	} else if (!argi->use_reference_flag && yuck_version(v, infn) < 0) {
+	} else if (!argi->use_reference_flag && yuck_version(v, infn) < 0 &&
+		   /* allow graceful exit through --ignore-noscm */
+		!argi->ignore_noscm_flag) {
 		error("cannot determine SCM");
 		return 1;
 	}

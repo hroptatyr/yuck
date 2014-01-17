@@ -44,5 +44,6 @@ Usage: yuck scmver [FILE]
                         coincides with the reference version.
   -n, --use-reference   Use version number provided in the reference
                         file instead of determining it.
+      --ignore-noscm    Don't treat no scm as error.
 
 Try and guess the version based on SCM-controlled cwd.
