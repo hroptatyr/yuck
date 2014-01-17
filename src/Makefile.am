@@ -57,12 +57,12 @@ EXTRA_DIST += $(pkgdata_DATA)
 
 
 ## version rules
-version.c: version.c.in $(builddir)/yuck-scmver $(top_builddir)/yuck.version
-	$(AM_V_GEN) $(builddir)/yuck-scmver $< | m4 - $< > $@
+version.c: version.c.in .version "$(builddir)/yuck-scmver"
+	$(AM_V_GEN) "$(builddir)/yuck-scmver" $^ | m4 - $< > $@
 
 ## bootstrapping rules
-yuck.m4i: yuck.yuck $(builddir)/yuck-bootstrap $(top_builddir)/yuck.version
-	$(AM_V_GEN) $(builddir)/yuck-bootstrap $< > $@
+yuck.m4i: yuck.yuck "$(builddir)/yuck-bootstrap" .version
+	$(AM_V_GEN) "$(builddir)/yuck-bootstrap" $< > $@
 
 yuck.yucc: yuck.m4 yuck.m4i yuck-coru.m4h yuck-coru.m4c
 	$(AM_V_GEN) $${M4:-m4} $+ > $@ || { rm -f -- $@; false; }
