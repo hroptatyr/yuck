@@ -14,7 +14,7 @@ version.mk: .version version.mk.in FORCE
 	$(AM_V_GEN) if test -f $(top_builddir)/src/yuck; then \
 		YUCK_TEMPLATE_PATH="$(abs_top_srcdir)/src" \
 		$(top_builddir)/src/yuck scmver \
-			-o $@ --reference $^ \
+			--ignore-noscm -o $@ --reference $^ \
 	; elif test -n "$(_dist-target_p)"; then \
 		echo "WARNING: you're running a dist target with wrong version information)" >&2 \
 		touch $< \
