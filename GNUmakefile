@@ -9,8 +9,6 @@ _dist-target_p ?= $(filter-out %clean, $(filter dist%,$(MAKECMDGOALS)))
 
 include Makefile
 
-DIST_ARCHIVES := $(PACKAGE)-*.tar.gz $(PACKAGE)-*.tar.xz
-
 # update the included makefile snippet which sets VERSION variables
 version.mk: version.mk.in FORCE
 	$(AM_V_GEN) if test -f $(top_builddir)/src/yuck; then \
