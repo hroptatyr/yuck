@@ -55,6 +55,7 @@ pkgdata_DATA += yuck-coru.m4h
 pkgdata_DATA += yuck.m4man
 EXTRA_DIST += $(pkgdata_DATA)
 
+VPATH += $(top_builddir) $(top_srcdir)
 
 ## version rules
 version.c: version.c.in .version $(builddir)/yuck-scmver
