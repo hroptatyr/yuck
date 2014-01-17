@@ -668,12 +668,10 @@ yuck_version(struct yuck_version_s *restrict v, const char *path)
 
 	switch ((v->scm = find_scm(fn, sizeof(fn), path))) {
 	case YUCK_SCM_ERROR:
-		return -1;
 	case YUCK_SCM_TARBALL:
 	default:
 		/* can't determine version numbers in tarball, can we? */
-		rc = 0;
-		break;
+		return -1;
 	case YUCK_SCM_GIT:
 	case YUCK_SCM_BZR:
 	case YUCK_SCM_HG:
@@ -772,17 +770,22 @@ static const char *yscm_strs[] = {
 int
 main(int argc, char *argv[])
 {
+/* usage would be yuck-scmver SCMDIR [REFERENCE] */
 	static struct yuck_version_s v[1U];
-	const char *infn = NULL;
 	int rc = 0;
 
-	if (argc > 1) {
-		infn = argv[1U];
-	}
-	if ((rc = yuck_version(v, infn)) < 0) {
-		/* pity */
-		;
-	} else {
+	switch ((rc = yuck_version(v, argv[1U]))) {
+	default:
+		/* one more chance there is */
+		if (argc <= 2) {
+			/* no reference file given */
+			break;
+		} else if ((rc = yuck_version_read(v, argv[2U])) < 0) {
+			/* ok, can't help it then */
+			break;
+		}
+		/* yay, fallthrough to success */
+	case 0:
 		fputs("define(YUCK_SCMVER_VERSION, ", stdout);
 		fputs(v->vtag, stdout);
 		if (v->scm > YUCK_SCM_TARBALL && v->dist) {
@@ -794,6 +797,7 @@ main(int argc, char *argv[])
 			fputs(".dirty", stdout);
 		}
 		fputs(")\n", stdout);
+		break;
 	}
 	return -rc;
 }

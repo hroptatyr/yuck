@@ -55,13 +55,14 @@ pkgdata_DATA += yuck-coru.m4h
 pkgdata_DATA += yuck.m4man
 EXTRA_DIST += $(pkgdata_DATA)
 
+VPATH += $(top_builddir) $(top_srcdir)
 
 ## version rules
-version.c: version.c.in $(builddir)/yuck-scmver $(top_builddir)/yuck.version
-	$(AM_V_GEN) $(builddir)/yuck-scmver $< | m4 - $< > $@
+version.c: version.c.in .version $(builddir)/yuck-scmver
+	$(AM_V_GEN) $(builddir)/yuck-scmver $^ | m4 - $< > $@
 
 ## bootstrapping rules
-yuck.m4i: yuck.yuck $(builddir)/yuck-bootstrap $(top_builddir)/yuck.version
+yuck.m4i: yuck.yuck $(builddir)/yuck-bootstrap .version
 	$(AM_V_GEN) $(builddir)/yuck-bootstrap $< > $@
 
 yuck.yucc: yuck.m4 yuck.m4i yuck-coru.m4h yuck-coru.m4c

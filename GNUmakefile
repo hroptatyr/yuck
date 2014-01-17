@@ -10,16 +10,16 @@ _dist-target_p ?= $(filter-out %clean, $(filter dist%,$(MAKECMDGOALS)))
 include Makefile
 
 # update the included makefile snippet which sets VERSION variables
-version.mk: version.mk.in FORCE
+version.mk: .version version.mk.in FORCE
 	$(AM_V_GEN) if test -f $(top_builddir)/src/yuck; then \
 		YUCK_TEMPLATE_PATH="$(abs_top_srcdir)/src" \
 		$(top_builddir)/src/yuck scmver \
-			--reference yuck.version -o $@ $< \
+			--ignore-noscm -o $@ --reference $^ \
 	; elif test -n "$(_dist-target_p)"; then \
 		echo "WARNING: you're running a dist target with wrong version information)" >&2 \
-		touch yuck.version \
+		touch $< \
 	; else \
-		touch yuck.version \
+		touch $< \
 	; fi
 
 else
