@@ -14,7 +14,6 @@ EXTRA_DIST =
 DISTCLEANFILES =
 CLEANFILES =
 
-EXTRA_DIST += version.m4
 EXTRA_DIST += version.mk.in
 
 DISTCLEANFILES += version.mk
