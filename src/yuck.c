@@ -1400,8 +1400,15 @@ cmd_gendsl(const struct yuck_cmd_gendsl_s argi[static 1U])
 		global_tweaks.no_auto_action = 1U;
 	}
 
-	/* bang to stdout */
-	outf = stdout;
+	/* bang to stdout or argi->output_arg */
+	with (const char *outfn = argi->output_arg) {
+		if (outfn == NULL) {
+			outf = stdout;
+		} else if ((outf = fopen(outfn, "w")) == NULL) {
+			error("cannot open outfile `%s'", outfn);
+			return 1;
+		}
+	}
 	rc += wr_intermediary(argi->args, argi->nargs);
 	if (argi->version_arg) {
 		rc += wr_version(NULL, argi->version_arg);
