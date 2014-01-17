@@ -13,15 +13,15 @@ include Makefile
 
 # update the included makefile snippet which sets VERSION variables
 version.mk: version.mk.in FORCE
-	$(AM_V_GEN) if test -f "$(top_builddir)/src/yuck"; then \
+	$(AM_V_GEN) if test -f $(top_builddir)/src/yuck; then \
 		YUCK_TEMPLATE_PATH="$(abs_top_srcdir)/src" \
-		"$(top_builddir)/src/yuck" scmver \
-			--reference "$(VERSION_REFERENCE)" -o $@ $< \
+		$(top_builddir)/src/yuck scmver \
+			--reference $(VERSION_REFERENCE) -o $@ $< \
 	; elif test -n "$(_dist-target_p)"; then \
 		echo "WARNING: you're running a dist target with wrong version information)" >&2 \
-		touch "$(VERSION_REFERENCE)" \
+		touch $(VERSION_REFERENCE) \
 	; else \
-		touch "$(VERSION_REFERENCE)" \
+		touch $(VERSION_REFERENCE) \
 	; fi
 
 else
