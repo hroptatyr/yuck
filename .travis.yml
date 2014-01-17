@@ -12,7 +12,8 @@ before_script:
 
 script: 
   - ./configure || { cat config.log; false; }
-  - make clean all check distcheck || { cat test/test-suite.log; false; }
+  - make clean all check || { cat test/test-suite.log; false; }
+  - make distcheck
 
 ## whitelist
 branches:
