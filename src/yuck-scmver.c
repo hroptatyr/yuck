@@ -668,12 +668,10 @@ yuck_version(struct yuck_version_s *restrict v, const char *path)
 
 	switch ((v->scm = find_scm(fn, sizeof(fn), path))) {
 	case YUCK_SCM_ERROR:
-		return -1;
 	case YUCK_SCM_TARBALL:
 	default:
 		/* can't determine version numbers in tarball, can we? */
-		rc = 0;
-		break;
+		return -1;
 	case YUCK_SCM_GIT:
 	case YUCK_SCM_BZR:
 	case YUCK_SCM_HG:
