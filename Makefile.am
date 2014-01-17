@@ -15,9 +15,8 @@ DISTCLEANFILES =
 CLEANFILES =
 
 EXTRA_DIST += version.mk.in
-
-DISTCLEANFILES += version.mk
-DISTCLEANFILES += yuck.version
+EXTRA_DIST += version.mk
+EXTRA_DIST += .version
 
 pkgconfigdir = @libdir@/pkgconfig
 pkgconfig_DATA =
@@ -25,11 +24,7 @@ pkgconfig_DATA += yuck.pc
 EXTRA_DIST += yuck.pc.in
 CLEANFILES += yuck.pc
 
-yuck.pc: yuck.pc.in
-yuck.pc: yuck.pc.in $(top_builddir)/src/yuck yuck.version
+yuck.pc: .version yuck.pc.in
 	$(AM_V_GEN) YUCK_TEMPLATE_PATH="$(abs_top_srcdir)/src" \
-		$(top_builddir)/src/yuck scmver -n --reference yuck.version $< | \
-		$(SHELL) $(builddir)/config.status --file=- >$@
-
-dist-hook: version.mk yuck.version
-	cp -p $^ $(distdir)/
+		"$(top_builddir)/src/yuck" scmver -n --reference $^ | \
+		$(SHELL) "$(builddir)/config.status" --file=- >$@
