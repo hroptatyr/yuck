@@ -8,7 +8,7 @@ Shows off yuck.
 COMMAND may be one of:
   turbo
 
-
+Options accepted by all commands:
   -h, --help            display this help and exit
   -V, --version         output version information and exit
   -x, --extra           Produce some extra bling.
