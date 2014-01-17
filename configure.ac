@@ -3,8 +3,7 @@ dnl Autoconf startup.
 dnl -------------------------------------------------------------------------
 
 AC_PREREQ([2.63])
-m4_include([version.m4])
-AC_INIT([yuck], RELEASE_VERSION, [https://github.com/hroptatyr/yuck])
+AC_INIT([yuck], [0.1.4.GIT], [https://github.com/hroptatyr/yuck])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_HEADERS([src/config.h])
 AC_CONFIG_MACRO_DIR([m4])
