@@ -489,6 +489,9 @@ yield:
 	if (sp - line < 2) {
 		/* can't be an option, can it? */
 		return 0;
+	} else if (!*sp) {
+		/* not an option either */
+		return 0;
 	}
 
 	/* no yield pressure anymore, try parsing the line */
