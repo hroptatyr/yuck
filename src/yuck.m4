@@ -11,6 +11,7 @@ define([_foreachq], [ifelse([$#], [3], [],
 	[define([$1], [$4])$2[]$0([$1], [$2],
 		shift(shift(shift($@))))])])
 
+#### append $2 to $1, separated by $3.
 define([append], [define([$1], ifdef([$1], [defn([$1])[$3]])[$2])])
 ## like append, but append only non-empty arguments
 define([append_ne], [ifelse([$2], [], [], [append([$1], [$2], [$3])])])
@@ -81,6 +82,9 @@ define([yuck_set_umbrella], [dnl
 ## yuck_set_umbrella_desc([ident], [desc])
 define([yuck_set_umbrella_desc], [dnl
 	define([YUCK_UMB_$1_desc], [$2])
+
+	## define yuck_add_inter here, corresponding to IDENT
+	define([YUCK_INTER_CMD], [YUCK_UMB_$1_desc])
 ])
 
 ## yuck_add_command([ident], [command], [[posarg]])
@@ -94,6 +98,17 @@ define([yuck_add_command], [dnl
 ## yuck_set_command_desc([ident], [desc])
 define([yuck_set_command_desc], [dnl
 	define([YUCK_CMD_$1_desc], [$2])
+
+	## define yuck_add_inter here, corresponding to IDENT
+	define([YUCK_INTER_CMD], [YUCK_CMD_$1_desc])
+])
+
+## yuck_add_inter([desc])
+#### append interim DESC to last command desc
+define([yuck_add_inter], [dnl
+	append(defn([YUCK_INTER_CMD]), [$1], [
+
+])
 ])
 
 ## yuck_add_option([ident], [short], [long], [type])

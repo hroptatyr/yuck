@@ -1,0 +1,15 @@
+#!/usr/bin/clitoris
+
+$ generic-plain_05 --help
+Usage: plain [OPTION]...
+
+Some description here.
+
+More stuff after a line with just whitespace.
+
+  -h, --help            display this help and exit
+  -V, --version         output version information and exit
+
+$
+
+## generic-plain_05.clit ends here
