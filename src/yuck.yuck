@@ -20,7 +20,8 @@ Usage: yuck [OPTION]... genman [FILE]...
 
 Generate a man page from definitions in FILE, or stdin if omitted.
 
-  --version=VERSION  Hardwire version number.
+  --version-string=STRING  Hardwire version number as STRING.
+  --version-file=FILE  Hardwire version number from FILE.
 
 ## GENDSL
 Usage: yuck gendsl [FILE]...
