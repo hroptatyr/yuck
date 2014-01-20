@@ -1,2 +1,5 @@
 changequote`'changequote([,])dnl
-v[]YUCK_SCMVER_VTAG-YUCK_SCMVER_DIST-g[]YUCK_SCMVER_RVSN
+v[]YUCK_SCMVER_VTAG[]dnl
+ifelse(YUCK_SCMVER_DIST, [0], [], [dnl else
+[-]YUCK_SCMVER_DIST[-]g[]YUCK_SCMVER_RVSN[]dnl
+])
