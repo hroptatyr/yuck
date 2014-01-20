@@ -37,7 +37,7 @@
 #if !defined INCLUDED_yuck_version_h_
 #define INCLUDED_yuck_version_h_
 
-typedef struct yuck_version_s *yuck_version_t;
+typedef const struct yuck_version_s *yuck_version_t;
 
 typedef enum {
 	YUCK_SCM_ERROR = -1,
