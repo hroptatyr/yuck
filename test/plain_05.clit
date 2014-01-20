@@ -1,0 +1,19 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ yuck gendsl "${srcdir}/plain_05.yuck"
+changequote`'changequote([,])dnl
+divert([-1])
+
+yuck_set_umbrella([plain], [plain], [])
+yuck_set_umbrella_desc([plain], [Some description here.])
+yuck_add_option([help], [h], [help], [auto])
+yuck_set_option_desc([help], [display this help and exit])
+yuck_add_option([version], [V], [version], [auto])
+yuck_set_option_desc([version], [output version information and exit])
+yuck_add_inter([More stuff after a line with just whitespace.])
+
+changequote`'dnl
+divert`'dnl
+$
+
+## plain_05.clit ends here
