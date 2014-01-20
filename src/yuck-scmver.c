@@ -168,7 +168,13 @@ fucked:
 	for (; i < sizeof(res) * 8U / 4U; i++, res <<= 4U);
 out:
 	if (ep != NULL) {
+#if defined __clang__
+		/* working around clang bug 18558
+		 * http://llvm.org/bugs/show_bug.cgi?id=18558 */
+		*ep = strchr(sp, *sp);
+#else  /* !__clang__ */
 		*ep = (char*)0U + (sp - (char*)0U);
+#endif	/* __clang__ */
 	}
 	return res;
 }

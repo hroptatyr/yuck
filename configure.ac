@@ -31,11 +31,6 @@ AC_CONFIG_LINKS([GNUmakefile:GNUmakefile])
 
 ## the build chain
 AC_PROG_CC([icc tcc gcc cc])
-case "${CC}" in
-(*"clang"*)
-	AC_MSG_ERROR([clang is known to produce code with illegal instructions])
-	;;
-esac
 SXE_CHECK_CC([c11 c1x c99])
 SXE_CHECK_CFLAGS
 AC_CHECK_TOOLS([AR], [xiar ar], [false])
