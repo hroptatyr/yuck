@@ -2,7 +2,7 @@
 title: yuck
 project: yuck
 layout: project
-latest: https://github.com/hroptatyr/yuck/releases/download/v0.1.3/yuck-0.1.3.tar.xz
+latest: https://github.com/hroptatyr/yuck/releases/download/v0.1.4/yuck-0.1.4.tar.xz
 ---
 
 yuck
