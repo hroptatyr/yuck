@@ -118,6 +118,10 @@ TESTS += xmpl-subcommands-02.clit
 TESTS += xmpl-subcommands-03.clit
 TESTS += xmpl-subcommands-04.clit
 
+TESTS += scmver_01.clit
+TESTS += scmver_02.clit
+EXTRA_DIST += scmver_02.tmpl
+
 EXTRA_DIST += generic.c
 check_PROGRAMS += generic-muloptarg_01
 generic_muloptarg_01_SOURCES = generic.c
