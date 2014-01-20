@@ -285,6 +285,20 @@ generic_escape_04_CPPFLAGS = $(AM_CPPFLAGS)
 generic_escape_04_CPPFLAGS += -DYUCC_FILE='"escape_03.yucc"'
 BUILT_SOURCES += escape_03.yucc
 
+check_PROGRAMS += generic-plain_05
+generic_plain_05_SOURCES = generic.c
+generic_plain_05_CPPFLAGS = $(AM_CPPFLAGS)
+generic_plain_05_CPPFLAGS += -DYUCC_FILE='"plain_05.yucc"'
+BUILT_SOURCES += plain_05.yucc
+TESTS += generic-plain_05.clit
+
+check_PROGRAMS += generic-plain_06
+generic_plain_06_SOURCES = generic.c
+generic_plain_06_CPPFLAGS = $(AM_CPPFLAGS)
+generic_plain_06_CPPFLAGS += -DYUCC_FILE='"plain_06.yucc"'
+BUILT_SOURCES += plain_06.yucc
+TESTS += generic-plain_06.clit
+
 
 ## yuck rule
 %.yucc: %.yuck $(top_builddir)/src/yuck
