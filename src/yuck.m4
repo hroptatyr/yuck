@@ -82,6 +82,9 @@ define([yuck_set_umbrella], [dnl
 ## yuck_set_umbrella_desc([ident], [desc])
 define([yuck_set_umbrella_desc], [dnl
 	define([YUCK_UMB_$1_desc], [$2])
+
+	## define yuck_add_inter here, corresponding to IDENT
+	define([YUCK_INTER_CMD], [YUCK_UMB_$1_desc])
 ])
 
 ## yuck_add_command([ident], [command], [[posarg]])
