@@ -1461,7 +1461,7 @@ flag -n|--use-reference requires -r|--reference parameter");
 	if (reffn && argi->use_reference_flag) {
 		/* must populate v then */
 		*v = *ref;
-	} else if (reffn && memcmp(v, ref, sizeof(*ref))) {
+	} else if (reffn && yuck_version_cmp(v, ref)) {
 		if (argi->verbose_flag) {
 			errno = 0;
 			error("scm version differs from reference");
