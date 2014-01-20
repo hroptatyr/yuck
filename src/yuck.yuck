@@ -33,9 +33,27 @@ if omitted.
   --version=VERSION  Hardwire version number.
 
 ## VER
-Usage: yuck scmver [FILE]
+Usage: yuck scmver [PATH]
 
-  -v, --verbose      Also print version information on stdout.
+Guess version number for SCM controlled PATH.
+If PATH is a file run a transformation.
+If PATH is a directory just output the version number.
+
+Transformations are done through the m4 processor:
+YUCK_SCMVER_VTAG     will expand to the tag name.
+YUCK_SCMVER_SCM      will expand to the name of the SCM used.
+YUCK_SCMVER_DIST     will expand to the distance, that is the number of
+                     commits since the last tag.
+YUCK_SCMVER_RVSN     will expand to the current commit number.
+YUCK_SCMVER_FLAG_DIRTY  is set for changes in the source tree that have
+                     not yet been committed.
+
+Definitions in the template yuck-scmver.m4 are prepended, and by
+default this defines the YUCK_SCMVER_VERSION macro that expands to the
+full version number.
+
+
+  -v, --verbose         Print additional information on stderr.
       --reference=FILE  Store version reference in FILE and don't touch
                         the output file if nothing has changed.
   -f, --force           Force operation even if the current scm version

@@ -1,0 +1,11 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ (cd "${srcdir}"; git describe --abbrev=8) > "scmver_02.version"
+$ if test -s "scmver_02.version"; then \
+	yuck scmver "${srcdir}/scmver_02.tmpl"; \
+  fi
+< scmver_02.version
+$ rm -f -- "scmver_02.version"
+$
+
+## scmver_02.clit ends here
