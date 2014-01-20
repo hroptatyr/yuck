@@ -764,6 +764,17 @@ yuck_version_write(const char *fn, const struct yuck_version_s *ref)
 	return rc;
 }
 
+int
+yuck_version_cmp(yuck_version_t v1, yuck_version_t v2)
+{
+	if (v1->dist == 0U && v2->dist == 0U) {
+		/* must be a tag then, innit? */
+		return memcmp(v1->vtag, v2->vtag, sizeof(v1->vtag));
+	}
+	/* just brute force the comparison, consider -dirty > -clean */
+	return memcmp(v1, v2, sizeof(*v1));
+}
+
 
 #if defined BOOTSTRAP
 static const char *yscm_strs[] = {
