@@ -13,9 +13,12 @@ man1_MANS += $(BUILT_MANS)
 
 BUILT_MANS += yuck.man
 
+VPATH += $(top_builddir) $(top_srcdir)
+
 ## help2man helpers
-%.man: $(top_srcdir)/src/%.yuck $(top_srcdir)/configure
+%.man: .version $(top_srcdir)/src/%.yuck
 	$(AM_V_GEN) YUCK_TEMPLATE_PATH="$(abs_top_srcdir)/src" \
-		$(top_builddir)/src/yuck genman -o $@ $<
+		$(top_builddir)/src/yuck genman \
+			-o $@ --version-file $^
 
 ## Makefile.am ends here
