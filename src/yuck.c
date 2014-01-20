@@ -1360,8 +1360,18 @@ cmd_genman(const struct yuck_cmd_genman_s argi[static 1U])
 	}
 	/* write up our findings in DSL language */
 	rc = wr_intermediary(argi->args, argi->nargs);
-	if (argi->version_arg) {
-		rc += wr_version(NULL, argi->version_arg);
+	if (argi->version_string_arg) {
+		rc += wr_version(NULL, argi->version_string_arg);
+	} else if (argi->version_file_arg) {
+		struct yuck_version_s v[1U];
+		const char *verfn = argi->version_file_arg;
+
+		if (yuck_version_read(v, verfn) < 0) {
+			error("cannot read version number from `%s'", verfn);
+			rc--;
+		} else {
+			rc += wr_version(v, NULL);
+		}
 	}
 	/* at least give the man page template an idea for YUCK_MAN_DATE */
 	rc += wr_man_date();
