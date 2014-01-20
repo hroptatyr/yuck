@@ -1457,22 +1457,9 @@ flag -n|--use-reference requires -r|--reference parameter");
 		yuck_version_write(argi->reference_arg, v);
 		/* reserve exit code 3 for `updated reference file' */
 		rc = 3;
-	} else if (!argi->force_flag) {
+	} else if (reffn && !argi->force_flag) {
 		/* don't worry about anything then */
 		return 0;
-	}
-
-	if (argi->verbose_flag) {
-		fputs(v->vtag, stdout);
-		if (v->scm > YUCK_SCM_TARBALL && v->dist) {
-			fputc('.', stdout);
-			fputs(yscm_strs[v->scm], stdout);
-			fprintf(stdout, "%u.%08x", v->dist, v->rvsn);
-		}
-		if (v->dirty) {
-			fputs(".dirty", stdout);
-		}
-		fputc('\n', stdout);
 	}
 
 	if (infn != NULL && regfilep(infn)) {
@@ -1500,6 +1487,17 @@ flag -n|--use-reference requires -r|--reference parameter");
 
 			rm_intermediary(scmvfn, argi->keep_flag);
 		}
+	} else {
+		fputs(v->vtag, stdout);
+		if (v->scm > YUCK_SCM_TARBALL && v->dist) {
+			fputc('.', stdout);
+			fputs(yscm_strs[v->scm], stdout);
+			fprintf(stdout, "%u.%08x", v->dist, v->rvsn);
+		}
+		if (v->dirty) {
+			fputs(".dirty", stdout);
+		}
+		fputc('\n', stdout);
 	}
 	return rc;
 #else  /* !WITH_SCMVER */
