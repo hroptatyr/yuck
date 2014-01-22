@@ -51,7 +51,9 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <time.h>
-#include <yuck-scmver.h>
+#if defined WITH_SCMVER
+# include <yuck-scmver.h>
+#endif	/* WITH_SCMVER */
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect((_x), 1)
@@ -105,6 +107,9 @@ static const char *yscm_strs[] = {
 	[YUCK_SCM_BZR] = "bzr",
 	[YUCK_SCM_HG] = "hg",
 };
+#elif !defined BOOTSTRAP
+/* just forward declare this type so function signatures will work */
+struct yuck_version_s;
 #endif	/* WITH_SCMVER */
 
 
@@ -292,12 +297,14 @@ mkftempps(char *restrict tmpl[static 1U], int prefixlen, int suffixlen)
 	return fdopen(fd, "w");
 }
 
+# if defined WITH_SCMVER
 static bool
 regfilep(const char *fn)
 {
 	struct stat st[1U];
 	return stat(fn, st) == 0 && S_ISREG(st->st_mode);
 }
+# endif	/* WITH_SCMVER */
 #endif	/* !BOOTSTRAP */
 
 
@@ -1222,6 +1229,7 @@ wr_version(const struct yuck_version_s *v, const char *vlit)
 	wr_pre();
 
 	if (v != NULL) {
+#if defined WITH_SCMVER
 		const char *yscm = yscm_strs[v->scm];
 
 		fprintf(outf, "define([YUCK_SCMVER_VTAG], [%s])\n", v->vtag);
@@ -1246,6 +1254,11 @@ wr_version(const struct yuck_version_s *v, const char *vlit)
 			fputs(".dirty", outf);
 		}
 		fputs("])\n", outf);
+#else  /* !WITH_SCMVER */
+		errno = 0;
+		error("\
+scmver support not built in but ptr %p given to wr_version()", v);
+#endif	/* WITH_SCMVER */
 	}
 	if (vlit != NULL) {
 		fputs("define([YUCK_VERSION], [", outf);
@@ -1363,6 +1376,7 @@ cmd_genman(const struct yuck_cmd_genman_s argi[static 1U])
 	if (argi->version_string_arg) {
 		rc += wr_version(NULL, argi->version_string_arg);
 	} else if (argi->version_file_arg) {
+#if defined WITH_SCMVER
 		struct yuck_version_s v[1U];
 		const char *verfn = argi->version_file_arg;
 
@@ -1372,6 +1386,11 @@ cmd_genman(const struct yuck_cmd_genman_s argi[static 1U])
 		} else {
 			rc += wr_version(v, NULL);
 		}
+#else  /* !WITH_SCMVER */
+		errno = 0;
+		error("\
+scmver support not built in, --version-file cannot be used");
+#endif	/* WITH_SCMVER */
 	}
 	/* at least give the man page template an idea for YUCK_MAN_DATE */
 	rc += wr_man_date();
