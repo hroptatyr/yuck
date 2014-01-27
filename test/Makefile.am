@@ -304,6 +304,7 @@ check_PROGRAMS += brack_01
 brack_01_SOURCES = generic.c
 brack_01_CPPFLAGS = $(AM_CPPFLAGS)
 brack_01_CPPFLAGS += -DYUCC_FILE='"brack_01.yucc"'
+EXTRA_DIST += brack_01.yuck
 BUILT_SOURCES += brack_01.yucc
 TESTS += brack_01.clit
 
@@ -311,6 +312,7 @@ check_PROGRAMS += brack_02
 brack_02_SOURCES = generic.c
 brack_02_CPPFLAGS = $(AM_CPPFLAGS)
 brack_02_CPPFLAGS += -DYUCC_FILE='"brack_02.yucc"'
+EXTRA_DIST += brack_02.yuck
 BUILT_SOURCES += brack_02.yucc
 TESTS += brack_02.clit
 
