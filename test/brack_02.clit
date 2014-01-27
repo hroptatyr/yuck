@@ -1,0 +1,15 @@
+#!/usr/bin/clitoris
+
+$ brack_02 --help
+Usage: brack [OPTION]...
+
+This is the description, that contains [brackets].
+
+And an interim with [ ] brackets.
+
+  -h, --help            display this help and exit
+  -V, --version         output version information and exit
+
+$
+
+## brack_02.clit ends here

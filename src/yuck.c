@@ -782,6 +782,7 @@ yield_inter(const bbuf_t x[static 1U])
 		if (x->s[x->z - 1U] == '\n') {
 			x->s[x->z - 1U] = '\0';
 		}
+		massage_desc(x->s);
 		fprintf(outf, "yuck_add_inter([%s])\n", x->s);
 	}
 	return;
