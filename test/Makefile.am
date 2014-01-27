@@ -300,6 +300,21 @@ BUILT_SOURCES += plain_06.yucc
 TESTS += generic-plain_06.clit
 
 
+check_PROGRAMS += brack_01
+brack_01_SOURCES = generic.c
+brack_01_CPPFLAGS = $(AM_CPPFLAGS)
+brack_01_CPPFLAGS += -DYUCC_FILE='"brack_01.yucc"'
+BUILT_SOURCES += brack_01.yucc
+TESTS += brack_01.clit
+
+check_PROGRAMS += brack_02
+brack_02_SOURCES = generic.c
+brack_02_CPPFLAGS = $(AM_CPPFLAGS)
+brack_02_CPPFLAGS += -DYUCC_FILE='"brack_02.yucc"'
+BUILT_SOURCES += brack_02.yucc
+TESTS += brack_02.clit
+
+
 ## yuck rule
 %.yucc: %.yuck $(top_builddir)/src/yuck
 	$(AM_V_GEN) $(TESTS_ENVIRONMENT) $(top_builddir)/src/yuck gen $< > $@

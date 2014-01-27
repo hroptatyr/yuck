@@ -1,0 +1,13 @@
+#!/usr/bin/clitoris
+
+$ brack_01 --help
+Usage: brack [OPTION]...
+
+This is the description, that contains [brackets].
+
+  -h, --help            display this help and exit
+  -V, --version         output version information and exit
+
+$
+
+## brack_01.clit ends here
