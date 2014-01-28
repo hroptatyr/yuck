@@ -61,9 +61,9 @@ Try `--help' for a list of commands.\n", cmd);
 }
 
 
-DEFUN int yuck_parse(yuck_t tgt[[static 1U]], int argc, char *const argv[[]])
+DEFUN int yuck_parse(yuck_t tgt[[static 1U]], int argc, char *argv[[]])
 {
-	const char *op;
+	char *op;
 	char **args;
 	int i;
 
@@ -170,7 +170,7 @@ popdef([yuck_auto_action])dnl
 
 	coroutine(shortopt)
 	{
-		const char *arg = op + 1U;
+		char *arg = op + 1U;
 
 		switch (tgt->cmd) {
 		default:
