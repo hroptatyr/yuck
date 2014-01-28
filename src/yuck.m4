@@ -303,18 +303,18 @@ define([yuck_indent_line], [yuck_esc([$1], [
 ## yuck_option_help_line([ident], [[cmd]])
 define([yuck_option_help_line], [dnl
 undefine([divert])dnl isn't there a more elegant way?
-pushdef([lhs], backquote([yuck_option_help_lhs([$1], [$2])]))dnl
-pushdef([desc], backquote([yuck_option_desc([$1], [$2])]))dnl
-pushdef([indesc], backquote([yuck_indent_line(defn([desc]))]))dnl
-pushdef([lenlhs], len(defn([lhs])))dnl
-ifelse(defn([indesc]), [], [defn([lhs])],
+pushdef([lhs], [backquote([yuck_option_help_lhs([$1], [$2])])])dnl
+pushdef([desc], [yuck_option_desc([$1], [$2])])dnl
+pushdef([indesc], [yuck_indent_line(backquote([desc]))])dnl
+pushdef([lenlhs], len(lhs))dnl
+ifelse(indesc, [], [lhs],
 eval(lenlhs >= 23), [0], [dnl
-defn([lhs])[]substr(defn([indesc]), lenlhs)[]dnl
+lhs[]backquote([xright(indesc, lenlhs)])[]dnl
 ], eval(lenlhs >= 24), [0], [dnl
-defn([lhs])[]substr(defn([indesc]), decr(lenlhs))[]dnl
+lhs[]backquote([xright(indesc, decr(lenlhs))])[]dnl
 ], [dnl
-defn([lhs])[
-]defn([indesc])[]dnl
+lhs[
+]backquote([indesc])[]dnl
 ])
 popdef([lenlhs])dnl
 popdef([indesc])dnl
