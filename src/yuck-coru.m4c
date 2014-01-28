@@ -35,8 +35,8 @@ yuck_streqp(const char *s1, const char *s2)
 }
 
 /* for multi-args */
-static inline const char**
-yuck_append(const char **array, size_t n, const char *val)
+static inline char**
+yuck_append(char **array, size_t n, char *val)
 {
 	if (!(n % 16U)) {
 		/* resize */
