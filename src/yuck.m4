@@ -283,15 +283,22 @@ popdef([yuck_arg_mul_action])dnl
 popdef([yuck_arg_mul_opt_action])dnl
 ])
 
-define([yuck_indent_line], [dnl
-pushdef([next], index([$1], [
-]))[]dnl
-ifelse([$1], [], [], next, [-1], [                        $1], [dnl
-[                        ]xleft([$1], next)[
-]$0(xright([$1], incr(next)))[]dnl
+define([xleft], [substr([$1], 0, [$2])])
+define([xright], [substr([$1], [$2])])
+
+define([yuck_esc], [backquote([_$0([$1], [$2], [$3], [$4])])])
+define([_yuck_esc], [dnl
+pushdef([next], index([$1], [$2]))[]dnl
+ifelse([$1], [], [], defn([next]), [-1], [$4[$1]], [dnl
+[$4]xleft([$1], defn([next]))[$3]dnl
+$0(backquote([xright([$1], incr(defn([next])))]), [$2], [$3], [$4])[]dnl
 ])[]dnl
 popdef([next])dnl
 ])dnl
+
+define([yuck_indent_line], [yuck_esc([$1], [
+], [
+], [                        ])])
 
 ## yuck_option_help_line([ident], [[cmd]])
 define([yuck_option_help_line], [dnl
@@ -313,19 +320,6 @@ popdef([indesc])dnl
 popdef([desc])dnl
 popdef([lhs])dnl
 ])
-
-define([xleft], [substr([$1], 0, [$2])])
-define([xright], [substr([$1], [$2])])
-
-define([yuck_esc], [backquote([_$0([$1], [$2], [$3])])])
-define([_yuck_esc], [dnl
-pushdef([next], index([$1], [$2]))[]dnl
-ifelse(defn([next]), [-1], [[$1]], [dnl
-xleft([$1], defn([next]))[$3]dnl
-$0(backquote([xright([$1], incr(defn([next])))]), [$2], [$3])[]dnl
-])[]dnl
-popdef([next])dnl
-])dnl
 
 ## \n -> \\n\\
 define([yuck_esc_newline], [yuck_esc([$1], [
