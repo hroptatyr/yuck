@@ -1,0 +1,16 @@
+#!/usr/bin/clitoris
+
+$ underq_05 --help
+Usage: foo [OPTION]... [next]...
+
+Make sure next argument is valid, even with divert(-1) or define(X,Y).
+
+  -h, --help            display this help and exit
+  -V, --version         output version information and exit
+      --divert=TEXT     divert using TEXT.
+      --undivert        Simply undivert everything.
+      --dnl             do not look mode
+
+$
+
+## underq_05.clit ends here

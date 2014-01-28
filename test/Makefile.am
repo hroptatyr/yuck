@@ -348,6 +348,22 @@ EXTRA_DIST += underq_04.yuck
 BUILT_SOURCES += underq_04.yucc
 TESTS += underq_04.clit
 
+check_PROGRAMS += underq_05
+underq_05_SOURCES = generic.c
+underq_05_CPPFLAGS = $(AM_CPPFLAGS)
+underq_05_CPPFLAGS += -DYUCC_FILE='"underq_05.yucc"'
+EXTRA_DIST += underq_05.yuck
+BUILT_SOURCES += underq_05.yucc
+TESTS += underq_05.clit
+
+check_PROGRAMS += underq_06
+underq_06_SOURCES = generic.c
+underq_06_CPPFLAGS = $(AM_CPPFLAGS)
+underq_06_CPPFLAGS += -DYUCC_FILE='"underq_06.yucc"'
+EXTRA_DIST += underq_06.yuck
+BUILT_SOURCES += underq_06.yucc
+TESTS += underq_06.clit
+
 
 ## yuck rule
 %.yucc: %.yuck $(top_builddir)/src/yuck
