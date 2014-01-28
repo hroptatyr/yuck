@@ -34,10 +34,10 @@ pushdef([pre], [yuck_slot_predecl([$1], [$2])])dnl
 pushdef([ident], [yuck_slot_identifier([$1], [$2])])dnl
 yuck_iftype([$1], [$2],
 	[flag], [unsigned int ident;],
-	[arg], [const char *ident;],
-	[arg,opt], [const char *ident;],
-	[arg,mul], [pre; const char **ident;],
-	[arg,mul,opt], [pre; const char **ident;],
+	[arg], [char *ident;],
+	[arg,opt], [char *ident;],
+	[arg,mul], [pre; char **ident;],
+	[arg,mul,opt], [pre; char **ident;],
 	[auto], [/* $1 is handled automatically */])dnl
 popdef([pre])dnl
 popdef([ident])dnl
