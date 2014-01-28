@@ -260,18 +260,18 @@ define([yuck_option_action], [yuck_expand(_$0([$1], [$2]))])
 
 ## yuck_option_help_lhs([ident], [[cmd]])
 define([yuck_option_help_lhs], [dnl
-pushdef([s], yuck_short([$1], [$2]))dnl
-pushdef([l], yuck_long([$1], [$2]))dnl
+pushdef([s], [backquote([yuck_short([$1], [$2])])])dnl
+pushdef([l], [backquote([yuck_long([$1], [$2])])])dnl
 pushdef([type], yuck_option_type([$1], [$2]))dnl
-pushdef([prel], ifelse(defn([l]), [], [], [=]))dnl
+pushdef([prel], ifelse(l, [], [], [=]))dnl
 pushdef([yuck_arg_action], [defn([prel])[]yuck_type_name(yuck_option_type([$1], [$2]))])dnl
 pushdef([yuck_arg_opt_action], [defn([prel])[]yuck_type_name(yuck_option_type([$1], [$2]))])dnl
 pushdef([yuck_arg_mul_action], [defn([prel])[]yuck_type_name(yuck_option_type([$1], [$2]))...])dnl
 pushdef([yuck_arg_mul_opt_action], [defn([prel])[]yuck_type_name(yuck_option_type([$1], [$2]))...])dnl
-[  ]ifelse(defn([s]), [], [    ], [-defn([s])ifelse(defn([l]), [], [], [[, ]])])[]dnl
-ifelse(defn([l]), [], [], [--]defn([l]))[]dnl
+[  ]ifelse(s, [], [    ], [-s[]ifelse(l, [], [], [[, ]])])[]dnl
+ifelse(l, [], [], [--l])[]dnl
 ifelse(yuck_type(defn([type])), [arg], [dnl
-ifelse(defn([l]), [], [ ], [])[]yuck_option_action([$1], [$2])[]dnl
+ifelse(l, [], [ ], [])backquote([yuck_option_action([$1], [$2])])[]dnl
 ])[]dnl
 popdef([type])dnl
 popdef([prel])dnl
