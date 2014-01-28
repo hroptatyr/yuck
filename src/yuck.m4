@@ -250,7 +250,7 @@ define([_yuck_option_action], [dnl
 pushdef([type], yuck_option_type([$1], [$2]))dnl
 pushdef([prim], yuck_type(defn([type])))dnl
 pushdef([sufx], yuck_type_sufx(defn([type])))dnl
-[yuck_]defn([prim])ifelse(defn([sufx]), [], [], [_]translit(defn([sufx]), [,], [_]))[_action](quote([$1]), quote([$2]))dnl
+quote([yuck_]defn([prim])ifelse(defn([sufx]), [], [], [_]translit(defn([sufx]), [,], [_]))[_action][(quote([$1]), quote([$2]))])dnl
 popdef([type])dnl
 popdef([prim])dnl
 popdef([sufx])dnl
