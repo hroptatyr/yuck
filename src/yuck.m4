@@ -315,7 +315,6 @@ define([yuck_indent_line], [yuck_esc([$1], [
 
 ## yuck_option_help_line([ident], [[cmd]])
 define([yuck_option_help_line], [dnl
-undefine([divert])dnl isn't there a more elegant way?
 pushdef([lhs], [backquote([yuck_option_help_lhs([$1], [$2])])])dnl
 pushdef([desc], [yuck_option_desc([$1], [$2])])dnl
 pushdef([indesc], [yuck_indent_line(backquote([desc]))])dnl
