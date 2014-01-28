@@ -289,7 +289,7 @@ DEFUN void yuck_free(yuck_t tgt[[static 1U]])
 {
 	if (tgt->args != NULL) {
 		/* free despite const qualifier */
-		free((char*)1 + ((const char*)tgt->args - (char*)1));
+		free(tgt->args);
 	}
 	/* free mulargs */
 	switch (tgt->cmd) {
@@ -297,7 +297,7 @@ DEFUN void yuck_free(yuck_t tgt[[static 1U]])
 	default:
 		break;
 pushdef([action], [dnl
-		ptr = (char*)1 + ((const char*)tgt->yuck_slot([$1], [$2]) - (char*)1);
+		ptr = tgt->yuck_slot([$1], [$2]);
 		if (ptr != NULL) {
 			free(ptr);
 		}
@@ -312,7 +312,7 @@ pushdef([yuck_auto_action], [])dnl
 foreachq([C], yuck_umbcmds(), [dnl
 	case yuck_cmd(defn([C])):
 foreachq([I], yuck_idents(defn([C])), [dnl
-		yuck_option_action(defn([I]), defn([C]));
+yuck_option_action(defn([I]), defn([C]));
 		break;
 ])[]dnl
 ])[]dnl
