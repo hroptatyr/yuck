@@ -288,12 +288,12 @@ define([xright], [substr([$1], [$2])])
 
 define([yuck_esc], [backquote([_$0([$1], [$2], [$3], [$4])])])
 define([_yuck_esc], [dnl
-pushdef([next], index([$1], [$2]))[]dnl
-ifelse([$1], [], [], defn([next]), [-1], [$4[$1]], [dnl
-[$4]xleft([$1], defn([next]))[$3]dnl
-$0(backquote([xright([$1], incr(defn([next])))]), [$2], [$3], [$4])[]dnl
+pushdef([__next_sep], index([$1], [$2]))[]dnl
+ifelse([$1], [], [], defn([__next_sep]), [-1], [$4[$1]], [dnl
+[$4]xleft([$1], defn([__next_sep]))[$3]dnl
+$0(backquote([xright([$1], incr(defn([__next_sep])))]), [$2], [$3], [$4])[]dnl
 ])[]dnl
-popdef([next])dnl
+popdef([__next_sep])dnl
 ])dnl
 
 define([yuck_indent_line], [yuck_esc([$1], [
