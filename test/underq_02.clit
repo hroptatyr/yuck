@@ -1,0 +1,15 @@
+#!/usr/bin/clitoris
+
+$ underq_02 --help
+Usage: foo [OPTION]... [next]...
+
+Make sure next argument is valid, even with divert(-1).
+
+  -h, --help            display this help and exit
+  -V, --version         output version information and exit
+      --args=BAR...     Set next argument to any of the BARs.
+      --next            Actually do use the next argument.
+
+$
+
+## underq_02.clit ends here

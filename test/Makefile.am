@@ -316,6 +316,38 @@ EXTRA_DIST += brack_02.yuck
 BUILT_SOURCES += brack_02.yucc
 TESTS += brack_02.clit
 
+check_PROGRAMS += underq_01
+underq_01_SOURCES = generic.c
+underq_01_CPPFLAGS = $(AM_CPPFLAGS)
+underq_01_CPPFLAGS += -DYUCC_FILE='"underq_01.yucc"'
+EXTRA_DIST += underq_01.yuck
+BUILT_SOURCES += underq_01.yucc
+TESTS += underq_01.clit
+
+check_PROGRAMS += underq_02
+underq_02_SOURCES = generic.c
+underq_02_CPPFLAGS = $(AM_CPPFLAGS)
+underq_02_CPPFLAGS += -DYUCC_FILE='"underq_02.yucc"'
+EXTRA_DIST += underq_02.yuck
+BUILT_SOURCES += underq_02.yucc
+TESTS += underq_02.clit
+
+check_PROGRAMS += underq_03
+underq_03_SOURCES = generic.c
+underq_03_CPPFLAGS = $(AM_CPPFLAGS)
+underq_03_CPPFLAGS += -DYUCC_FILE='"underq_03.yucc"'
+EXTRA_DIST += underq_03.yuck
+BUILT_SOURCES += underq_03.yucc
+TESTS += underq_03.clit
+
+check_PROGRAMS += underq_04
+underq_04_SOURCES = generic.c
+underq_04_CPPFLAGS = $(AM_CPPFLAGS)
+underq_04_CPPFLAGS += -DYUCC_FILE='"underq_04.yucc"'
+EXTRA_DIST += underq_04.yuck
+BUILT_SOURCES += underq_04.yucc
+TESTS += underq_04.clit
+
 
 ## yuck rule
 %.yucc: %.yuck $(top_builddir)/src/yuck
