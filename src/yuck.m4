@@ -283,8 +283,21 @@ popdef([yuck_arg_mul_action])dnl
 popdef([yuck_arg_mul_opt_action])dnl
 ])
 
-define([xleft], [substr([$1], 0, [$2])])
-define([xright], [substr([$1], [$2])])
+define([xleft], [_$0([$1], 0, [$2])])
+define([_xleft], [dnl
+ifelse(eval(incr(incr([$2])) <= [$3]), [1], [dnl
+substr([$1], [$2], 2)[]$0([$1], incr(incr([$2])), [$3])[]dnl
+], eval(incr([$2]) <= [$3]), [1], [dnl
+substr([$1], [$2], 1)[]dnl
+])[]dnl
+])
+
+define([xright], [_$0([$1], [$2])])
+define([_xright], [dnl
+ifelse(eval([$2] >= len([$1])), [0], [dnl
+substr([$1], [$2], 2)[]$0([$1], incr(incr([$2])))[]dnl
+])[]dnl
+])
 
 define([yuck_esc], [backquote([_$0([$1], [$2], [$3], [$4])])])
 define([_yuck_esc], [dnl
