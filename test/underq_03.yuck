@@ -1,0 +1,7 @@
+Usage: foo [next]...
+
+Make sure next argument is valid, even with divert(-1) or define(X,Y).
+
+  --args=BAR...    Set next argument to any of the BARs, X or Y?
+
+  --next           Actually do use the next argument.

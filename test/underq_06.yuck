@@ -1,0 +1,8 @@
+Usage: foo [next]...
+
+Make sure next argument is valid, even with divert(-1) or define(X,Y).
+
+  --divert=TEXT    divert using TEXT, or nothing.
+  --undivert       Simply undivert everything.
+  --dnl            do not look mode (dnl for short)
+

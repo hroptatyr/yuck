@@ -1,0 +1,13 @@
+#!/usr/bin/clitoris
+
+$ underq_01 --help
+Usage: foo [OPTION]... [next]...
+
+Make sure next argument is valid.
+
+  -h, --help            display this help and exit
+  -V, --version         output version information and exit
+
+$
+
+## underq_01.clit ends here
