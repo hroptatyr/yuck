@@ -56,6 +56,7 @@ pkgdata_DATA += yuck.m4man
 EXTRA_DIST += $(pkgdata_DATA)
 
 VPATH += $(top_builddir) $(top_srcdir)
+M4 ?= m4
 
 ## version rules
 version.c: version.c.in .version $(builddir)/yuck-scmver
@@ -66,7 +67,7 @@ yuck.m4i: yuck.yuck $(builddir)/yuck-bootstrap .version
 	$(AM_V_GEN) $(builddir)/yuck-bootstrap $< > $@
 
 yuck.yucc: yuck.m4 yuck.m4i yuck-coru.m4h yuck-coru.m4c
-	$(AM_V_GEN) $${M4:-m4} $+ > $@ || { rm -f -- $@; false; }
+	$(AM_V_GEN) $(M4) $+ > $@ || { rm -f -- $@; false; }
 
 ## for dist or dist check we need binaries, so help2man can work
 dist-hook: $(bin_PROGRAMS)
