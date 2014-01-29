@@ -141,7 +141,7 @@ hextou(const char *sp, char **ep)
 	size_t i;
 
 	if (UNLIKELY(sp == NULL)) {
-		return 0U;
+		goto out;
 	} else if (*sp == '\0') {
 		goto out;
 	}
