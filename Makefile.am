@@ -4,6 +4,7 @@ LANG = C
 LC_ALL = C
 
 ACLOCAL_AMFLAGS = -I m4
+aclocaldir = $(datadir)/aclocal
 
 SUBDIRS =
 SUBDIRS += src
@@ -23,6 +24,8 @@ pkgconfig_DATA =
 pkgconfig_DATA += yuck.pc
 EXTRA_DIST += yuck.pc.in
 CLEANFILES += yuck.pc
+
+aclocal_DATA = m4/yuck.m4
 
 yuck.pc: .version yuck.pc.in
 	$(AM_V_GEN) YUCK_TEMPLATE_PATH="$(abs_top_srcdir)/src" \
