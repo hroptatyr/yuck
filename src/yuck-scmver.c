@@ -662,7 +662,7 @@ yuck_version(struct yuck_version_s *restrict v, const char *path)
 	/* initialise result structure */
 	memset(v, 0, sizeof(*v));
 
-	if (getcwd(cwd, sizeof(cwd)) < 0) {
+	if (getcwd(cwd, sizeof(cwd)) == NULL) {
 		return -1;
 	}
 
