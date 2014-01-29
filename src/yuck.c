@@ -1071,20 +1071,15 @@ prep_m4(void)
 
 		/* mimic a shell's IFS */
 		for (; *p && !isspace(*p); p++) {
-			switch (*p) {
+			const char this = *p;
+
+			switch (this) {
 			default:
 				break;
 			case '"':
-				/* fast forward then */
-				while (*++p != '"') {
-					if (*p == '\\') {
-						p++;
-					}
-				}
-				break;
 			case '\'':
 				/* fast forward then */
-				while (*++p != '\'') {
+				while (*++p != this) {
 					if (*p == '\\') {
 						p++;
 					}
