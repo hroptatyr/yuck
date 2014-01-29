@@ -1049,19 +1049,70 @@ unmassage_fd(int tgtfd, int srcfd)
 	return;
 }
 
+
+static char *m4_cmdline[16U] = {
+	"m4",
+};
+static size_t cmdln_idx;
+
+static int
+prep_m4(void)
+{
+	char *p;
+
+	/* checkout the environment, look for M4 */
+	if ((p = getenv("M4")) == NULL) {
+		cmdln_idx = 1U;
+		return 0;
+	}
+	/* otherwise it's big string massaging business */
+	do {
+		m4_cmdline[cmdln_idx++] = p;
+
+		/* mimic a shell's IFS */
+		for (; *p && !isspace(*p); p++) {
+			switch (*p) {
+			default:
+				break;
+			case '"':
+				/* fast forward then */
+				while (*++p != '"') {
+					if (*p == '\\') {
+						p++;
+					}
+				}
+				break;
+			case '\'':
+				/* fast forward then */
+				while (*++p != '\'') {
+					if (*p == '\\') {
+						p++;
+					}
+				}
+				break;
+			}
+		}
+		if (!*p) {
+			break;
+		}
+		/* otherwise it's an IFS */
+		for (*p++ = '\0'; isspace(*p); p++);
+	} while (1);
+	return 0;
+}
+
 static __attribute__((noinline)) int
 run_m4(const char *outfn, ...)
 {
-	static char *m4_cmdline[16U] = {
-		"m4",
-	};
-	va_list vap;
 	pid_t m4p;
 	/* to snarf off traffic from the child */
 	int intfd[2];
 
 	if (pipe(intfd) < 0) {
 		error("pipe setup to/from m4 failed");
+		return -1;
+	} else if (!cmdln_idx && prep_m4() < 0) {
+		error("m4 preparations failed");
 		return -1;
 	}
 
@@ -1108,18 +1159,14 @@ run_m4(const char *outfn, ...)
 		break;
 	}
 
-	/* checkout the environment, look for M4 */
-	with (char *em4) {
-		if ((em4 = getenv("M4")) != NULL) {
-			m4_cmdline[0U] = em4;
-		}
-	}
 	/* child code here */
-	va_start(vap, outfn);
-	for (size_t i = 1U;
-	     i < countof(m4_cmdline) &&
-		     (m4_cmdline[i] = va_arg(vap, char*)) != NULL; i++);
-	va_end(vap);
+	with (va_list vap) {
+		va_start(vap, outfn);
+		for (size_t i = cmdln_idx;
+		     i < countof(m4_cmdline) &&
+			     (m4_cmdline[i] = va_arg(vap, char*)) != NULL; i++);
+		va_end(vap);
+	}
 
 	dup2(intfd[1], STDOUT_FILENO);
 	close(intfd[0]);
@@ -1130,6 +1177,7 @@ bollocks:
 	_exit(EXIT_FAILURE);
 }
 
+
 static int
 wr_pre(void)
 {
