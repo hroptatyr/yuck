@@ -26,8 +26,8 @@ AM_LOG_COMPILER = false
 ## our friendly helpers
 check_PROGRAMS += clitoris
 clitoris_SOURCES = clitoris.c clitoris.yuck
-clitoris_CPPFLAGS = $(AM_CPPFLAGS) -D_GNU_SOURCE
-clitoris_LDFLAGS = -static
+clitoris_CPPFLAGS = $(AM_CPPFLAGS)
+clitoris_CPPFLAGS += -D_GNU_SOURCE
 BUILT_SOURCES += clitoris.yucc
 CLEANFILES += $(BUILT_SOURCES)
 
