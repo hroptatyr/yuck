@@ -60,7 +60,7 @@ M4 ?= m4
 
 ## version rules
 version.c: version.c.in .version $(builddir)/yuck-scmver
-	$(AM_V_GEN) $(builddir)/yuck-scmver $^ | m4 - $< > $@
+	$(AM_V_GEN) $(builddir)/yuck-scmver $^ | $(M4) - $< > $@
 
 ## bootstrapping rules
 yuck.m4i: yuck.yuck $(builddir)/yuck-bootstrap .version
