@@ -687,6 +687,7 @@ yuck_version(struct yuck_version_s *restrict v, const char *path)
 			rc = hg_version(v);
 			break;
 		default:
+			rc = -1;
 			break;
 		}
 		chdir(cwd);
