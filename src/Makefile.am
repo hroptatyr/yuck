@@ -47,6 +47,8 @@ yuck_CPPFLAGS += -DHAVE_VERSION_H
 yuck_CPPFLAGS += -DWITH_SCMVER
 BUILT_SOURCES += yuck.yucc
 DISTCLEANFILES += yuck.m4i yuck.yucc
+## aix make wants all prereq's to exist
+EXTRA_DIST += yuck.m4i
 
 pkgdata_DATA += yuck.m4
 pkgdata_DATA += yuck-scmver.m4
