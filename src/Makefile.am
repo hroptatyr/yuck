@@ -60,11 +60,15 @@ version.c: version.c.in $(top_builddir)/.version yuck-scmver
 	$(AM_V_GEN) $(builddir)/yuck-scmver $^ | $(M4) - $< > $@
 
 ## bootstrapping rules
-yuck.m4i: yuck.yuck yuck-bootstrap $(top_builddir)/.version
+SUFFIXES = .yuck
+SUFFIXES += .m4i
+.yuck.m4i: yuck-bootstrap $(top_builddir)/.version
 	$(AM_V_GEN) $(builddir)/yuck-bootstrap $< > $@
 
-yuck.yucc: yuck.m4 yuck.m4i yuck-coru.m4h yuck-coru.m4c
-	$(AM_V_GEN) $(M4) $+ > $@ || { rm -f -- $@; false; }
+SUFFIXES += .yucc
+.m4i.yucc: yuck.m4 yuck-coru.m4h yuck-coru.m4c
+	$(AM_V_GEN) $(M4) yuck.m4 $< yuck-coru.m4h yuck-coru.m4c > $@ \
+		|| { rm -f -- $@; false; }
 
 ## for dist or dist check we need binaries, so help2man can work
 dist-hook: $(bin_PROGRAMS)
