@@ -67,9 +67,8 @@ yuck.m4i: yuck-bootstrap $(top_builddir)/.version
 	$(AM_V_GEN) $(builddir)/yuck-bootstrap $< > $@
 
 SUFFIXES += .yucc
-yuck.yucc: yuck.m4 yuck-coru.m4h yuck-coru.m4c
-.m4i.yucc:
-	$(AM_V_GEN) $(M4) $(srcdir)/yuck.m4 $< \
+yuck.yucc: yuck.m4i yuck.m4 yuck-coru.m4h yuck-coru.m4c
+	$(AM_V_GEN) $(M4) $(srcdir)/yuck.m4 yuck.m4i \
 		$(srcdir)/yuck-coru.m4h $(srcdir)/yuck-coru.m4c > $@ \
 		|| { rm -f -- $@; false; }
 
