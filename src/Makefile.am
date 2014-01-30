@@ -21,11 +21,11 @@ pkgdata_DATA =
 noinst_LIBRARIES =
 BUILT_SOURCES =
 EXTRA_DIST = $(BUILT_SOURCES)
-CLEANFILES =
+DISTCLEANFILES =
 
 
 EXTRA_DIST += version.c.in
-CLEANFILES += version.c
+DISTCLEANFILES += version.c
 
 noinst_PROGRAMS += yuck-bootstrap
 yuck_bootstrap_SOURCES = yuck.c
@@ -46,7 +46,7 @@ yuck_CPPFLAGS = $(AM_CPPFLAGS)
 yuck_CPPFLAGS += -DHAVE_VERSION_H
 yuck_CPPFLAGS += -DWITH_SCMVER
 BUILT_SOURCES += yuck.yucc
-CLEANFILES += yuck.m4i yuck.yucc
+DISTCLEANFILES += yuck.m4i yuck.yucc
 
 pkgdata_DATA += yuck.m4
 pkgdata_DATA += yuck-scmver.m4
