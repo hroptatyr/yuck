@@ -69,7 +69,8 @@ yuck.m4i: yuck-bootstrap $(top_builddir)/.version
 SUFFIXES += .yucc
 yuck.yucc: yuck.m4 yuck-coru.m4h yuck-coru.m4c
 .m4i.yucc:
-	$(AM_V_GEN) $(M4) yuck.m4 $< yuck-coru.m4h yuck-coru.m4c > $@ \
+	$(AM_V_GEN) $(M4) $(srcdir)/yuck.m4 $< \
+		$(srcdir)/yuck-coru.m4h $(srcdir)/yuck-coru.m4c > $@ \
 		|| { rm -f -- $@; false; }
 
 ## for dist or dist check we need binaries, so help2man can work
