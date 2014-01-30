@@ -18,6 +18,7 @@ VPATH += $(builddir):$(srcdir):$(top_builddir)/src:$(top_srcdir)/src
 ## help2man helpers
 SUFFIXES = .yuck
 SUFFIXES += .man
+yuck.man: $(top_builddir)/.version
 .yuck.man:
 	$(AM_V_GEN) YUCK_TEMPLATE_PATH="$(abs_top_srcdir)/src" \
 		$(top_builddir)/src/yuck genman \
