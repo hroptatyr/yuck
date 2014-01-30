@@ -368,7 +368,9 @@ TESTS += underq_06.clit
 
 
 ## yuck rule
-%.yucc: %.yuck $(top_builddir)/src/yuck
+SUFFIXES = .yuck
+SUFFIXES += .yucc
+.yuck.yucc:
 	$(AM_V_GEN) $(TESTS_ENVIRONMENT) $(top_builddir)/src/yuck gen $< > $@
 
 ## Makefile.am ends here
