@@ -19,6 +19,7 @@ EXTRA_DIST += version.mk.in
 EXTRA_DIST += version.mk
 EXTRA_DIST += .version
 BUILT_SOURCES += .version
+DISTCLEANFILES += version.mk
 
 pkgconfigdir = @libdir@/pkgconfig
 pkgconfig_DATA =
