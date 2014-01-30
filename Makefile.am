@@ -13,16 +13,21 @@ SUBDIRS += test
 EXTRA_DIST =
 DISTCLEANFILES =
 CLEANFILES =
+BUILT_SOURCES =
 
 EXTRA_DIST += version.mk.in
 EXTRA_DIST += version.mk
 EXTRA_DIST += .version
+BUILT_SOURCES += .version
 
 pkgconfigdir = @libdir@/pkgconfig
 pkgconfig_DATA =
 pkgconfig_DATA += yuck.pc
 EXTRA_DIST += yuck.pc.in
 CLEANFILES += yuck.pc
+
+.version:
+	$(AM_V_GEN) echo "v$(VERSION)" > $@
 
 yuck.pc: .version yuck.pc.in
 	$(AM_V_GEN) YUCK_TEMPLATE_PATH="$(abs_top_srcdir)/src" \
