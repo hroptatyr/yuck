@@ -21,12 +21,12 @@ if (PRE == "v" || PRE == "V") {
 }' "${srcdir}/.version"`
 		AC_MSG_RESULT([.version -> ${VERSION}])
 	else
-		echo "v${VERSION}" > .version
 		AC_MSG_RESULT([none])
 	fi
+	## also massage version.mk file
 	if test -f "${srcdir}/version.mk"; then
-		## do bugger all
-		:
+		## make sure it's in the builddir as well
+		cp "${srcdir}/version.mk" "version.mk"
 	else
 		${M4:-m4} -DYUCK_SCMVER_VERSION="${VERSION}" \
 			"${srcdir}/version.mk.in" > version.mk

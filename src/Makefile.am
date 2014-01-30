@@ -21,11 +21,11 @@ pkgdata_DATA =
 noinst_LIBRARIES =
 BUILT_SOURCES =
 EXTRA_DIST = $(BUILT_SOURCES)
-CLEANFILES =
+DISTCLEANFILES =
 
 
 EXTRA_DIST += version.c.in
-CLEANFILES += version.c
+DISTCLEANFILES += version.c
 
 noinst_PROGRAMS += yuck-bootstrap
 yuck_bootstrap_SOURCES = yuck.c
@@ -46,7 +46,9 @@ yuck_CPPFLAGS = $(AM_CPPFLAGS)
 yuck_CPPFLAGS += -DHAVE_VERSION_H
 yuck_CPPFLAGS += -DWITH_SCMVER
 BUILT_SOURCES += yuck.yucc
-CLEANFILES += yuck.m4i yuck.yucc
+DISTCLEANFILES += yuck.m4i yuck.yucc
+## aix make wants all prereq's to exist
+EXTRA_DIST += yuck.m4i
 
 pkgdata_DATA += yuck.m4
 pkgdata_DATA += yuck-scmver.m4
@@ -55,19 +57,21 @@ pkgdata_DATA += yuck-coru.m4h
 pkgdata_DATA += yuck.m4man
 EXTRA_DIST += $(pkgdata_DATA)
 
-VPATH += $(top_builddir) $(top_srcdir)
-M4 ?= m4
-
 ## version rules
-version.c: version.c.in .version $(builddir)/yuck-scmver
-	$(AM_V_GEN) $(builddir)/yuck-scmver $^ | $(M4) - $< > $@
+version.c: version.c.in $(top_builddir)/.version yuck-scmver
+	$(AM_V_GEN) $(builddir)/yuck-scmver \
+		$(srcdir)/version.c.in | \
+		$(M4) - $(srcdir)/version.c.in > $@
 
 ## bootstrapping rules
-yuck.m4i: yuck.yuck $(builddir)/yuck-bootstrap .version
-	$(AM_V_GEN) $(builddir)/yuck-bootstrap $< > $@
+yuck.m4i: yuck.yuck
+	$(MAKE) $(AM_MAKEFLAGS) yuck-bootstrap
+	$(AM_V_GEN) $(builddir)/yuck-bootstrap $(srcdir)/yuck.yuck > $@
 
-yuck.yucc: yuck.m4 yuck.m4i yuck-coru.m4h yuck-coru.m4c
-	$(AM_V_GEN) $(M4) $+ > $@ || { rm -f -- $@; false; }
+yuck.yucc: yuck.m4i yuck.m4 yuck-coru.m4h yuck-coru.m4c
+	$(AM_V_GEN) $(M4) $(srcdir)/yuck.m4 yuck.m4i \
+		$(srcdir)/yuck-coru.m4h $(srcdir)/yuck-coru.m4c > $@ \
+		|| { rm -f -- $@; false; }
 
 ## for dist or dist check we need binaries, so help2man can work
 dist-hook: $(bin_PROGRAMS)
