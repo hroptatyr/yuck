@@ -62,8 +62,9 @@ version.c: version.c.in $(top_builddir)/.version yuck-scmver
 ## bootstrapping rules
 SUFFIXES = .yuck
 SUFFIXES += .m4i
-yuck.m4i: yuck-bootstrap $(top_builddir)/.version
+yuck.m4i: $(top_builddir)/.version
 .yuck.m4i:
+	$(MAKE) $(AM_MAKEFLAGS) yuck-bootstrap
 	$(AM_V_GEN) $(builddir)/yuck-bootstrap $< > $@
 
 SUFFIXES += .yucc
