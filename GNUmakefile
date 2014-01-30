@@ -9,6 +9,9 @@ _dist-target_p ?= $(filter-out %clean, $(filter dist%,$(MAKECMDGOALS)))
 
 include Makefile
 
+.version:
+	$(AM_V_GEN) echo "v$(VERSION)" > $@
+
 # update the included makefile snippet which sets VERSION variables
 version.mk: .version version.mk.in FORCE
 	$(AM_V_GEN) if test -f $(top_builddir)/src/yuck; then \
