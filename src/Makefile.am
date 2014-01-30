@@ -62,7 +62,7 @@ version.c: version.c.in $(top_builddir)/.version yuck-scmver
 		$(M4) - $(srcdir)/version.c.in > $@
 
 ## bootstrapping rules
-yuck.m4i: yuck.yuck $(top_builddir)/.version
+yuck.m4i: yuck.yuck
 	$(MAKE) $(AM_MAKEFLAGS) yuck-bootstrap
 	$(AM_V_GEN) $(builddir)/yuck-bootstrap $(srcdir)/yuck.yuck > $@
 
