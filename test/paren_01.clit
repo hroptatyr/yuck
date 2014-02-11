@@ -1,0 +1,14 @@
+#!/usr/bin/clitoris
+
+$ paren_01 --help
+Usage: paren [OPTION]...
+
+This is the description, that contains (parens), and (this
+time they're on different lines).
+
+  -h, --help            display this help and exit
+  -V, --version         output version information and exit
+
+$
+
+## paren_01.clit ends here
