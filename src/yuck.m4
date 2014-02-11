@@ -334,6 +334,31 @@ popdef([desc])dnl
 popdef([lhs])dnl
 ])
 
+## yuck_option_help_line([cmd])
+define([yuck_cmd_line], [dnl
+pushdef([lhs], [backquote([yuck_cmd_string([$1])])])dnl
+pushdef([desc], [yuck_cmd_desc([$1])])dnl
+pushdef([lnlen], [index(backquote([desc]), [
+])])dnl
+pushdef([indesc], [            ifelse(lnlen, -1, [backquote([desc])],
+	[xleft(backquote([desc]), decr(lnlen))])])dnl
+pushdef([lenlhs], len(lhs))dnl
+ifelse(indesc, [], [lhs],
+eval(lenlhs >= 11), [0], [dnl
+lhs[]backquote([xright(indesc, lenlhs)])[]dnl
+], eval(lenlhs >= 12), [0], [dnl
+lhs[]backquote([xright(indesc, decr(lenlhs))])[]dnl
+], [dnl
+lhs[
+]backquote([indesc])[]dnl
+])dnl
+popdef([lenlhs])dnl
+popdef([lnlen])dnl
+popdef([indesc])dnl
+popdef([desc])dnl
+popdef([lhs])dnl
+])
+
 ## \n -> \\n\\
 define([yuck_esc_newline], [yuck_esc([$1], [
 ], [\n\
