@@ -6,7 +6,7 @@ Usage: xmpl [OPTION]... COMMAND
 Shows off yuck.
 
 COMMAND may be one of:
-  turbo
+  turbo       Run xmpl in turbo mode
 
 Options accepted by all commands:
   -h, --help            display this help and exit
