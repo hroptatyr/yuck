@@ -318,6 +318,22 @@ EXTRA_DIST += brack_02.yuck
 BUILT_SOURCES += brack_02.yucc
 TESTS += brack_02.clit
 
+check_PROGRAMS += paren_01
+paren_01_SOURCES = generic.c
+paren_01_CPPFLAGS = $(AM_CPPFLAGS)
+paren_01_CPPFLAGS += -DYUCC_FILE='"paren_01.yucc"'
+EXTRA_DIST += paren_01.yuck
+BUILT_SOURCES += paren_01.yucc
+TESTS += paren_01.clit
+
+check_PROGRAMS += paren_02
+paren_02_SOURCES = generic.c
+paren_02_CPPFLAGS = $(AM_CPPFLAGS)
+paren_02_CPPFLAGS += -DYUCC_FILE='"paren_02.yucc"'
+EXTRA_DIST += paren_02.yuck
+BUILT_SOURCES += paren_02.yucc
+TESTS += paren_02.clit
+
 check_PROGRAMS += underq_01
 underq_01_SOURCES = generic.c
 underq_01_CPPFLAGS = $(AM_CPPFLAGS)
