@@ -341,7 +341,7 @@ pushdef([desc], [yuck_cmd_desc([$1])])dnl
 pushdef([lnlen], [index(backquote([desc]), [
 ])])dnl
 pushdef([indesc], [            ifelse(lnlen, -1, [backquote([desc])],
-	[backquote([xleft(backquote([desc]), decr(lnlen))])])])dnl
+	[backquote([xleft(backquote([desc]), lnlen)])])])dnl
 pushdef([lenlhs], len(lhs))dnl
 ifelse(indesc, [], [lhs],
 eval(lenlhs >= 11), [0], [dnl
