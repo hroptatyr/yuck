@@ -345,12 +345,12 @@ pushdef([indesc], [            ifelse(lnlen, -1, [backquote([desc])],
 pushdef([lenlhs], len(lhs))dnl
 ifelse(indesc, [], [lhs],
 eval(lenlhs >= 11), [0], [dnl
-lhs[]backquote([xright(indesc, lenlhs)])[]dnl
+  lhs[]backquote([xright(indesc, lenlhs)])[]dnl
 ], eval(lenlhs >= 12), [0], [dnl
-lhs[]backquote([xright(indesc, decr(lenlhs))])[]dnl
+  lhs[]backquote([xright(indesc, decr(lenlhs))])[]dnl
 ], [dnl
-lhs[
-]backquote([indesc])[]dnl
+  lhs
+  backquote([indesc])[]dnl
 ])dnl
 popdef([lenlhs])dnl
 popdef([lnlen])dnl
