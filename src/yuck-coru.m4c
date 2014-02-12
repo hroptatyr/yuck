@@ -367,7 +367,7 @@ ifelse(yuck_cmds(), [], [], [dnl
 	if (src->cmd == YUCK_NOCMD) {
 		/* also output a list of commands */
 		puts("COMMAND may be one of:\n\
-foreachq([C], yuck_cmds(), [  yuck_cmd_line(defn([C]))\n\
+foreachq([C], yuck_cmds(), [yuck_C_literal(yuck_cmd_line(defn([C])))\n\
 ])");
 	}
 ])dnl
