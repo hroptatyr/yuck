@@ -4,7 +4,7 @@ $ yuck gendsl "${srcdir}/plain_03.yuck"
 changequote`'changequote([,])dnl
 divert([-1])
 
-yuck_set_umbrella([plain], [plain], [FILE...])
+yuck_set_umbrella([plain], [plain], [-f FILE...])
 yuck_add_option([help], [h], [help], [auto])
 yuck_set_option_desc([help], [display this help and exit])
 yuck_add_option([version], [V], [version], [auto])
