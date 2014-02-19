@@ -428,9 +428,6 @@ overread:
 	for (; sp < ep && isspace(*sp); sp++);
 	/* we might be strafed with option decls here */
 	switch (*sp) {
-	case '-':
-		for (sp++; sp < ep && isdashdash(*sp); sp++);
-		goto overread;
 	case '[':
 		if (sp[1U] == '-') {
 			/* might be option spec [-x], read on */
