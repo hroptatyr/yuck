@@ -90,6 +90,7 @@ define([yuck_set_umbrella_desc], [dnl
 ## yuck_set_umbrella_max_posargs([ident], [N])
 define([yuck_set_umbrella_max_posargs], [dnl
 	define([YUCK_UMB_$1_max_posargs], [$2])
+	define([YUCK_MAX_POSARGS], [$2])
 ])
 
 ## yuck_add_command([ident], [command], [[posarg]])
