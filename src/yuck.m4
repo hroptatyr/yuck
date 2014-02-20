@@ -87,6 +87,11 @@ define([yuck_set_umbrella_desc], [dnl
 	define([YUCK_INTER_CMD], [YUCK_UMB_$1_desc])
 ])
 
+## yuck_set_umbrella_max_posargs([ident], [N])
+define([yuck_set_umbrella_max_posargs], [dnl
+	define([YUCK_UMB_$1_max_posargs], [$2])
+])
+
 ## yuck_add_command([ident], [command], [[posarg]])
 define([yuck_add_command], [dnl
 	define([YUCK_CURRENT_CMD], [$1])
@@ -101,6 +106,11 @@ define([yuck_set_command_desc], [dnl
 
 	## define yuck_add_inter here, corresponding to IDENT
 	define([YUCK_INTER_CMD], [YUCK_CMD_$1_desc])
+])
+
+## yuck_set_umbrella_max_posargs([ident], [N])
+define([yuck_set_command_max_posargs], [dnl
+	define([YUCK_CMD_$1_max_posargs], [$2])
 ])
 
 ## yuck_add_inter([desc])

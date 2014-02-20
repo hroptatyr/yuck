@@ -47,6 +47,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <ctype.h>
+#include <limits.h>
 #include <fcntl.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
@@ -674,6 +675,48 @@ __identify(char *restrict idn)
 	return;
 }
 
+static size_t
+count_pargs(const char *parg)
+{
+/* return max posargs as helper for auto-dashdash commands */
+	const char *pp;
+	size_t res;
+
+	for (res = 0U, pp = parg; *pp;) {
+		/* allow [--] or -- as auto-dashdash declarators */
+		if (*pp == '[') {
+			pp++;
+		}
+		if (*pp++ == '-') {
+			if (*pp++ == '-') {
+				if (*pp == ']' || isspace(*pp)) {
+					/* found him! */
+					return res;
+				}
+			}
+			/* otherwise not the declarator we were looking for
+			 * fast forward to the end */
+			for (; *pp && !isspace(*pp); pp++);
+		} else {
+			/* we know it's a bog-standard posarg for sure */
+			res++;
+			/* check for ellipsis */
+			for (; *pp && *pp != '.' && !isspace(*pp); pp++);
+			if (!*pp) {
+				/* end of parg string anyway */
+				break;
+			}
+			if (*pp++ == '.' && *pp++ == '.' && *pp++ == '.') {
+				/* ellipsis, set res to infinity and bog off */
+				break;
+			}
+		}
+		/* fast forward over all the whitespace */
+		for (; *pp && isspace(*pp); pp++);
+	}
+	return 0U;
+}
+
 static char*
 make_opt_ident(const struct opt_s *arg)
 {
@@ -730,6 +773,7 @@ static void
 yield_usg(const struct usg_s *arg)
 {
 	const char *parg = arg->parg ?: nul_str;
+	size_t nparg = count_pargs(parg);
 
 	if (arg->desc != NULL) {
 		/* kick last newline */
@@ -740,6 +784,11 @@ yield_usg(const struct usg_s *arg)
 
 		fprintf(outf, "\nyuck_add_command([%s], [%s], [%s])\n",
 			idn, arg->cmd, parg);
+		if (nparg) {
+			fprintf(outf,
+				"yuck_set_command_max_posargs([%s], [%zu])\n",
+				idn, nparg);
+		}
 		if (arg->desc != NULL) {
 			fprintf(outf, "yuck_set_command_desc([%s], [%s])\n",
 				idn, arg->desc);
@@ -749,6 +798,11 @@ yield_usg(const struct usg_s *arg)
 
 		fprintf(outf, "\nyuck_set_umbrella([%s], [%s], [%s])\n",
 			idn, arg->umb, parg);
+		if (nparg) {
+			fprintf(outf,
+				"yuck_set_umbrella_max_posargs([%s], [%zu])\n",
+				idn, nparg);
+		}
 		if (arg->desc != NULL) {
 			fprintf(outf, "yuck_set_umbrella_desc([%s], [%s])\n",
 				idn, arg->desc);
