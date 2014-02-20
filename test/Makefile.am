@@ -382,6 +382,14 @@ EXTRA_DIST += underq_06.yuck
 BUILT_SOURCES += underq_06.yucc
 TESTS += underq_06.clit
 
+check_PROGRAMS += auto-dashdash
+auto_dashdash_SOURCES = auto-dashdash.c
+auto_dashdash_CPPFLAGS = $(AM_CPPFLAGS)
+auto_dashdash_CPPFLAGS += -DYUCC_FILE='"auto-dashdash.yucc"'
+EXTRA_DIST += auto-dashdash.yuck
+BUILT_SOURCES += auto-dashdash.yucc
+TESTS += auto-dashdash_01.clit
+TESTS += auto-dashdash_02.clit
 
 ## yuck rule
 SUFFIXES = .yuck
