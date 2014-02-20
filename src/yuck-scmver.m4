@@ -1,4 +1,4 @@
-changequote([,])dnl
+changequote`'changequote([,])dnl
 divert([-1])
 
 ## little DSL for yuck-version
@@ -11,3 +11,4 @@ ifdef([YUCK_SCMVER_FLAG_DIRTY], [.dirty])[]dnl
 ])
 
 divert[]dnl
+changequote()dnl
