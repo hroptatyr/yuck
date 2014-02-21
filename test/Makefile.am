@@ -391,6 +391,9 @@ BUILT_SOURCES += auto-dashdash.yucc
 TESTS += auto-dashdash_01.clit
 TESTS += auto-dashdash_02.clit
 
+## just to get the tests and yucc files rebuilt
+$(BUILT_SOURCES): $(top_builddir)/src/yuck$(EXEEXT)
+
 ## yuck rule
 SUFFIXES = .yuck
 SUFFIXES += .yucc
