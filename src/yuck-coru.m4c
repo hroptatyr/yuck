@@ -73,7 +73,7 @@ DEFUN int yuck_parse(yuck_t tgt[[static 1U]], int argc, char *argv[[]])
 	tgt->args = args = calloc(argc, sizeof(*tgt->args));
 	tgt->nargs = 0U;
 ifdef([YUCK_MAX_POSARGS], [], [define([YUCK_MAX_POSARGS], [(size_t)-1])])dnl
-	for (i = 1; i < argc && tgt->nargs <= YUCK_MAX_POSARGS; i++) {
+	for (i = 1; i < argc && tgt->nargs < YUCK_MAX_POSARGS; i++) {
 		op = argv[[i]];
 
 		switch (*op) {
@@ -99,6 +99,14 @@ ifdef([YUCK_MAX_POSARGS], [], [define([YUCK_MAX_POSARGS], [(size_t)-1])])dnl
 		default:
 			yield(arg, op);
 			break;
+		}
+	}
+	if (i < argc) {
+		op = argv[[i]];
+
+		if (*op++ == '-' && *op++ == '-' && !*op) {
+			/* another dashdash, filter out */
+			i++;
 		}
 	}
 	/* has to be here as the max_pargs condition might drive us here */
