@@ -75,16 +75,19 @@ Use included copy of the yuck command line parser generator
 instead of the system-wide one.])], [with_included_yuck="${withval}"], [$1])
 
 	if test "${with_included_yuck}" != "yes"; then
-		PKG_CHECK_EXISTS([yuck >= 0.0], [have_yuck="yes"], [have_yuck="no"])
+		AC_PATH_PROG([YUCK], [yuck])
+		AC_ARG_VAR([YUCK], [full path to the yuck tool])
 		AC_MSG_CHECKING([for yuck])
-		AC_MSG_RESULT([${have_yuck}])
+		AC_MSG_RESULT([${YUCK}])
 	fi
-	AM_CONDITIONAL([HAVE_YUCK], [test "${have_yuck}" = "yes"])
+	AM_CONDITIONAL([HAVE_YUCK], [test -n "${YUCK}"])
 
 	AC_REQUIRE([AX_CHECK_M4_BUFFERS])
-	if test "${have_yuck}" = "yes"; then
+	if test -n "${YUCK}"; then
 		## see what m4 they used back then
-		_PKG_CONFIG([yuck_m4], [variable=yuck_m4], [yuck])
+		PKG_CHECK_EXISTS([yuck >= 0.1], [dnl
+			_PKG_CONFIG([yuck_m4], [variable=yuck_m4], [yuck])
+		])
 		M4="${pkg_cv_yuck_m4:-m4}"
 	fi
 ])dnl AX_CHECK_YUCK
