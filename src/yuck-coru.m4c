@@ -80,6 +80,12 @@ ifdef([YUCK_MAX_POSARGS], [], [define([YUCK_MAX_POSARGS], [(size_t)-1])])dnl
 		case '-':
 			/* could be an option */
 			switch (*++op) {
+			default:
+				/* could be glued into one */
+				for (; *op; op++) {
+					yield(shortopt, *op);
+				}
+				break;
 			case '-':
 				if (*++op == '\0') {
 					i++;
@@ -88,15 +94,12 @@ ifdef([YUCK_MAX_POSARGS], [], [define([YUCK_MAX_POSARGS], [(size_t)-1])])dnl
 				}
 				yield(longopt, op);
 				break;
-			default:
-				/* could be glued into one */
-				for (; *op; op++) {
-					yield(shortopt, *op);
-				}
-				break;
+			case '\0':
+				goto plain_dash;
 			}
 			break;
 		default:
+		plain_dash:
 			yield(arg, op);
 			break;
 		}
