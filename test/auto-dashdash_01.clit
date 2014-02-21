@@ -1,0 +1,6 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ auto-dashdash -a FIRST -b SECOND
+FIRST
+SECOND
+$

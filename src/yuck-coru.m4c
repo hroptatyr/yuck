@@ -11,6 +11,7 @@ changecom([#])dnl
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
+#include <limits.h>
 ifdef([YUCK_HEADER], [#include "YUCK_HEADER"
 ])dnl
 
@@ -71,7 +72,8 @@ DEFUN int yuck_parse(yuck_t tgt[[static 1U]], int argc, char *argv[[]])
 	memset(tgt, 0, sizeof(*tgt));
 	tgt->args = args = calloc(argc, sizeof(*tgt->args));
 	tgt->nargs = 0U;
-	for (i = 1; i < argc; i++) {
+ifdef([YUCK_MAX_POSARGS], [], [define([YUCK_MAX_POSARGS], [(size_t)-1])])dnl
+	for (i = 1; i < argc && tgt->nargs < YUCK_MAX_POSARGS; i++) {
 		op = argv[[i]];
 
 		switch (*op) {
@@ -80,6 +82,7 @@ DEFUN int yuck_parse(yuck_t tgt[[static 1U]], int argc, char *argv[[]])
 			switch (*++op) {
 			case '-':
 				if (*++op == '\0') {
+					i++;
 					yield(dashdash);
 					break;
 				}
@@ -96,6 +99,24 @@ DEFUN int yuck_parse(yuck_t tgt[[static 1U]], int argc, char *argv[[]])
 		default:
 			yield(arg, op);
 			break;
+		}
+	}
+	if (i < argc) {
+		op = argv[[i]];
+
+		if (*op++ == '-' && *op++ == '-' && !*op) {
+			/* another dashdash, filter out */
+			i++;
+		}
+	}
+	/* has to be here as the max_pargs condition might drive us here */
+	coroutine(dashdash)
+	{
+		/* dashdash loop, pile everything on tgt->args
+		 * don't check for subcommands either, this is in accordance to
+		 * the git tool which won't accept commands after -- */
+		for (; i < argc; i++) {
+			args[[tgt->nargs++]] = argv[[i]];
 		}
 	}
 	return 0;
@@ -261,17 +282,6 @@ popdef([yuck_auto_action])dnl
 			}
 		}
 		resume;
-	}
-
-	coroutine(dashdash)
-	{
-		/* dashdash loop, pile everything on tgt->args
-		 * don't check for subcommands either, this is in accordance to
-		 * the git tool which won't accept commands after -- */
-		for (i++; i < argc; i++) {
-			args[[tgt->nargs++]] = argv[[i]];
-		}
-		return 0;
 	}
 
 	coroutine(failure)

@@ -1,0 +1,6 @@
+Usage: autodd ONE TWO -- NOARGS_ALLOWED_HERE
+
+  -a   Just a dummy
+  -b   Just another dummy
+  -c   And another one
+
