@@ -230,7 +230,7 @@ define([yuck_umbcmds], [ifdef([YUCK_CMD], [[,]defn([YUCK_CMD])], dquote([[]]))])
 define([yuck_cmds], [defn([YUCK_CMD])])
 
 ## yuck_cmd([command])
-define([yuck_cmd], [upcase(defn([YUCK_CURRENT_UMB]))[_CMD_]ifelse([$1], [], [NONE], [upcase([$1])])])
+define([yuck_cmd], [upcase(defn([YUCK_UMB]))[_CMD_]ifelse([$1], [], [NONE], [upcase([$1])])])
 
 ## yuck_cmd_string
 define([yuck_cmd_string], [defn([YUCK_STR_]$1)])
