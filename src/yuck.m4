@@ -74,8 +74,8 @@ define([yuck_set_version], [dnl
 
 ## yuck_set_umbrella([ident], [umbrella], [[posarg]])
 define([yuck_set_umbrella], [dnl
-	define([YUCK_CURRENT_UMB], [$1])
-	define([YUCK_UMB], [$2])
+	define([YUCK_UMB], [$1])
+	define([YUCK_STR_UMB], [$2])
 	define([YUCK_UMB_POSARG], [$3])
 ])
 
