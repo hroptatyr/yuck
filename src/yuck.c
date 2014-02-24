@@ -1444,8 +1444,8 @@ cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 		error("cannot find yuck dsl file");
 		rc = 2;
 		goto out;
-	} else if (find_aux(gencfn, sizeof(gencfn), "yuck-coru.m4c") < 0 ||
-		   find_aux(genhfn, sizeof(genhfn), "yuck-coru.m4h") < 0) {
+	} else if (find_aux(gencfn, sizeof(gencfn), "yuck-coru.c.m4") < 0 ||
+		   find_aux(genhfn, sizeof(genhfn), "yuck-coru.h.m4") < 0) {
 		error("cannot find yuck template files");
 		rc = 2;
 		goto out;
@@ -1516,7 +1516,7 @@ scmver support not built in, --version-file cannot be used");
 		error("cannot find yuck dsl and template files");
 		rc = 2;
 		goto out;
-	} else if (find_aux(genmfn, sizeof(genmfn), "yuck.m4man") < 0) {
+	} else if (find_aux(genmfn, sizeof(genmfn), "yuck.man.m4") < 0) {
 		error("cannot find yuck template for man pages");
 		rc = 2;
 		goto out;
