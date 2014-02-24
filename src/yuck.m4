@@ -74,8 +74,8 @@ define([yuck_set_version], [dnl
 
 ## yuck_set_umbrella([ident], [umbrella], [[posarg]])
 define([yuck_set_umbrella], [dnl
-	define([YUCK_CURRENT_UMB], [$1])
-	define([YUCK_UMB], [$2])
+	define([YUCK_UMB], [$1])
+	define([YUCK_STR_UMB], [$2])
 	define([YUCK_UMB_POSARG], [$3])
 ])
 
@@ -95,8 +95,8 @@ define([yuck_set_umbrella_max_posargs], [dnl
 
 ## yuck_add_command([ident], [command], [[posarg]])
 define([yuck_add_command], [dnl
-	define([YUCK_CURRENT_CMD], [$1])
-	append_nene([YUCK_CMD], [$1], [,])
+	define([YUCK_CMD], [$1])
+	append_nene([YUCK_ALL_CMDS], [$1], [,])
 	define([YUCK_STR_$1], [$2])
 	define([YUCK_POSARG_$1], [$3])
 ])
@@ -128,7 +128,7 @@ define([yuck_add_option], [dnl
 	## before any possible expansion is in scope
 	pushdef([type], equote([$4]))
 	pushdef([ident], [$1])
-	pushdef([cmd], defn([YUCK_CURRENT_CMD]))
+	pushdef([cmd], defn([YUCK_CMD]))
 
 	ifelse([$2], [], [],
 		index([0123456789], [$2]), [-1], [],
@@ -156,7 +156,7 @@ define([yuck_add_option], [dnl
 
 ## yuck_set_option_desc([ident], [desc])
 define([yuck_set_option_desc], [dnl
-	define([YUCK_]defn([YUCK_CURRENT_CMD])[_$1_desc], [$2])
+	define([YUCK_]defn([YUCK_CMD])[_$1_desc], [$2])
 ])
 
 
@@ -224,13 +224,13 @@ popdef([res])dnl
 ])
 
 ## yuck_umbcmds(), umbrella + commands
-define([yuck_umbcmds], [ifdef([YUCK_CMD], [[,]defn([YUCK_CMD])], dquote([[]]))])
+define([yuck_umbcmds], [ifdef([YUCK_ALL_CMDS], [[,]defn([YUCK_ALL_CMDS])], dquote([[]]))])
 
 ## yuck_cmds(), just the commands
-define([yuck_cmds], [defn([YUCK_CMD])])
+define([yuck_cmds], [defn([YUCK_ALL_CMDS])])
 
 ## yuck_cmd([command])
-define([yuck_cmd], [upcase(defn([YUCK_CURRENT_UMB]))[_CMD_]ifelse([$1], [], [NONE], [upcase([$1])])])
+define([yuck_cmd], [upcase(defn([YUCK_UMB]))[_CMD_]ifelse([$1], [], [NONE], [upcase([$1])])])
 
 ## yuck_cmd_string
 define([yuck_cmd_string], [defn([YUCK_STR_]$1)])
