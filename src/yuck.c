@@ -286,8 +286,8 @@ unmassage_buf(char *restrict buf, size_t bsz)
 	return;
 }
 
-static FILE*
-mkftempp(char *restrict tmpl[static 1U], int prefixlen)
+static int
+mktempp(char *restrict tmpl[static 1U], int prefixlen)
 {
 	char *bp = *tmpl + prefixlen;
 	char *const ep = *tmpl + strlen(*tmpl);
@@ -299,7 +299,7 @@ mkftempp(char *restrict tmpl[static 1U], int prefixlen)
 		    (bp -= prefixlen,
 		     fd = open(bp, O_RDWR | O_CREAT | O_EXCL, 0666)) < 0) {
 			/* fuck that then */
-			return NULL;
+			return -1;
 		}
 	} else if (UNLIKELY((fd = mkstemp(bp)) < 0) &&
 		   UNLIKELY((bp -= prefixlen,
@@ -307,10 +307,21 @@ mkftempp(char *restrict tmpl[static 1U], int prefixlen)
 			     memset(ep - 6, 'X', 6U),
 			     fd = mkstemp(bp)) < 0)) {
 		/* at least we tried */
-		return NULL;
+		return -1;
 	}
 	/* store result */
 	*tmpl = bp;
+	return fd;
+}
+
+static FILE*
+mkftempp(char *restrict tmpl[static 1U], int prefixlen)
+{
+	int fd;
+
+	if (UNLIKELY((fd = mktempp(tmpl, prefixlen)) < 0)) {
+		return NULL;
+	}
 	return fdopen(fd, "w");
 }
 
