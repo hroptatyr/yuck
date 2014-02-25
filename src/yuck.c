@@ -1351,6 +1351,101 @@ wr_man_pkg(const char *pkg)
 }
 
 static int
+wr_man_incln(FILE *fp, char *restrict ln, size_t lz)
+{
+	static int verbp;
+
+	if (lz <= 1U/*has at least a newline?*/) {
+		/* if in drain mode don't start a passage */
+		if (verbp) {
+			fputs(".fi\n.PP\n", fp);
+			verbp = 0;
+		} else if (LIKELY(ln != NULL)) {
+			fputs(".nf\n", fp);
+			verbp = 1;
+		}
+	} else if (*ln == '[' && ln[lz - 2U] == ']') {
+		/* section */
+		char *restrict lp = ln + 1U;
+
+		for (const char *const eol = ln + lz - 2U; lp < eol; lp++) {
+			*lp = (char)toupper(*lp);
+		}
+		*lp = '\0';
+		fputs(".SH ", fp);
+		fputs(ln + 1U, fp);
+		fputs("\n", fp);
+	} else {
+		/* otherwise copy  */
+		fwrite(ln, lz, sizeof(*ln), fp);
+	}
+	return 0;
+}
+
+static int
+wr_man_include(char **const inc)
+{
+	static char _ofn[] = P_tmpdir "/" "yuck_XXXXXX";
+	char *ofn = _ofn;
+	FILE *ofp;
+	char *line = NULL;
+	size_t llen = 0U;
+	FILE *fp;
+
+	if (UNLIKELY((fp = fopen(*inc, "r")) == NULL)) {
+		*inc = NULL;
+		return -1;
+	} else if (UNLIKELY((ofp = mkftempp(&ofn, sizeof(P_tmpdir))) == NULL)) {
+		*inc = NULL;
+		return -1;
+	}
+
+	/* make sure we pass on ofn */
+	*inc = strdup(ofn);
+
+#if defined HAVE_GETLINE
+	for (ssize_t nrd; (nrd = getline(&line, &llen, fp)) > 0;) {
+		wr_man_incln(ofp, line, nrd);
+	}
+#elif defined HAVE_FGETLN
+	while ((line = fgetln(f, &llen)) != NULL) {
+		wr_man_incln(ofp, line, nrd);
+	}
+#else
+# error neither getline() nor fgetln() available, cannot read file line by line
+#endif	/* GETLINE/FGETLN */
+	/* drain */
+	wr_man_incln(ofp, NULL, 0U);
+
+#if defined HAVE_GETLINE
+	free(line);
+#endif	/* HAVE_GETLINE */
+
+	/* close files properly */
+	fclose(fp);
+	fclose(ofp);
+	return 0;
+}
+
+static int
+wr_man_includes(char *incs[], size_t nincs)
+{
+	for (size_t i = 0U; i < nincs; i++) {
+		/* massage file */
+		if (wr_man_include(incs + i) < 0) {
+			continue;
+		} else if (incs[i] == NULL) {
+			/* something else is wrong */
+			continue;
+		}
+		/* otherwise make a note to include this file */
+		fprintf(outf, "\
+append([YUCK_INCLUDES], [%s], [,])dnl\n", incs[i]);
+	}
+	return 0;
+}
+
+static int
 wr_version(const struct yuck_version_s *v, const char *vlit)
 {
 	wr_pre();
@@ -1411,6 +1506,30 @@ rm_intermediary(const char *fn, int keepp)
 		error("intermediary `%s' kept", fn);
 	}
 	return 0;
+}
+
+static int
+rm_includes(char *const incs[], size_t nincs, int keepp)
+{
+	int rc = 0;
+
+	errno = 0;
+	for (size_t i = 0U; i < nincs; i++) {
+		char *restrict fn;
+
+		if ((fn = incs[i]) != NULL) {
+			if (!keepp && unlink(fn) < 0) {
+				error("cannot remove intermediary `%s'", fn);
+				rc = -1;
+			} else if (keepp) {
+				/* otherwise print a nice message so users know
+				 * the file we created */
+				error("intermediary `%s' kept", fn);
+			}
+			free(fn);
+		}
+	}
+	return rc;
 }
 #endif	/* !BOOTSTRAP */
 
@@ -1481,6 +1600,7 @@ cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 		rc = run_m4(outfn, dslfn, deffn, genhfn, gencfn, NULL);
 	}
 out:
+	/* unlink include files */
 	rm_intermediary(deffn, argi->keep_flag);
 	return rc;
 }
@@ -1527,6 +1647,8 @@ scmver support not built in, --version-file cannot be used");
 		/* package != umbrella */
 		rc += wr_man_pkg(argi->package_arg);
 	}
+	/* go through includes */
+	wr_man_includes(argi->include_args, argi->include_nargs);
 	/* reset to sane values */
 	wr_suf();
 	/* and we're finished with the intermediary */
@@ -1551,6 +1673,7 @@ scmver support not built in, --version-file cannot be used");
 		rc = run_m4(outfn, dslfn, deffn, genmfn, NULL);
 	}
 out:
+	rm_includes(argi->include_args, argi->include_nargs, argi->keep_flag);
 	rm_intermediary(deffn, argi->keep_flag);
 	return rc;
 }

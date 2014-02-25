@@ -98,6 +98,8 @@ foreachq([__IDN__], yuck_idents(__CMD__), [dnl
 yuck_option_desc(defn([__IDN__]), defn([__CMD__]))
 ])dnl
 ])dnl
-dnl
+foreachq([__INC__], defn([YUCK_INCLUDES]), [dnl
+include(__INC__)
+])
 ./* yuck.m4man ends here
 changequote`'dnl
