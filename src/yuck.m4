@@ -345,14 +345,19 @@ popdef([desc])dnl
 popdef([lhs])dnl
 ])
 
-## yuck_option_help_line([cmd])
+## yuck_first_line([string])
+define([yuck_first_line], [dnl
+pushdef([lnlen], [index([$1], [
+])])dnl
+backquote(ifelse(lnlen, -1, [$1], [xleft([$1], lnlen)]))[]dnl
+popdef([lnlen])dnl
+])
+
+## yuck_cmd_line([cmd])
 define([yuck_cmd_line], [dnl
 pushdef([lhs], [backquote([yuck_cmd_string([$1])])])dnl
-pushdef([desc], [yuck_cmd_desc([$1])])dnl
-pushdef([lnlen], [index(backquote([desc]), [
-])])dnl
-pushdef([indesc], [            ifelse(lnlen, -1, [backquote([desc])],
-	[backquote([xleft(backquote([desc]), lnlen)])])])dnl
+pushdef([indesc], [dnl
+            yuck_first_line(backquote([yuck_cmd_desc([$1])]))])dnl
 pushdef([lenlhs], len(lhs))dnl
 ifelse(indesc, [], [lhs],
 eval(lenlhs >= 11), [0], [dnl
@@ -364,9 +369,7 @@ eval(lenlhs >= 11), [0], [dnl
   backquote([indesc])[]dnl
 ])dnl
 popdef([lenlhs])dnl
-popdef([lnlen])dnl
 popdef([indesc])dnl
-popdef([desc])dnl
 popdef([lhs])dnl
 ])
 
