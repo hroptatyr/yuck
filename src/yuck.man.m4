@@ -38,12 +38,28 @@ yuck_cmd_desc(C)
 ])dnl
 
 .PP
+define([yuck_man_option], [dnl
+pushdef([lhs], [yuck_option_help_lhs([$1], [$2])])dnl
+yuck_esc(dnl
+yuck_esc(dnl
+yuck_esc(dnl
+yuck_esc(dnl
+yuck_esc(dnl
+yuck_esc(dnl
+yuck_esc(lhs,
+[,], [\fR,]),
+[ -], [ \fB-]),
+[], [\fR]),
+[=], [\fR=]),
+[=], [=\fI]),
+[], [\fR]),
+[...], [\fR...])dnl
+popdef([lhs])dnl
+])
 Recognized \fIOPTION\fRs:
 foreachq([I], yuck_idents(), [dnl
 .TP
-.B yuck_esc(yuck_esc(yuck_esc(yuck_option_help_lhs(defn([I]), []), [=], [=\fI]), [.], [\fR.]), [
-], [\fR
-])
+.B yuck_man_option(defn([I]), [])
 yuck_option_desc(defn([I]), [])
 ])dnl
 
