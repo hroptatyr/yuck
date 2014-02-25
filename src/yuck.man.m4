@@ -19,8 +19,10 @@ popdef([alt_desc])dnl
 .SH SYNOPSIS
 .B YUCK_UMB_STR
 [[\fIOPTION\fR]]...
-ifelse(yuck_cmds(), [], [], [\fICOMMAND\fR])
-patsubst(dquote(defn([YUCK_UMB_POSARG])), [\w+], [\\fI\&\\fR])
+ifelse(yuck_cmds(), [], [], [\fICOMMAND\fR
+])dnl
+\fI[]dnl
+yuck_esc(yuck_esc(yuck_esc(translit(defn([YUCK_UMB_POSARG]), [[]], []), [], [\fR\fI]), [], [\fR\fI]), [.], [\fR.\fI])
 .SH DESCRIPTION
 yuck_umb_desc()
 ifelse(yuck_cmds(), [], [], [dnl
@@ -39,7 +41,9 @@ yuck_cmd_desc(C)
 Recognized \fIOPTION\fRs:
 foreachq([I], yuck_idents(), [dnl
 .TP
-.B yuck_option_help_lhs(defn([I]), [])
+.B yuck_esc(yuck_esc(yuck_esc(yuck_option_help_lhs(defn([I]), []), [=], [=\fI]), [.], [\fR.]), [
+], [\fR
+])
 yuck_option_desc(defn([I]), [])
 ])dnl
 
