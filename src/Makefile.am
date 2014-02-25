@@ -53,7 +53,7 @@ EXTRA_DIST += yuck.m4i
 pkgdata_DATA += yuck.m4
 pkgdata_DATA += yuck-scmver.m4
 pkgdata_DATA += yuck-coru.c.m4
-pkgdata_DATA += yuck-coru.c.m4
+pkgdata_DATA += yuck-coru.h.m4
 pkgdata_DATA += yuck.man.m4
 EXTRA_DIST += $(pkgdata_DATA)
 
