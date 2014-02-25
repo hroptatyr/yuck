@@ -1401,7 +1401,7 @@ wr_man_incln(FILE *fp, char *restrict ln, size_t lz)
 static int
 wr_man_include(char **const inc)
 {
-	static char _ofn[] = P_tmpdir "/" "yuck_XXXXXX";
+	char _ofn[] = P_tmpdir "/" "yuck_XXXXXX";
 	char *ofn = _ofn;
 	FILE *ofp;
 	char *line = NULL;
