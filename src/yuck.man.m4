@@ -37,11 +37,11 @@ ifelse(yuck_cmds(), [], [], [dnl
 
 .PP
 \fICOMMAND\fR may be one of:
-foreachq([C], yuck_cmds(), [dnl
+foreachq([__CMD__], yuck_cmds(), [dnl
 .TP
-.B yuck_cmd_string(C)
+.B yuck_cmd_string(__CMD__)
 .
-yuck_cmd_desc(C)
+yuck_cmd_desc(__CMD__)
 ])dnl
 ])dnl
 
@@ -65,30 +65,30 @@ yuck_esc(lhs,
 popdef([lhs])dnl
 ])
 Recognized \fIOPTION\fRs:
-foreachq([I], yuck_idents(), [dnl
+foreachq([__IDN__], yuck_idents(), [dnl
 .TP
-.B yuck_man_option(defn([I]), [])
-yuck_option_desc(defn([I]), [])
+.B yuck_man_option(defn([__IDN__]), [])
+yuck_option_desc(defn([__IDN__]), [])
 ])dnl
-
+dnl
 ifelse(yuck_cmds(), [], [], [dnl
 .SH COMMANDS
 ])dnl
-foreachq([C], yuck_cmds(), [
+foreachq([__CMD__], yuck_cmds(), [
 .P
-.B YUCK_UMB_STR yuck_cmd_string(C)
+.B YUCK_UMB_STR yuck_cmd_string(__CMD__)
 [[\fIOPTION\fR]]...
-patsubst(dquote(yuck_cmd_posarg(C)), [\w+], [\\fI\&\\fR])
+patsubst(dquote(yuck_cmd_posarg(__CMD__)), [\w+], [\\fI\&\\fR])
 .br
 yuck_cmd_desc(C)
 .P
-\fIOPTION\fRs specific to the \fB[]yuck_cmd_string(C)\fR command:
-foreachq([I], yuck_idents(C), [dnl
+\fIOPTION\fRs specific to the \fB[]yuck_cmd_string(__CMD__)\fR command:
+foreachq([__IDN__], yuck_idents(__CMD__), [dnl
 .TP
-.B yuck_option_help_lhs(defn([I]), defn([C]))
-yuck_option_desc(defn([I]), defn([C]))
+.B yuck_option_help_lhs(defn([__IDN__]), defn([__CMD__]))
+yuck_option_desc(defn([__IDN__]), defn([__CMD__]))
 ])dnl
 ])dnl
-
+dnl
 ./* yuck.m4man ends here
 changequote`'dnl
