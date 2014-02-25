@@ -315,7 +315,7 @@ define([_yuck_esc], [dnl
 pushdef([__next_sep], index([$1], [$2]))[]dnl
 ifelse([$1], [], [], defn([__next_sep]), [-1], [$4[$1]], [dnl
 [$4]xleft([$1], defn([__next_sep]))[$3]dnl
-$0(backquote([xright([$1], incr(defn([__next_sep])))]), [$2], [$3], [$4])[]dnl
+$0(backquote([xright([$1], eval(defn([__next_sep]) + len([$2])))]), [$2], [$3], [$4])[]dnl
 ])[]dnl
 popdef([__next_sep])dnl
 ])dnl
