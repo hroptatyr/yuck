@@ -7,7 +7,11 @@ define([YUCK_VERSION], [YUCK_SCMVER_VERSION])[]dnl
 define([YUCK_VERSION], [unknown])dnl
 ])dnl
 ])dnl
-.TH YUCK_STR_UMB "1" "YUCK_MAN_DATE" "YUCK_STR_UMB YUCK_VERSION" "User Commands"
+define([ucase], [translit([$1], [abcdefghijklmnopqrstuvwxyz], [ABCDEFGHIJKLMNOPQRSTUVWXYZ])])dnl
+ifdef([YUCK_STR_PKG], [], [define([YUCK_STR_PKG], [YUCK_STR_UMB])])dnl
+.TH ucase(YUCK_STR_UMB) "1" "YUCK_MAN_DATE" "YUCK_STR_PKG YUCK_VERSION" "User Commands"
+.SH NAME
+YUCK_STR_UMB - yuck_first_line(yuck_umb_desc())
 .SH SYNOPSIS
 .B YUCK_STR_UMB
 [[\fIOPTION\fR]]...
