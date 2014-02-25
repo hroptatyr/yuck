@@ -1409,9 +1409,11 @@ wr_man_include(char **const inc)
 	FILE *fp;
 
 	if (UNLIKELY((fp = fopen(*inc, "r")) == NULL)) {
+		error("Cannot open include file `%s', ignoring", *inc);
 		*inc = NULL;
 		return -1;
 	} else if (UNLIKELY((ofp = mkftempp(&ofn, sizeof(P_tmpdir))) == NULL)) {
+		error("Cannot open output file `%s', ignoring", ofn);
 		*inc = NULL;
 		return -1;
 	}
