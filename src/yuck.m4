@@ -75,7 +75,7 @@ define([yuck_set_version], [dnl
 ## yuck_set_umbrella([ident], [umbrella], [[posarg]])
 define([yuck_set_umbrella], [dnl
 	define([YUCK_UMB], [$1])
-	define([YUCK_STR_UMB], [$2])
+	define([YUCK_UMB_STR], [$2])
 	define([YUCK_UMB_POSARG], [$3])
 ])
 
@@ -97,7 +97,7 @@ define([yuck_set_umbrella_max_posargs], [dnl
 define([yuck_add_command], [dnl
 	define([YUCK_CMD], [$1])
 	append_nene([YUCK_ALL_CMDS], [$1], [,])
-	define([YUCK_STR_$1], [$2])
+	define([YUCK_$1_STR], [$2])
 	define([YUCK_POSARG_$1], [$3])
 ])
 
@@ -233,7 +233,7 @@ define([yuck_cmds], [defn([YUCK_ALL_CMDS])])
 define([yuck_cmd], [upcase(defn([YUCK_UMB]))[_CMD_]ifelse([$1], [], [NONE], [upcase([$1])])])
 
 ## yuck_cmd_string
-define([yuck_cmd_string], [defn([YUCK_STR_]$1)])
+define([yuck_cmd_string], [defn([YUCK_]$1[_STR])])
 
 ## yuck_cmd_posarg
 define([yuck_cmd_posarg], [defn([YUCK_POSARG_]$1)])

@@ -8,16 +8,16 @@ define([YUCK_VERSION], [unknown])dnl
 ])dnl
 ])dnl
 define([ucase], [translit([$1], [abcdefghijklmnopqrstuvwxyz], [ABCDEFGHIJKLMNOPQRSTUVWXYZ])])dnl
-ifdef([YUCK_STR_PKG], [], [define([YUCK_STR_PKG], [YUCK_STR_UMB])])dnl
-.TH ucase(YUCK_STR_UMB) "1" "YUCK_MAN_DATE" "YUCK_STR_PKG YUCK_VERSION" "User Commands"
+ifdef([YUCK_PKG_STR], [], [define([YUCK_PKG_STR], [YUCK_UMB_STR])])dnl
+.TH ucase(YUCK_UMB_STR) "1" "YUCK_MAN_DATE" "YUCK_PKG_STR YUCK_VERSION" "User Commands"
 .SH NAME
 pushdef([umb_desc], [yuck_first_line(yuck_umb_desc())])dnl
 pushdef([alt_desc], [manual page for YUCK_PKG_STR YUCK_VERSION])dnl
-YUCK_STR_UMB - first_nonnil(umb_desc, alt_desc)
+YUCK_UMB_STR - first_nonnil(umb_desc, alt_desc)
 popdef([umb_desc])dnl
 popdef([alt_desc])dnl
 .SH SYNOPSIS
-.B YUCK_STR_UMB
+.B YUCK_UMB_STR
 [[\fIOPTION\fR]]...
 ifelse(yuck_cmds(), [], [], [\fICOMMAND\fR])
 patsubst(dquote(defn([YUCK_UMB_POSARG])), [\w+], [\\fI\&\\fR])
@@ -48,7 +48,7 @@ ifelse(yuck_cmds(), [], [], [dnl
 ])dnl
 foreachq([C], yuck_cmds(), [
 .P
-.B YUCK_STR_UMB yuck_cmd_string(C)
+.B YUCK_UMB_STR yuck_cmd_string(C)
 [[\fIOPTION\fR]]...
 patsubst(dquote(yuck_cmd_posarg(C)), [\w+], [\\fI\&\\fR])
 .br
