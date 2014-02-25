@@ -11,7 +11,11 @@ define([ucase], [translit([$1], [abcdefghijklmnopqrstuvwxyz], [ABCDEFGHIJKLMNOPQ
 ifdef([YUCK_STR_PKG], [], [define([YUCK_STR_PKG], [YUCK_STR_UMB])])dnl
 .TH ucase(YUCK_STR_UMB) "1" "YUCK_MAN_DATE" "YUCK_STR_PKG YUCK_VERSION" "User Commands"
 .SH NAME
-YUCK_STR_UMB - yuck_first_line(yuck_umb_desc())
+pushdef([umb_desc], [yuck_first_line(yuck_umb_desc())])dnl
+pushdef([alt_desc], [manual page for YUCK_PKG_STR YUCK_VERSION])dnl
+YUCK_STR_UMB - first_nonnil(umb_desc, alt_desc)
+popdef([umb_desc])dnl
+popdef([alt_desc])dnl
 .SH SYNOPSIS
 .B YUCK_STR_UMB
 [[\fIOPTION\fR]]...
