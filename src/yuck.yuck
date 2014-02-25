@@ -22,6 +22,7 @@ Generate a man page from definitions in FILE, or stdin if omitted.
 
   --version-string=STRING  Hardwire version number as STRING.
   --version-file=FILE  Hardwire version number from FILE.
+  --package=STRING     Use package STRING instead of umbrella.
 
 ## GENDSL
 Usage: yuck gendsl [FILE]...

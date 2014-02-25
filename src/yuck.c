@@ -1327,11 +1327,16 @@ wr_man_date(void)
 	} else if (!strftime(buf, sizeof(buf), "%B %Y", tp)) {
 		rc = -1;
 	} else {
-		wr_pre();
 		fprintf(outf, "define([YUCK_MAN_DATE], [%s])dnl\n", buf);
-		wr_suf();
 	}
 	return rc;
+}
+
+static int
+wr_man_pkg(const char *pkg)
+{
+	fprintf(outf, "define([YUCK_PKG_STR], [%s])dnl\n", pkg);
+	return 0;
 }
 
 static int
@@ -1503,8 +1508,16 @@ cmd_genman(const struct yuck_cmd_genman_s argi[static 1U])
 scmver support not built in, --version-file cannot be used");
 #endif	/* WITH_SCMVER */
 	}
+	/* reset to sane values */
+	wr_pre();
 	/* at least give the man page template an idea for YUCK_MAN_DATE */
 	rc += wr_man_date();
+	if (argi->package_arg) {
+		/* package != umbrella */
+		rc += wr_man_pkg(argi->package_arg);
+	}
+	/* reset to sane values */
+	wr_suf();
 	/* and we're finished with the intermediary */
 	fclose(outf);
 
