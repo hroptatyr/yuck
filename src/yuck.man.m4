@@ -18,11 +18,19 @@ popdef([umb_desc])dnl
 popdef([alt_desc])dnl
 .SH SYNOPSIS
 .B YUCK_UMB_STR
-[[\fIOPTION\fR]]...
-ifelse(yuck_cmds(), [], [], [\fICOMMAND\fR
-])dnl
-\fI[]dnl
-yuck_esc(yuck_esc(yuck_esc(translit(defn([YUCK_UMB_POSARG]), [[]], []), [], [\fR\fI]), [], [\fR\fI]), [.], [\fR.\fI])
+[[\fIOPTION\fR]]...[ ]dnl
+ifelse(yuck_cmds(), [], [], [\fICOMMAND\fR])dnl
+[]dnl
+yuck_esc(dnl
+yuck_esc(dnl
+yuck_esc(dnl
+yuck_esc(dnl
+yuck_esc(translit(defn([YUCK_UMB_POSARG]), [[]], []),
+[ -], [\fR -]),
+[ ], [ \fI]),
+[], [\fR\fI]),
+[], [\fR]),
+[...], [\fR...])
 .SH DESCRIPTION
 yuck_umb_desc()
 ifelse(yuck_cmds(), [], [], [dnl
