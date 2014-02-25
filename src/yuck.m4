@@ -349,7 +349,7 @@ popdef([lhs])dnl
 define([yuck_first_line], [dnl
 pushdef([lnlen], [index([$1], [
 ])])dnl
-backquote(ifelse(lnlen, -1, [$1], [xleft([$1], lnlen)]))[]dnl
+backquote([ifelse(lnlen, -1, [$1], [xleft([$1], lnlen)])])[]dnl
 popdef([lnlen])dnl
 ])
 
