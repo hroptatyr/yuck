@@ -78,7 +78,16 @@ foreachq([__CMD__], yuck_cmds(), [
 .P
 .B YUCK_UMB_STR yuck_cmd_string(__CMD__)
 [[\fIOPTION\fR]]...
-patsubst(dquote(yuck_cmd_posarg(__CMD__)), [\w+], [\\fI\&\\fR])
+yuck_esc(dnl
+yuck_esc(dnl
+yuck_esc(dnl
+yuck_esc(dnl
+yuck_esc(translit(yuck_cmd_posarg(__CMD__), [[]], []),
+[ -], [\fR -]),
+[ ], [ \fI]),
+[], [\fR\fI]),
+[], [\fR]),
+[...], [\fR...])
 .br
 yuck_cmd_desc(C)
 .P
