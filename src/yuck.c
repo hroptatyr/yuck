@@ -1354,15 +1354,22 @@ static int
 wr_man_incln(FILE *fp, char *restrict ln, size_t lz)
 {
 	static int verbp;
+	static int parap;
 
-	if (lz <= 1U/*has at least a newline?*/) {
-		/* if in drain mode don't start a passage */
+	if (UNLIKELY(ln == NULL)) {
+		/* drain mode */
 		if (verbp) {
-			fputs(".fi\n.PP\n", fp);
+			fputs(".fi\n", fp);
+		}
+	} else if (lz <= 1U/*has at least a newline?*/) {
+		if (verbp) {
+			/* close verbatim mode */
+			fputs(".fi\n", fp);
 			verbp = 0;
-		} else if (LIKELY(ln != NULL)) {
-			fputs(".nf\n", fp);
-			verbp = 1;
+		}
+		if (!parap) {
+			fputs(".PP\n", fp);
+			parap = 1;
 		}
 	} else if (*ln == '[' && ln[lz - 2U] == ']') {
 		/* section */
@@ -1375,9 +1382,18 @@ wr_man_incln(FILE *fp, char *restrict ln, size_t lz)
 		fputs(".SH ", fp);
 		fputs(ln + 1U, fp);
 		fputs("\n", fp);
+		/* reset state */
+		parap = 0;
+		verbp = 0;
+	} else if (ln[0U] == ' ' && ln[1U] == ' ' && !verbp) {
+		fputs(".nf\n", fp);
+		verbp = 1;
+		goto cp;
 	} else {
+	cp:
 		/* otherwise copy  */
 		fwrite(ln, lz, sizeof(*ln), fp);
+		parap = 0;
 	}
 	return 0;
 }
