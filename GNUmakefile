@@ -11,17 +11,14 @@ include Makefile
 
 # update the included makefile snippet which sets VERSION variables
 version.mk: .version version.mk.in FORCE
-	$(AM_V_GEN) if test -f $(top_builddir)/src/yuck; then \
-		YUCK_TEMPLATE_PATH="$(abs_top_srcdir)/src" \
-		$(top_builddir)/src/yuck scmver \
-			--ignore-noscm -o $@ --reference $^ \
-	; elif ! test -f $< -o -w $<; then \
+	-$(AM_V_GEN) \
+	if test -w $<; then \
 		if test -n "$(_dist-target_p)"; then \
-			echo "\
-WARNING: you're running a dist target with wrong version information)" >&2; \
+			$(MAKE) -C "$(top_builddir)/src"; \
 		fi; \
-		touch $< \
-	; fi
+		$(top_builddir)/src/yuck$(EXEEXT) scmver \
+			--ignore-noscm -o $@ --reference $^; \
+	fi
 
 else
 
