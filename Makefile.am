@@ -7,20 +7,18 @@ ACLOCAL_AMFLAGS = -I m4
 aclocaldir = $(datadir)/aclocal
 
 SUBDIRS =
+EXTRA_DIST = $(BUILT_SOURCES)
+BUILT_SOURCES =
+DISTCLEANFILES =
+CLEANFILES =
+
 SUBDIRS += src
 SUBDIRS += info
 SUBDIRS += test
 
-EXTRA_DIST =
-DISTCLEANFILES =
-CLEANFILES =
-BUILT_SOURCES =
-
-EXTRA_DIST += version.mk.in
-EXTRA_DIST += version.mk
-EXTRA_DIST += .version
-BUILT_SOURCES += .version
 DISTCLEANFILES += version.mk
+EXTRA_DIST += version.mk.in
+BUILT_SOURCES += .version
 
 pkgconfigdir = @libdir@/pkgconfig
 pkgconfig_DATA =
@@ -32,6 +30,10 @@ aclocal_DATA = m4/yuck.m4
 
 .version:
 	$(AM_V_GEN) echo "v$(VERSION)" > $@
+
+## make sure .version is read-only in the dist
+dist-hook:
+	chmod ugo-w $(distdir)/.version
 
 yuck.pc: .version yuck.pc.in
 	$(AM_V_GEN) YUCK_TEMPLATE_PATH="$(abs_top_srcdir)/src" \
