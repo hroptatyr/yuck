@@ -55,6 +55,7 @@ pkgdata_DATA += yuck-scmver.m4
 pkgdata_DATA += yuck-coru.c.m4
 pkgdata_DATA += yuck-coru.h.m4
 pkgdata_DATA += yuck.man.m4
+pkgdata_DATA += yuck.mk
 EXTRA_DIST += $(pkgdata_DATA)
 
 ## version rules
@@ -64,15 +65,7 @@ version.c: version.c.in $(top_builddir)/.version yuck-scmver
 		$(M4) - $(srcdir)/version.c.in > $@
 
 ## bootstrapping rules
-yuck.m4i: yuck.yuck
-	$(MAKE) $(AM_MAKEFLAGS) yuck-bootstrap
-	$(AM_V_GEN) $(builddir)/yuck-bootstrap $(srcdir)/yuck.yuck > $@
-
-yuck.yucc: yuck.m4i yuck.m4 yuck-coru.h.m4 yuck-coru.c.m4
-	$(AM_V_GEN) $(M4) $(srcdir)/yuck.m4 yuck.m4i \
-		$(srcdir)/yuck-coru.h.m4 $(srcdir)/yuck-coru.c.m4 | \
-		tr '\002\003\016\017' '[]()' > $@ \
-		|| { rm -f -- $@; false; }
+include $(srcdir)/yuck.mk
 
 ## for dist or dist check we need binaries, so help2man can work
 dist-hook: $(bin_PROGRAMS)
