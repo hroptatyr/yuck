@@ -6,13 +6,6 @@ LANG = C
 LC_ALL = C
 
 AM_CFLAGS = $(EXTRA_CFLAGS)
-AM_CPPFLAGS = -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -D_BSD_SOURCE
-## for our friends on AIX
-AM_CPPFLAGS += -D_ALL_SOURCE
-## and Darwin
-AM_CPPFLAGS += -D_DARWIN_C_SOURCE
-## and NetBSD
-AM_CPPFLAGS += -D_NETBSD_SOURCE
 
 bin_PROGRAMS =
 noinst_PROGRAMS =
@@ -27,7 +20,7 @@ include $(srcdir)/yuck.am
 
 noinst_PROGRAMS += yuck-scmver
 yuck_scmver_SOURCES = yuck-scmver.c yuck-scmver.h
-yuck_scmver_CPPFLAGS = $(AM_CPPFLAGS)
+yuck_scmver_CPPFLAGS = $(yuck_CPPFLAGS)
 yuck_scmver_CPPFLAGS += -DBOOTSTRAP
 
 ## fiddle with yuck_CPPFLAGS
