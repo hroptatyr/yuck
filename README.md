@@ -240,6 +240,22 @@ The structs are carefully generated in a way that allows you to simple
 cast a `yuck_t*` to a `struct yuck_cmd_turbo_s*`.
 
 
+And now handing the `--help` output over to help2man again?!
+------------------------------------------------------------
+Nope.  Of course not.  If we can create something as formal and
+definitive as a command-line option parser, we sure as hell can create
+something sloppy and informal as a man page (that is, no offence, for
+human eyes only anyway).
+
+yuck comes with a template `yuck.man.m4` for that purpose which is
+materialised through the `genman` command:
+
+    $ yuck genman xmpl-subcommands.yuck
+
+would produce [xmpl-subcommands.man](xmpl-subcommands.html) (which here
+for obvious reasons has been run through man2html first).
+
+
 <!--
   Local variables:
   mode: auto-fill
