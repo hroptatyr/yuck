@@ -391,6 +391,23 @@ BUILT_SOURCES += auto-dashdash.yucc
 TESTS += auto-dashdash_01.clit
 TESTS += auto-dashdash_02.clit
 
+check_PROGRAMS += lone-cmd_01
+lone_cmd_01_SOURCES = generic.c
+lone_cmd_01_CPPFLAGS = $(AM_CPPFLAGS)
+lone_cmd_01_CPPFLAGS += -DYUCC_FILE='"lone-cmd_01.yucc"'
+EXTRA_DIST += lone-cmd_01.yuck
+BUILT_SOURCES += lone-cmd_01.yucc
+TESTS += lone-cmd_01.clit
+
+check_PROGRAMS += lone-cmd_02
+lone_cmd_02_SOURCES = generic.c
+lone_cmd_02_CPPFLAGS = $(AM_CPPFLAGS)
+lone_cmd_02_CPPFLAGS += -DYUCC_FILE='"lone-cmd_02.yucc"'
+EXTRA_DIST += lone-cmd_02.yuck
+BUILT_SOURCES += lone-cmd_02.yucc
+TESTS += lone-cmd_02.clit
+
+
 ## just to get the tests and yucc files rebuilt
 $(BUILT_SOURCES): $(top_builddir)/src/yuck$(EXEEXT)
 

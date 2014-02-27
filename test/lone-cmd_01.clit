@@ -1,0 +1,14 @@
+#!/usr/bin/clitoris
+
+$ lone-cmd_01 --help
+Usage: ute [OPTION]... anal FILE...
+
+Check if this is an umbrella even though it's in command syntax.
+
+  -h, --help            display this help and exit
+  -V, --version         output version information and exit
+  -x, --extra           One more option.
+
+$
+
+## lone-cmd_01.clit ends here

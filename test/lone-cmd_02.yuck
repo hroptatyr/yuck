@@ -1,0 +1,5 @@
+Usage: ute FILE...
+
+Check if this is an umbrella even though it's in command syntax.
+
+  -x, --extra   One more option.
