@@ -268,8 +268,8 @@ would produce [xmpl-subcommands.man](xmpl-subcommands.html) (which here
 for obvious reasons has been run through man2html first).
 
 
-This is all superfluous and utter rubbish because ...
------------------------------------------------------
+This is all superfluous and utter rubbish because &hellip;
+----------------------------------------------------------
 Don't let me stop there.  I'm all ears for feature requests, patches,
 criticism and insults, oh, and death threats, of course.
 
