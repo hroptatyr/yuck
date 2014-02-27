@@ -7,6 +7,11 @@ latest: https://github.com/hroptatyr/yuck/releases/download/v0.1.5/yuck-0.1.5.ta
 
 yuck
 ====
+
++ project homepage: http://www.fresse.org/yuck/
++ github page: https://github.com/hroptatyr/yuck
++ downloads: https://github.com/hroptatyr/yuck/releases
+
 ### Your Umbrella Command Kit
 
 yuck is a bog-standard command line option parser for C that works with
