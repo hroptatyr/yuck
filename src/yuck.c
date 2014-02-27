@@ -409,19 +409,20 @@ usagep(const char *line, size_t llen)
 			return 1;
 		}
 	yield:
+#define RESET	cur_usg.cmd = cur_usg.parg = cur_usg.desc = NULL, desc->z = 0U
+
 		if (!cur_usg_ylddp) {
 			yield_usg(&cur_usg);
 			/* reset */
-			memset(&cur_usg, 0, sizeof(cur_usg));
-			desc->z = 0U;
+			RESET;
 			cur_usg_ylddp = true;
 		}
 		return 0;
 	} else if (!cur_usg_ylddp) {
 		yield_usg(&cur_usg);
 		/* reset */
-		memset(&cur_usg, 0, sizeof(cur_usg));
-		desc->z = 0U;
+		RESET;
+		cur_usg_ylddp = true;
 	}
 	/* overread whitespace then */
 	for (sp = line + sizeof("usage:") - 1; sp < ep && isspace(*sp); sp++);
