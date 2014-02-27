@@ -388,7 +388,7 @@ usagep(const char *line, size_t llen)
 	static bbuf_t cmd[1U];
 	static bbuf_t parg[1U];
 	static bbuf_t desc[1U];
-	static bool cur_usg_ylddp;
+	static bool cur_usg_yldd_p;
 	const char *sp;
 	const char *up;
 	const char *cp;
@@ -403,7 +403,7 @@ usagep(const char *line, size_t llen)
 	if (!STREQLITP(line, "usage:")) {
 		if (only_whitespace_p(line, llen) && !desc->z) {
 			return 1;
-		} else if (!isspace(*line) && !cur_usg_ylddp) {
+		} else if (!isspace(*line) && !cur_usg_yldd_p) {
 			/* append to description */
 			cur_usg.desc = bbuf_cat(desc, line, llen);
 			return 1;
@@ -411,18 +411,19 @@ usagep(const char *line, size_t llen)
 	yield:
 #define RESET	cur_usg.cmd = cur_usg.parg = cur_usg.desc = NULL, desc->z = 0U
 
-		if (!cur_usg_ylddp) {
+		if (!cur_usg_yldd_p) {
 			yield_usg(&cur_usg);
 			/* reset */
 			RESET;
-			cur_usg_ylddp = true;
+			cur_usg_yldd_p = true;
 		}
 		return 0;
-	} else if (!cur_usg_ylddp) {
+	} else if (!cur_usg_yldd_p) {
+		/* can't just goto yield because they wander off */
 		yield_usg(&cur_usg);
 		/* reset */
 		RESET;
-		cur_usg_ylddp = true;
+		cur_usg_yldd_p = true;
 	}
 	/* overread whitespace then */
 	for (sp = line + sizeof("usage:") - 1; sp < ep && isspace(*sp); sp++);
@@ -485,7 +486,7 @@ overread:
 	if (sp < ep) {
 		cur_usg.parg = bbuf_cpy(parg, sp, ep - sp - 1U);
 	}
-	cur_usg_ylddp = false;
+	cur_usg_yldd_p = false;
 	return 1;
 }
 
