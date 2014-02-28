@@ -28,6 +28,9 @@ CLEANFILES += yuck.pc
 
 aclocal_DATA = m4/yuck.m4
 
+doc_DATA = README.md
+EXTRA_DIST += $(doc_DATA)
+
 .version:
 	$(AM_V_GEN) echo "v$(VERSION)" > $@
 
