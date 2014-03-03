@@ -141,7 +141,7 @@ deconst(const void *cp)
 }
 
 static inline __attribute__((always_inline)) unsigned int
-fls(unsigned int x)
+yfls(unsigned int x)
 {
 	return x ? sizeof(x) * 8U - __builtin_clz(x) : 0U;
 }
@@ -347,8 +347,8 @@ typedef struct {
 static char*
 bbuf_cpy(bbuf_t b[static 1U], const char *str, size_t ssz)
 {
-	size_t nu = max_zu(fls(ssz + 1U) + 1U, 6U);
-	size_t ol = b->z ? max_zu(fls(b->z) + 1U, 6U) : 0U;
+	size_t nu = max_zu(yfls(ssz + 1U) + 1U, 6U);
+	size_t ol = b->z ? max_zu(yfls(b->z) + 1U, 6U) : 0U;
 
 	if (UNLIKELY(nu > ol)) {
 		b->s = realloc(b->s, (1U << nu) * sizeof(*b->s));
@@ -361,8 +361,8 @@ bbuf_cpy(bbuf_t b[static 1U], const char *str, size_t ssz)
 static char*
 bbuf_cat(bbuf_t b[static 1U], const char *str, size_t ssz)
 {
-	size_t nu = max_zu(fls(b->z + ssz + 1U) + 1U, 6U);
-	size_t ol = b->z ? max_zu(fls(b->z) + 1U, 6U) : 0U;
+	size_t nu = max_zu(yfls(b->z + ssz + 1U) + 1U, 6U);
+	size_t ol = b->z ? max_zu(yfls(b->z) + 1U, 6U) : 0U;
 
 	if (UNLIKELY(nu > ol)) {
 		b->s = realloc(b->s, (1U << nu) * sizeof(*b->s));
