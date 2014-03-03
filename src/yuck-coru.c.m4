@@ -369,6 +369,10 @@ yuck_C_literal(yuck_cmd_desc(defn([__CMD])))\n\
 		break;
 ])
 	}
+
+#if defined yuck_post_usage
+	yuck_post_usage(src);
+#endif	/* yuck_post_usage */
 	return;
 }
 
@@ -421,8 +425,12 @@ yuck_C_literal(backquote([yuck_option_help_line(defn([__IDN]), defn([__CMD]))]))
 ])
 	}
 
+#if defined yuck_post_help
+	yuck_post_help(src);
+#endif	/* yuck_post_help */
+
 #if defined PACKAGE_BUGREPORT
-	puts("\
+	puts("\n\
 Report bugs to " PACKAGE_BUGREPORT);
 #endif	/* PACKAGE_BUGREPORT */
 	return;
@@ -453,10 +461,14 @@ ifdef([YUCK_VERSION], [dnl
 ])dnl
 		break;
 	}
+
+#if defined yuck_post_version
+	yuck_post_version(src);
+#endif	/* yuck_post_version */
 	return;
 }
-
 popdef([DEFUN])dnl
+
 #if defined __INTEL_COMPILER
 # pragma warning (default:177)
 # pragma warning (default:111)
