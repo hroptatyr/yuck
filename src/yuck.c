@@ -85,6 +85,12 @@
 # define HAVE_GETLINE	1
 #endif	/* !HAVE_GETLINE && !HAVE_FGETLN */
 
+typedef enum {
+	YOPT_NONE,
+	YOPT_ALLOW_UNKNOWN_DASH,
+	YOPT_ALLOW_UNKNOWN_DASHDASH,
+} yopt_t;
+
 struct usg_s {
 	char *umb;
 	char *cmd;
@@ -376,6 +382,7 @@ bbuf_cat(bbuf_t b[static 1U], const char *str, size_t ssz)
 static void yield_usg(const struct usg_s *arg);
 static void yield_opt(const struct opt_s *arg);
 static void yield_inter(const bbuf_t x[static 1U]);
+static void yield_setopt(yopt_t);
 
 #define DEBUG(args...)
 
@@ -401,7 +408,10 @@ usagep(const char *line, size_t llen)
 
 	DEBUG("USAGEP CALLED with %s", line);
 
-	if (!STREQLITP(line, "usage:")) {
+	if (STREQLITP(line, "setopt")) {
+		/* it's a setopt */
+		return 0;
+	} else if (!STREQLITP(line, "usage:")) {
 		if (only_whitespace_p(line, llen) && !desc->z) {
 			return 1;
 		} else if (!isspace(*line) && !cur_usg_yldd_p) {
@@ -659,9 +669,38 @@ interp(const char *line, size_t llen)
 		/* reset */
 		desc->z = 0U;
 	} else if (!only_ws_p) {
+		if (STREQLITP(line, "setopt")) {
+			/* not an inter */
+			return 0;
+		}
 		/* snarf the line */
 		bbuf_cat(desc, line, llen);
 		return 1;
+	}
+	return 0;
+}
+
+static int
+setoptp(const char *line, size_t UNUSED(llen))
+{
+	if (UNLIKELY(line == NULL)) {
+		return 0;
+	}
+
+	DEBUG("SETOPTP CALLED with %s", line);
+	if (STREQLITP(line, "setopt")) {
+		/* 'nother option */
+		const char *lp = line + sizeof("setopt");
+
+		if (0) {
+			;
+		} else if (STREQLITP(lp, "allow-unknown-dash-options")) {
+			yield_setopt(YOPT_ALLOW_UNKNOWN_DASH);
+		} else if (STREQLITP(lp, "allow-unknown-dashdash-options")) {
+			yield_setopt(YOPT_ALLOW_UNKNOWN_DASHDASH);
+		} else {
+			/* unknown setopt option */
+		}
 	}
 	return 0;
 }
@@ -872,12 +911,30 @@ yield_inter(const bbuf_t x[static 1U])
 	return;
 }
 
+static void
+yield_setopt(yopt_t yo)
+{
+	switch (yo) {
+	default:
+	case YOPT_NONE:
+		break;
+	case YOPT_ALLOW_UNKNOWN_DASH:
+		fputs("yuck_setopt_allow_unknown_dash\n", outf);
+		break;
+	case YOPT_ALLOW_UNKNOWN_DASHDASH:
+		fputs("yuck_setopt_allow_unknown_dashdash\n", outf);
+		break;
+	}
+	return;
+}
+
 
 static enum {
 	UNKNOWN,
 	SET_INTER,
 	SET_UMBCMD,
 	SET_OPTION,
+	SET_SETOPT,
 }
 snarf_ln(char *line, size_t llen)
 {
@@ -911,6 +968,15 @@ snarf_ln(char *line, size_t llen)
 		/* check for some intro texts */
 		if (interp(line, llen)) {
 			st = SET_INTER;
+			break;
+		} else {
+			/* reset state, go on with setopt parsing */
+			st = UNKNOWN;
+		}
+	case SET_SETOPT:
+		/* check for setopt BLA lines */
+		if (setoptp(line, llen)) {
+			st = SET_SETOPT;
 			break;
 		} else {
 			/* reset state, go on with option parsing */
