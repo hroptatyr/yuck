@@ -175,11 +175,18 @@ dnl now simply expand yuck_foo_action:
 			}dnl
 divert[]dnl
 ]) else {
-				ifelse(defn([__CMD]), [],
-				       [/* grml */
+ifelse(defn([__CMD]), [], [dnl
+ifdef([YOPT_ALLOW_UNKNOWN_DASHDASH], [dnl
+				/* just treat it as argument then */
+				resume_at(arg);
+], [dnl
+				/* grml */
 				fprintf(stderr, "YUCK_UMB_STR: unrecognized option `--%s'\n", op);
-				resume_at(failure);],
-				       [resume_at(yuck_cmd()[_longopt]);])
+				resume_at(failure);
+])dnl
+], [dnl
+				resume_at(yuck_cmd()[_longopt]);
+])dnl
 			}
 			resume;
 		}
@@ -233,8 +240,12 @@ pushdef([yuck_auto_action], [/* invoke auto action and exit */
 			switch (*op) {
 			default:
 				divert(1);
+ifdef([YOPT_ALLOW_UNKNOWN_DASH], [dnl
+				resume_at(arg);
+], [dnl
 				fprintf(stderr, "YUCK_UMB_STR: invalid option -%c\n", *op);
 				resume_at(failure);
+])dnl
 
 ifdef([YUCK_SHORTS_HAVE_NUMERALS], [
 				/* [yuck_shorts()] (= yuck_shorts())
