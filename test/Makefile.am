@@ -270,6 +270,14 @@ generic_option_08_CPPFLAGS += -DYUCC_FILE='"option_08.yucc"'
 BUILT_SOURCES += option_08.yucc
 TESTS += generic-option_08.clit
 
+check_PROGRAMS += post-hook_01
+post_hook_01_SOURCES = post-hook.c
+post_hook_01_CPPFLAGS = $(AM_CPPFLAGS)
+post_hook_01_CPPFLAGS += -DYUCC_FILE='"plain_05.yucc"'
+BUILT_SOURCES += plain_05.yucc
+TESTS += post-hook_01.clit
+TESTS += post-hook_02.clit
+
 TESTS += escape_01.clit
 TESTS += escape_02.clit
 EXTRA_DIST += escape_01.yuck
