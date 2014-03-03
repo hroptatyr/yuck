@@ -1,0 +1,15 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ post-hook_01 --help
+Usage: plain [OPTION]...
+
+Some description here.
+
+More stuff after a line with just whitespace.
+
+Options are as follows
+  -h, --help            display this help and exit
+  -V, --version         output version information and exit
+
+SOME POST HELP TEXT
+$
