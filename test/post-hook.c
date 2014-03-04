@@ -4,19 +4,19 @@
 #define yuck_post_usage		yuck_post_usage
 #include YUCC_FILE
 
-static void yuck_post_help(const yuck_t *UNUSED(x))
+static void yuck_post_help(const yuck_t *x)
 {
 	puts("SOME POST HELP TEXT");
 	return;
 }
 
-static void yuck_post_version(const yuck_t *UNUSED(x))
+static void yuck_post_version(const yuck_t *x)
 {
 	puts("(C) 2014 written by yuck test-suite");
 	return;
 }
 
-static void yuck_post_usage(const yuck_t *UNUSED(x))
+static void yuck_post_usage(const yuck_t *x)
 {
 	puts("Options are as follows");
 	return;
