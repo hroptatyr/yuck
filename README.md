@@ -1,6 +1,9 @@
 yuck
 ====
 
+[![Build Status](https://secure.travis-ci.org/hroptatyr/yuck.png?branch=master)](http://travis-ci.org/hroptatyr/yuck)
+[![Build Status](https://drone.io/github.com/hroptatyr/yuck/status.png)](https://drone.io/github.com/hroptatyr/yuck/latest)
+
 + project homepage: http://www.fresse.org/yuck/
 + github page: https://github.com/hroptatyr/yuck
 + downloads: https://github.com/hroptatyr/yuck/releases
