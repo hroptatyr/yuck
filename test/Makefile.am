@@ -415,6 +415,14 @@ EXTRA_DIST += lone-cmd_02.yuck
 BUILT_SOURCES += lone-cmd_02.yucc
 TESTS += lone-cmd_02.clit
 
+check_PROGRAMS += dashdesc_01
+dashdesc_01_SOURCES = generic.c
+dashdesc_01_CPPFLAGS = $(AM_CPPFLAGS)
+dashdesc_01_CPPFLAGS += -DYUCC_FILE='"dashdesc_01.yucc"'
+EXTRA_DIST += dashdesc_01.yuck
+BUILT_SOURCES += dashdesc_01.yucc
+TESTS += dashdesc_01.clit
+
 
 ## just to get the tests and yucc files rebuilt
 $(BUILT_SOURCES): $(top_builddir)/src/yuck$(EXEEXT)

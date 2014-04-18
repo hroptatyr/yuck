@@ -1,0 +1,9 @@
+Usage: dashdesc [FILE]...
+
+Print FILE.
+
+  --format=SPEC         Output according to SPEC, a format string where
+                        - %b expands to the beginning
+                        - %e expands to the end
+                        - %s expands to the summary
+                        - %u expands to the uid
