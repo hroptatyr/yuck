@@ -1,0 +1,18 @@
+#!/usr/bin/clitoris
+
+$ dashdesc_01 --help
+Usage: dashdesc [OPTION]... [FILE]...
+
+Print FILE.
+
+  -h, --help            display this help and exit
+  -V, --version         output version information and exit
+      --format=SPEC     Output according to SPEC, a format string where
+                        - %b expands to the beginning
+                        - %e expands to the end
+                        - %s expands to the summary
+                        - %u expands to the uid
+
+$
+
+## dashdesc_01.clit ends here
