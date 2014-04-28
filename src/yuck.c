@@ -1864,8 +1864,14 @@ flag -n|--use-reference requires -r|--reference parameter");
 		/* reserve exit code 3 for `updated reference file' */
 		rc = 3;
 	} else if (reffn && !argi->force_flag) {
-		/* don't worry about anything then */
-		return 0;
+		/* make sure the output file exists */
+		const char *const outfn = argi->output_arg;
+
+		if (outfn == NULL || regfilep(outfn)) {
+			/* don't worry about anything then */
+			return 0;
+		}
+		/* otherwise create at least one version of the output */
 	}
 
 	if (infn != NULL && regfilep(infn)) {
