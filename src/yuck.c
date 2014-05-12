@@ -296,6 +296,7 @@ mktempp(char *restrict tmpl[static 1U], int prefixlen)
 {
 	char *bp = *tmpl + prefixlen;
 	char *const ep = *tmpl + strlen(*tmpl);
+	mode_t m;
 	int fd;
 
 	if (ep[-6] != 'X' || ep[-5] != 'X' || ep[-4] != 'X' ||
@@ -306,7 +307,8 @@ mktempp(char *restrict tmpl[static 1U], int prefixlen)
 			/* fuck that then */
 			return -1;
 		}
-	} else if (UNLIKELY((fd = mkstemp(bp)) < 0) &&
+	} else if (m = umask(S_IXUSR | S_IRWXG | S_IRWXO),
+		   UNLIKELY((fd = mkstemp(bp), umask(m), fd < 0)) &&
 		   UNLIKELY((bp -= prefixlen,
 			     /* reset to XXXXXX */
 			     memset(ep - 6, 'X', 6U),
