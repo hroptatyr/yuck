@@ -1361,6 +1361,7 @@ wr_intermediary(char *const args[], size_t nargs)
 
 	if (nargs == 0U) {
 		if (snarf_f(stdin) < 0) {
+			errno = 0;
 			error("cannot interpret directives on stdin");
 			rc = 1;
 		}
@@ -1374,6 +1375,7 @@ wr_intermediary(char *const args[], size_t nargs)
 			rc = 1;
 			break;
 		} else if (snarf_f(yf) < 0) {
+			errno = 0;
 			error("cannot interpret directives from `%s'", fn);
 			rc = 1;
 		}
@@ -1585,8 +1587,7 @@ wr_version(const struct yuck_version_s *v, const char *vlit)
 		}
 		fputs("])\n", outf);
 #else  /* !WITH_SCMVER */
-		errno = 0;
-		error("\
+		errno = 0, error("\
 scmver support not built in but ptr %p given to wr_version()", v);
 #endif	/* WITH_SCMVER */
 	}
@@ -1610,8 +1611,7 @@ rm_intermediary(const char *fn, int keepp)
 	} else {
 		/* otherwise print a nice message so users know
 		 * the file we created */
-		errno = 0;
-		error("intermediary `%s' kept", fn);
+		errno = 0, error("intermediary `%s' kept", fn);
 	}
 	return 0;
 }
@@ -1632,7 +1632,7 @@ rm_includes(char *const incs[], size_t nincs, int keepp)
 			} else if (keepp) {
 				/* otherwise print a nice message so users know
 				 * the file we created */
-				error("intermediary `%s' kept", fn);
+				errno = 0, error("intermediary `%s' kept", fn);
 			}
 			free(fn);
 		}
@@ -1847,7 +1847,7 @@ flag -n|--use-reference requires -r|--reference parameter");
 			/* allow graceful exit through --ignore-noscm */
 			return 0;
 		}
-		error("cannot determine SCM");
+		errno = 0, error("cannot determine SCM");
 		return 1;
 	}
 
@@ -1856,8 +1856,7 @@ flag -n|--use-reference requires -r|--reference parameter");
 		*v = *ref;
 	} else if (reffn && yuck_version_cmp(v, ref)) {
 		if (argi->verbose_flag) {
-			errno = 0;
-			error("scm version differs from reference");
+			errno = 0, error("scm version differs from reference");
 		}
 		/* version stamps differ */
 		yuck_version_write(argi->reference_arg, v);
