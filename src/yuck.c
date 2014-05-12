@@ -128,8 +128,7 @@ error(const char *fmt, ...)
 	vfprintf(stderr, fmt, vap);
 	va_end(vap);
 	if (errno) {
-		fputc(':', stderr);
-		fputc(' ', stderr);
+		fputs(": ", stderr);
 		fputs(strerror(errno), stderr);
 	}
 	fputc('\n', stderr);
