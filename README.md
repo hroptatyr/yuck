@@ -266,7 +266,7 @@ for obvious reasons has been run through man2html first).
 
 This is all superfluous and utter rubbish because ...
 -----------------------------------------------------
-Don't let me stop there.  I'm all ears for feature requests, patches,
+Don't let me stop you there.  I'm all ears for feature requests, patches,
 criticism and insults, oh, and death threats, of course.
 
 Best to use the [bug tracker][1], or drop me an [email][2], or just put
