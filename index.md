@@ -17,6 +17,7 @@ yuck
 yuck is a bog-standard command line option parser for C that works with
 only household ingredients (a C compiler and the m4 macro processor) and
 comes with all the knickknackery and whatnots:
+
 + GNU-style long options (`--blah`)
 + condensable short options (`-xab` for `-x -a -b`)
 + optional arguments to long and short options (--foo[=BAR])
