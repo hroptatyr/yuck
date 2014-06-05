@@ -24,11 +24,16 @@ comes with all the knickknackery and whatnots:
 + multiple occurrence of options (-vvv)
 + does *not* depend on libc's getopt() nor getopt_long()
 
+And getting started is as easy as *munching* cake -- let yuck do the
+actual baking for you:  Just feed it the `--help` output you'd like to
+see and yuck will happily try and generate a parser from it.
+
+
+That all? I need more highlights
+--------------------------------
+
 yuck can also generate parsers for umbrella tools, i.e. tools that take
 a command as argument (think git(1), ip(8), etc.).
-
-yuck comes along with a DSL written in m4 and a simple parser that takes
-free text that looks like the `--help` output and returns m4-directives.
 
 yuck has no exotic build time or run time dependencies, a C99 compiler and
 the m4 macro processor is enough.
