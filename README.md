@@ -13,17 +13,23 @@ yuck
 yuck is a bog-standard command line option parser for C that works with
 only household ingredients (a C compiler and the m4 macro processor) and
 comes with all the knickknackery and whatnots:
+
 + GNU-style long options (`--blah`)
 + condensable short options (`-xab` for `-x -a -b`)
 + optional arguments to long and short options (--foo[=BAR])
 + multiple occurrence of options (-vvv)
 + does *not* depend on libc's getopt() nor getopt_long()
 
+And getting started is as easy as *munching* cake -- let yuck do the
+actual baking for you:  Just feed it the `--help` output you'd like to
+see and yuck will happily try and generate a parser from it.
+
+
+That all? I need more highlights
+--------------------------------
+
 yuck can also generate parsers for umbrella tools, i.e. tools that take
 a command as argument (think git(1), ip(8), etc.).
-
-yuck comes along with a DSL written in m4 and a simple parser that takes
-free text that looks like the `--help` output and returns m4-directives.
 
 yuck has no exotic build time or run time dependencies, a C99 compiler and
 the m4 macro processor is enough.
@@ -31,8 +37,8 @@ the m4 macro processor is enough.
 yuck can be used in other projects by copying 4 files and setting up
 a simple Makefile rule.
 
-yuck can generate man pages based on the definition files, much like
-[help2man](http://www.gnu.org/s/help2man/).
+yuck can generate man pages based on the definition files (the --help
+output), much like [help2man](http://www.gnu.org/s/help2man/).
 
 yuck can automatically determine (and make use of) version numbers in
 git controlled projects.
