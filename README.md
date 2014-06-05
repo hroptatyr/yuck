@@ -37,8 +37,8 @@ the m4 macro processor is enough.
 yuck can be used in other projects by copying 4 files and setting up
 a simple Makefile rule.
 
-yuck can generate man pages based on the definition files, much like
-[help2man](http://www.gnu.org/s/help2man/).
+yuck can generate man pages based on the definition files (the --help
+output), much like [help2man](http://www.gnu.org/s/help2man/).
 
 yuck can automatically determine (and make use of) version numbers in
 git controlled projects.
