@@ -3,10 +3,12 @@ yuck
 
 [![Build Status](https://secure.travis-ci.org/hroptatyr/yuck.png?branch=master)](http://travis-ci.org/hroptatyr/yuck)
 [![Build Status](https://drone.io/github.com/hroptatyr/yuck/status.png)](https://drone.io/github.com/hroptatyr/yuck/latest)
+[![Licence](http://img.shields.io/badge/licence-BSD3c-brightgreen.svg)](http://opensource.org/licenses/BSD-3-Clause)
 
 + project homepage: http://www.fresse.org/yuck/
 + github page: https://github.com/hroptatyr/yuck
 + downloads: https://github.com/hroptatyr/yuck/releases
++ issues: https://github.com/hroptatyr/yuck/issues
 
 ### Your Umbrella Command Kit
 
@@ -19,6 +21,7 @@ comes with all the knickknackery and whatnots:
 + optional arguments to long and short options (--foo[=BAR])
 + multiple occurrence of options (-vvv)
 + does *not* depend on libc's getopt() nor getopt_long()
++ [BSD 3-clause licence][4]
 
 And getting started is as easy as *munching* cake -- let yuck do the
 actual baking for you:  Just feed it the `--help` output you'd like to
@@ -281,6 +284,7 @@ a huuuge graffiti [on my house][3].
   [1]: https://github.com/hroptatyr/yuck/issues
   [2]: mailto:devel+yuck@fresse.org
   [3]: http://www.fresse.org/yuck/my-house.jpg
+  [4]: http://opensource.org/licenses/BSD-3-Clause
 
 <!--
   Local variables:
