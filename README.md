@@ -3,6 +3,7 @@ yuck
 
 [![Build Status](https://secure.travis-ci.org/hroptatyr/yuck.png?branch=master)](http://travis-ci.org/hroptatyr/yuck)
 [![Build Status](https://drone.io/github.com/hroptatyr/yuck/status.png)](https://drone.io/github.com/hroptatyr/yuck/latest)
+[![Licence](http://img.shields.io/badge/licence-BSD3c-brightgreen.svg)](http://opensource.org/licenses/BSD-3-Clause)
 
 + project homepage: http://www.fresse.org/yuck/
 + github page: https://github.com/hroptatyr/yuck
