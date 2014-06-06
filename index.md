@@ -24,6 +24,7 @@ comes with all the knickknackery and whatnots:
 + optional arguments to long and short options (--foo[=BAR])
 + multiple occurrence of options (-vvv)
 + does *not* depend on libc's getopt() nor getopt_long()
++ [BSD 3-clause licence][4]
 
 And getting started is as easy as *munching* cake -- let yuck do the
 actual baking for you:  Just feed it the `--help` output you'd like to
@@ -286,6 +287,7 @@ a huuuge graffiti [on my house][3].
   [1]: https://github.com/hroptatyr/yuck/issues
   [2]: mailto:devel+yuck@fresse.org
   [3]: http://www.fresse.org/yuck/my-house.jpg
+  [4]: http://opensource.org/licenses/BSD-3-Clause
 
 <!--
   Local variables:
