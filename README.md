@@ -7,6 +7,7 @@ yuck
 + project homepage: http://www.fresse.org/yuck/
 + github page: https://github.com/hroptatyr/yuck
 + downloads: https://github.com/hroptatyr/yuck/releases
++ issues: https://github.com/hroptatyr/yuck/issues
 
 ### Your Umbrella Command Kit
 
