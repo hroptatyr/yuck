@@ -94,8 +94,12 @@ error(const char *fmt, ...)
 static __attribute__((unused)) size_t
 xstrlcpy(char *restrict dst, const char *src, size_t dsz)
 {
-	size_t ssz = strlen(src);
-	if (ssz > dsz) {
+	size_t ssz;
+
+	if (UNLIKELY(dsz == 0U)) {
+		return 0U;
+	}
+	if ((ssz = strlen(src)) > dsz) {
 		ssz = dsz - 1U;
 	}
 	memcpy(dst, src, ssz);
@@ -106,6 +110,9 @@ xstrlcpy(char *restrict dst, const char *src, size_t dsz)
 static __attribute__((unused)) size_t
 xstrlncpy(char *restrict dst, size_t dsz, const char *src, size_t ssz)
 {
+	if (UNLIKELY(dsz == 0U)) {
+		return 0U;
+	}
 	if (ssz > dsz) {
 		ssz = dsz - 1U;
 	}
