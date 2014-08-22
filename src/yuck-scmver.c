@@ -174,6 +174,18 @@ hextou(const char *sp, char **ep)
 fucked:
 	res <<= 4U;
 	res |= i;
+
+	/* keep reading the hexstring as long as it lasts */
+	for (;; sp++) {
+		switch (*sp) {
+		case '0' ... '9':
+		case 'a' ... 'f':
+		case 'A' ... 'F':
+			continue;
+		default:
+			goto out;
+		}
+	}
 out:
 	if (ep != NULL) {
 		*ep = (char*)1U + (sp - (char*)1U);
