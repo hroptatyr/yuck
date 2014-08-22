@@ -1,6 +1,6 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
-$ (cd "${srcdir}"; git describe --abbrev=8 || true) > "scmver_02.version"
+$ (cd "${srcdir}"; git describe --abbrev=7 || true) > "scmver_02.version"
 $ if test -s "scmver_02.version"; then \
 	yuck scmver "${srcdir}/scmver_02.tmpl"; \
   fi
