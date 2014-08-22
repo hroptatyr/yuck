@@ -1,0 +1,9 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ yuck scmver "${srcdir}/" > .test.ver
+$ yuck scmver -n --reference .test.ver
+< .test.ver
+$ rm -f -- .test.ver
+$
+
+## scmver_03.clit ends here
