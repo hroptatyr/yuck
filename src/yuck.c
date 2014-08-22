@@ -1713,18 +1713,19 @@ cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 		goto out;
 	}
 	/* now route that stuff through m4 */
-	with (const char *outfn = argi->output_arg, *hdrfn) {
+	with (const char *outfn = argi->output_arg,
+	      *cusfn = argi->custom_arg ?: "/dev/null", *hdrfn) {
 		if ((hdrfn = argi->header_arg) != NULL) {
 			/* run a special one for the header */
 			if ((rc = run_m4(hdrfn, dslfn, deffn, genhfn, NULL))) {
 				break;
 			}
 			/* now run the whole shebang for the beef code */
-			rc = run_m4(outfn, dslfn, deffn, gencfn, NULL);
+			rc = run_m4(outfn, dslfn, deffn, cusfn, gencfn, NULL);
 			break;
 		}
 		/* standard case: pipe directives, then header, then code */
-		rc = run_m4(outfn, dslfn, deffn, genhfn, gencfn, NULL);
+		rc = run_m4(outfn, dslfn, deffn, cusfn, genhfn, gencfn, NULL);
 	}
 out:
 	/* unlink include files */
