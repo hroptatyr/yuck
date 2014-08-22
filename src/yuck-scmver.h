@@ -52,6 +52,8 @@ struct yuck_version_s {
 	unsigned int dirty:1U;
 	char vtag[16U];
 	unsigned int dist;
+	/* up to 28bits of revision id (hash for git),
+	 * the lower 4bits denote the length */
 	unsigned int rvsn;
 };
 

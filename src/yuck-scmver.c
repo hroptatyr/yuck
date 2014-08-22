@@ -152,7 +152,7 @@ hextou(const char *sp, char **ep)
 	} else if (*sp == '\0') {
 		goto out;
 	}
-	for (i = 0U; i < sizeof(res) * 8U / 4U; sp++, i++) {
+	for (i = 0U; i < sizeof(res) * 8U / 4U - 1U; sp++, i++) {
 		register unsigned int this;
 		switch (*sp) {
 		case '0' ... '9':
@@ -172,7 +172,8 @@ hextou(const char *sp, char **ep)
 		res |= this;
 	}
 fucked:
-	for (; i < sizeof(res) * 8U / 4U; i++, res <<= 4U);
+	res <<= 4U;
+	res |= i;
 out:
 	if (ep != NULL) {
 		*ep = (char*)1U + (sp - (char*)1U);
@@ -427,7 +428,8 @@ wr_version(char *restrict buf, size_t bsz, const struct yuck_version_s *v)
 	}
 	*bp++ = '-';
 	*bp++ = yscm_abbr[v->scm];
-	bp += snprintf(bp, ep - bp, "%08x", v->rvsn);
+	bp += snprintf(bp, ep - bp, "%0*x",
+		       (int)(v->rvsn & 0b111U), v->rvsn >> 4U);
 	if (!v->dirty) {
 		goto out;
 	} else if (bp + 1U + 5U >= ep) {
@@ -588,7 +590,13 @@ bzr_version(struct yuck_version_s v[static 1U])
 			/* no version then aye */
 			break;
 		}
-		v->rvsn = strtoul(buf, NULL, 10);
+		with (char *on) {
+			v->rvsn = strtoul(buf, &on, 10);
+			if (LIKELY(on != NULL)) {
+				v->rvsn <<= 4U;
+				v->rvsn |= on - buf;
+			}
+		}
 	}
 	close(*fd);
 	if (fin(chld) != 0) {
@@ -818,7 +826,9 @@ main(int argc, char *argv[])
 		if (v->scm > YUCK_SCM_TARBALL && v->dist) {
 			fputc('.', stdout);
 			fputs(yscm_strs[v->scm], stdout);
-			fprintf(stdout, "%u.%08x", v->dist, v->rvsn);
+			fprintf(stdout, "%u.%0*x",
+				v->dist,
+				(int)(v->rvsn & 0b111U), v->rvsn >> 4U);
 		}
 		if (v->dirty) {
 			fputs(".dirty", stdout);
