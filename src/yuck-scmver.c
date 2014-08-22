@@ -91,6 +91,16 @@ error(const char *fmt, ...)
 	return;
 }
 
+static inline __attribute__((const, pure, always_inline)) char*
+deconst(const char *s)
+{
+	union {
+		const char *c;
+		char *p;
+	} x = {s};
+	return x.p;
+}
+
 static __attribute__((unused)) size_t
 xstrlcpy(char *restrict dst, const char *src, size_t dsz)
 {
@@ -138,6 +148,63 @@ xdirname(char *restrict fn, const char *fp)
 		return dp;
 	}
 	/* return \nul */
+	return NULL;
+}
+
+static char*
+xmemmem(const char *hay, const size_t hayz, const char *ndl, const size_t ndlz)
+{
+	const char *const eoh = hay + hayz;
+	const char *const eon = ndl + ndlz;
+	const char *hp;
+	const char *np;
+	const char *cand;
+	unsigned int hsum;
+	unsigned int nsum;
+	unsigned int eqp;
+
+	/* trivial checks first
+         * a 0-sized needle is defined to be found anywhere in haystack
+         * then run strchr() to find a candidate in HAYSTACK (i.e. a portion
+         * that happens to begin with *NEEDLE) */
+	if (ndlz == 0UL) {
+		return deconst(hay);
+	} else if ((hay = memchr(hay, *ndl, hayz)) == NULL) {
+		/* trivial */
+		return NULL;
+	}
+
+	/* First characters of haystack and needle are the same now. Both are
+	 * guaranteed to be at least one character long.  Now computes the sum
+	 * of characters values of needle together with the sum of the first
+	 * needle_len characters of haystack. */
+	for (hp = hay + 1U, np = ndl + 1U, hsum = *hay, nsum = *hay, eqp = 1U;
+	     hp < eoh && np < eon;
+	     hsum ^= *hp, nsum ^= *np, eqp &= *hp == *np, hp++, np++);
+
+	/* HP now references the (NZ + 1)-th character. */
+	if (np < eon) {
+		/* haystack is smaller than needle, :O */
+		return NULL;
+	} else if (eqp) {
+		/* found a match */
+		return deconst(hay);
+	}
+
+	/* now loop through the rest of haystack,
+	 * updating the sum iteratively */
+	for (cand = hay; hp < eoh; hp++) {
+		hsum ^= *cand++;
+		hsum ^= *hp;
+
+		/* Since the sum of the characters is already known to be
+		 * equal at that point, it is enough to check just NZ - 1
+		 * characters for equality,
+		 * also CAND is by design < HP, so no need for range checks */
+		if (hsum == nsum && memcmp(cand, ndl, ndlz - 1U) == 0) {
+			return deconst(cand);
+		}
+	}
 	return NULL;
 }
 
@@ -346,8 +413,10 @@ rd_version(struct yuck_version_s *restrict v, const char *buf, size_t bsz)
 {
 /* reads a normalised version string vX.Y.Z-DIST-SCM RVSN[-dirty] */
 	static const char dflag[] = "dirty";
-	const char *vtag;
-	const char *dist;
+	const char *vtag = NULL;
+	const char *eov;
+	const char *dist = NULL;
+	const char *eod;
 	const char *bp = buf;
 	const char *const ep = buf + bsz;
 
@@ -372,27 +441,57 @@ rd_version(struct yuck_version_s *restrict v, const char *buf, size_t bsz)
 		return -1;
 	}
 
-	if ((bp = memchr(vtag = bp, '-', ep - bp)) == NULL) {
+	if ((eov = memchr(vtag = bp, '-', ep - bp)) == NULL) {
 		/* last field */
-		bp = ep;
+		eov = ep;
+	} else {
+		dist = eov + 1U;
 	}
+	/* just for the fun of it, look for .git, .hg and .bzr as well */
+	with (const char *altp) {
+		if ((altp = xmemmem(vtag, ep - vtag, ".git", 4U))) {
+			v->scm = YUCK_SCM_GIT;
+			eov = altp;
+			dist = altp + 4U;
+		} else if ((altp = xmemmem(vtag, ep - vtag, ".bzr", 4U))) {
+			/* oooh looks like the alternative version
+			 * vX.Y.Z.gitDD.HASH */
+			v->scm = YUCK_SCM_BZR;
+			eov = altp;
+			dist = altp + 4U;
+		} else if ((altp = xmemmem(vtag, ep - vtag, ".hg", 3U))) {
+			/* oooh looks like the alternative version
+			 * vX.Y.Z.hgDD.HASH */
+			v->scm = YUCK_SCM_HG;
+			eov = altp;
+			dist = altp + 3U;
+		}
+	}
+
 	/* bang vtag */
-	xstrlncpy(v->vtag, sizeof(v->vtag), vtag, bp - vtag);
+	xstrlncpy(v->vtag, sizeof(v->vtag), vtag, eov - vtag);
 
 	/* snarf distance */
-	if (bp++ == ep) {
+	if (dist == NULL) {
 		return 0;
-	} else if ((bp = memchr(dist = bp, '-', ep - bp)) == NULL) {
-		/* last field */
-		bp = ep;
 	}
 	/* read distance */
-	v->dist = strtoul(dist, NULL, 10);
-
-	if (bp == ep) {
-		return 0;
+	with (char *on) {
+		v->dist = strtoul(dist, &on, 10);
+		eod = on;
 	}
-	switch (*++bp) {
+
+	switch (*eod) {
+	default:
+	case '\0':
+		return 0;
+	case '.':
+	case '-':
+		/* the show is going on, like it must */
+		bp = eod + 1U;
+		break;
+	}
+	switch (*bp++) {
 	case 'g':
 		/* git repo */
 		v->scm = YUCK_SCM_GIT;
@@ -406,23 +505,29 @@ rd_version(struct yuck_version_s *restrict v, const char *buf, size_t bsz)
 		v->scm = YUCK_SCM_BZR;
 		break;
 	default:
-		/* don't know */
+		/* could have been set already then */
+		if (v->scm > YUCK_SCM_TARBALL) {
+			/* rewind bp and continue */
+			bp--;
+			break;
+		}
+		/* otherwise we simply don't know */
 		return 0;
 	}
 	/* read scm revision */
 	with (char *on) {
-		v->rvsn = hextou(++bp, &on);
+		v->rvsn = hextou(bp, &on);
 		bp = on;
 	}
 
 	if (bp >= ep) {
 		;
-	} else if (*bp++ != '-') {
+	} else if (*bp != '-' && *bp != '.') {
 		;
-	} else if (bp + sizeof(dflag) - 1U > ep) {
+	} else if (bp + sizeof(dflag) > ep) {
 		/* too short to fit `dirty' */
 		;
-	} else if (!memcmp(bp, dflag, sizeof(dflag) - 1U)) {
+	} else if (!memcmp(++bp, dflag, sizeof(dflag) - 1U)) {
 		v->dirty = 1U;
 	}
 	return 0;
