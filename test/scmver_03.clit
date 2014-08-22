@@ -1,7 +1,13 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
-$ yuck scmver "${srcdir}/" > .test.ver
-$ yuck scmver -n --reference .test.ver
+$ if test -d "${srcdir}/.git"; then \
+	yuck scmver "${srcdir}/" > ".test.ver"; \
+  else \
+	touch ".test.ver"; \
+  fi
+$ if test -s ".test.ver"; then \
+	yuck scmver -n --reference ".test.ver"; \
+  fi
 < .test.ver
 $ rm -f -- .test.ver
 $
