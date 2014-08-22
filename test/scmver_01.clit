@@ -1,6 +1,6 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
-$ (cd "${srcdir}"; git describe --dirty --abbrev=7) | \
+$ { cd "${srcdir}"; git describe --dirty --abbrev=7; } | \
   sed -e 's/^v//' -e 's/-g/-/' -e 's/-/-git/' -e 'y/-/./' > "scmver_01.version"
 $ if test -s "scmver_01.version"; then \
 	yuck scmver "${srcdir}/"; \
