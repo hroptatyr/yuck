@@ -1583,7 +1583,8 @@ wr_version(const struct yuck_version_s *v, const char *vlit)
 		fprintf(outf, "define([YUCK_SCMVER_VTAG], [%s])\n", v->vtag);
 		fprintf(outf, "define([YUCK_SCMVER_SCM], [%s])\n", yscm);
 		fprintf(outf, "define([YUCK_SCMVER_DIST], [%u])\n", v->dist);
-		fprintf(outf, "define([YUCK_SCMVER_RVSN], [%08x])\n", v->rvsn);
+		fprintf(outf, "define([YUCK_SCMVER_RVSN], [%0*x])\n",
+			(int)(v->rvsn & 0b111U), v->rvsn >> 4U);
 		if (!v->dirty) {
 			fputs("define([YUCK_SCMVER_FLAG_CLEAN])\n", outf);
 		} else {
@@ -1596,7 +1597,9 @@ wr_version(const struct yuck_version_s *v, const char *vlit)
 		if (v->scm > YUCK_SCM_TARBALL && v->dist) {
 			fputc('.', outf);
 			fputs(yscm_strs[v->scm], outf);
-			fprintf(outf, "%u.%08x", v->dist, v->rvsn);
+			fprintf(outf, "%u.%0*x",
+				v->dist,
+				(int)(v->rvsn & 0b111U), v->rvsn >> 4U);
 		}
 		if (v->dirty) {
 			fputs(".dirty", outf);
@@ -1915,7 +1918,18 @@ flag -n|--use-reference requires -r|--reference parameter");
 			rm_intermediary(scmvfn, argi->keep_flag);
 		}
 	} else {
-		yuck_version_write_fd(STDOUT_FILENO, v);
+		fputs(v->vtag, stdout);
+		if (v->scm > YUCK_SCM_TARBALL && v->dist) {
+			fputc('.', stdout);
+			fputs(yscm_strs[v->scm], stdout);
+			fprintf(stdout, "%u.%0*x",
+				v->dist,
+				(int)(v->rvsn & 0b111U), v->rvsn >> 4U);
+		}
+		if (v->dirty) {
+			fputs(".dirty", stdout);
+		}
+		fputc('\n', stdout);
 	}
 	return rc;
 #else  /* !WITH_SCMVER */
