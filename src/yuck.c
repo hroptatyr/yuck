@@ -1915,16 +1915,7 @@ flag -n|--use-reference requires -r|--reference parameter");
 			rm_intermediary(scmvfn, argi->keep_flag);
 		}
 	} else {
-		fputs(v->vtag, stdout);
-		if (v->scm > YUCK_SCM_TARBALL && v->dist) {
-			fputc('.', stdout);
-			fputs(yscm_strs[v->scm], stdout);
-			fprintf(stdout, "%u.%08x", v->dist, v->rvsn);
-		}
-		if (v->dirty) {
-			fputs(".dirty", stdout);
-		}
-		fputc('\n', stdout);
+		yuck_version_write_fd(STDOUT_FILENO, v);
 	}
 	return rc;
 #else  /* !WITH_SCMVER */
