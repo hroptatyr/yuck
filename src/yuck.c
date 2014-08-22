@@ -1918,7 +1918,18 @@ flag -n|--use-reference requires -r|--reference parameter");
 			rm_intermediary(scmvfn, argi->keep_flag);
 		}
 	} else {
-		yuck_version_write_fd(STDOUT_FILENO, v);
+		fputs(v->vtag, stdout);
+		if (v->scm > YUCK_SCM_TARBALL && v->dist) {
+			fputc('.', stdout);
+			fputs(yscm_strs[v->scm], stdout);
+			fprintf(stdout, "%u.%0*x",
+				v->dist,
+				(int)(v->rvsn & 0b111U), v->rvsn >> 4U);
+		}
+		if (v->dirty) {
+			fputs(".dirty", stdout);
+		}
+		fputc('\n', stdout);
 	}
 	return rc;
 #else  /* !WITH_SCMVER */
