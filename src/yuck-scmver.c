@@ -755,6 +755,20 @@ yuck_version_read(struct yuck_version_s *restrict ref, const char *fn)
 	return rc;
 }
 
+ssize_t
+yuck_version_write_fd(int fd, const struct yuck_version_s *ref)
+{
+	char buf[256U];
+	ssize_t nwr;
+
+	if ((nwr = wr_version(buf, sizeof(buf), ref)) <= 0) {
+		return -1;
+	}
+	/* otherwise write */
+	buf[nwr++] = '\n';
+	return write(fd, buf, nwr);
+}
+
 int
 yuck_version_write(const char *fn, const struct yuck_version_s *ref)
 {
@@ -764,19 +778,8 @@ yuck_version_write(const char *fn, const struct yuck_version_s *ref)
 	if ((fd = open(fn, O_RDWR | O_CREAT | O_TRUNC, 0666)) < 0) {
 		return -1;
 	}
-	with (char buf[256U]) {
-		ssize_t nwr;
-
-		if ((nwr = wr_version(buf, sizeof(buf), ref)) <= 0) {
-			rc = -1;
-			break;
-		}
-		/* otherwise write */
-		buf[nwr++] = '\n';
-		if (write(fd, buf, nwr) != nwr) {
-			rc = -1;
-			break;
-		}
+	if (yuck_version_write_fd(fd, ref) < 0) {
+		rc = -1;
 	}
 	close(fd);
 	return rc;

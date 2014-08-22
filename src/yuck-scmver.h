@@ -72,6 +72,10 @@ extern int yuck_version_read(struct yuck_version_s *restrict, const char *fn);
 extern int yuck_version_write(const char *fn, const struct yuck_version_s *v);
 
 /**
+ * Write scm version into buffer. */
+extern ssize_t yuck_version_write_fd(int fd, const struct yuck_version_s *v);
+
+/**
  * Compare two version objects, return <0 if V1 < V2, >0 if V1 > V2 and
  * 0 if V1 and V2 are considered equal. */
 extern int yuck_version_cmp(yuck_version_t v1, yuck_version_t v2);
