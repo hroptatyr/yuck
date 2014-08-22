@@ -340,10 +340,27 @@ rd_version(struct yuck_version_s *restrict v, const char *buf, size_t bsz)
 	const char *const ep = buf + bsz;
 
 	/* parse buf */
-	if (*bp++ != 'v') {
+	switch (*bp) {
+	case 'v':
+	case 'V':
+		bp++;
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':
+		break;
+	default:
 		/* weird, we req'd v-tags */
 		return -1;
-	} else if ((bp = memchr(vtag = bp, '-', ep - bp)) == NULL) {
+	}
+
+	if ((bp = memchr(vtag = bp, '-', ep - bp)) == NULL) {
 		/* last field */
 		bp = ep;
 	}
