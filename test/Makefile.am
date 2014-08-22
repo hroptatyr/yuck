@@ -127,6 +127,7 @@ TESTS += xmpl-subcommands-04.clit
 
 TESTS += scmver_01.clit
 TESTS += scmver_02.clit
+TESTS += scmver_03.clit
 EXTRA_DIST += scmver_02.tmpl
 
 EXTRA_DIST += generic.c
