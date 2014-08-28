@@ -43,7 +43,7 @@ pkgdata_DATA += yuck.am
 EXTRA_DIST += $(pkgdata_DATA)
 
 ## version rules
-version.c: version.c.in $(top_builddir)/.version yuck-scmver
+version.c: version.c.in $(top_builddir)/.version
 	$(AM_V_GEN) $(builddir)/yuck-scmver \
 		$(srcdir)/version.c.in | \
 		$(M4) - $(srcdir)/version.c.in > $@
