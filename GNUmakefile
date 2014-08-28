@@ -12,12 +12,13 @@ include Makefile
 # update the included makefile snippet which sets VERSION variables
 version.mk: .version version.mk.in FORCE
 	-$(AM_V_GEN) \
-	if test -w $<; then \
-		if test -n "$(_dist-target_p)"; then \
-			$(MAKE) -C "$(top_builddir)/src"; \
+	if test -w $< -a "$(MAKECMDGOALS)" != "am--refresh"; then \
+		$(MAKE) -C "$(top_builddir)/src"; \
+		PATH="$(top_builddir)/src:$${PATH}" \
+			yuck scmver --ignore-noscm -o $@ --reference $^; \
+		if test $$? -eq 3 -a -n "$(_dist-target_p)"; then \
+			exec $(MAKE) $(MAKECMDGOALS); \
 		fi; \
-		$(top_builddir)/src/yuck$(EXEEXT) scmver \
-			--ignore-noscm -o $@ --reference $^; \
 	fi
 
 else
