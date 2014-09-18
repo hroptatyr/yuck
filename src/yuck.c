@@ -542,7 +542,7 @@ optionp(const char *line, size_t llen)
 			sp += 7U;
 		}
 	}
-	if ((sp - line >= 8 || sp - line >= 1 && *sp != '-') &&
+	if ((sp - line >= 8 || (sp - line >= 1 && *sp != '-')) &&
 	    (cur_opt.sopt || cur_opt.lopt)) {
 		/* should be description */
 		goto desc;
