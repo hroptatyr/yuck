@@ -47,7 +47,7 @@ version.c: version.c.in $(top_builddir)/.version
 	if test -w $< -a "$(MAKECMDGOALS)" != "am--refresh"; then \
 		$(MAKE) -C $(builddir) yuck-scmver$(EXEEXT); \
 		$(builddir)/yuck-scmver$(EXEEXT) \
-			$(srcdir)/version.c.in | \
+			$(srcdir)/version.c.in $(top_builddir)/.version | \
 			$(M4) - $(srcdir)/version.c.in > $@; \
 	fi
 
