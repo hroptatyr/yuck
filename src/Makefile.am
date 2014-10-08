@@ -26,11 +26,10 @@ yuck_scmver_CPPFLAGS += -DBOOTSTRAP
 ## fiddle with yuck_CPPFLAGS
 yuck_CPPFLAGS += -DHAVE_VERSION_H
 ## include version info
-yuck_SOURCES += version.c version.h
+yuck_SOURCES += version.c version.h version.c.in
 ## and make it an installed thing
 bin_PROGRAMS += yuck
 
-EXTRA_DIST += version.c.in
 DISTCLEANFILES += version.c
 
 pkgdata_DATA += yuck.m4
@@ -44,9 +43,13 @@ EXTRA_DIST += $(pkgdata_DATA)
 
 ## version rules
 version.c: version.c.in $(top_builddir)/.version
-	$(AM_V_GEN) $(builddir)/yuck-scmver \
-		$(srcdir)/version.c.in | \
-		$(M4) - $(srcdir)/version.c.in > $@
+	$(AM_V_GEN) \
+	if test -w $< -a "$(MAKECMDGOALS)" != "am--refresh"; then \
+		$(MAKE) -C $(builddir) yuck-scmver$(EXEEXT); \
+		$(builddir)/yuck-scmver$(EXEEXT) \
+			$(srcdir)/version.c.in | \
+			$(M4) - $(srcdir)/version.c.in > $@; \
+	fi
 
 ## for dist or dist check we need binaries, so help2man can work
 dist-hook: $(bin_PROGRAMS)
