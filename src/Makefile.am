@@ -26,11 +26,10 @@ yuck_scmver_CPPFLAGS += -DBOOTSTRAP
 ## fiddle with yuck_CPPFLAGS
 yuck_CPPFLAGS += -DHAVE_VERSION_H
 ## include version info
-yuck_SOURCES += version.c version.h
+yuck_SOURCES += version.c version.h version.c.in
 ## and make it an installed thing
 bin_PROGRAMS += yuck
 
-EXTRA_DIST += version.c.in
 DISTCLEANFILES += version.c
 
 pkgdata_DATA += yuck.m4
