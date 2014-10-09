@@ -70,3 +70,10 @@ full version number.
   -n, --use-reference   Use version number provided in the reference
                         file instead of determining it.
       --ignore-noscm    Don't treat no scm as error.
+
+
+Usage: yuck config
+
+Output config values for yuck.
+
+  --m4                  Print m4 value used during yuck build.
