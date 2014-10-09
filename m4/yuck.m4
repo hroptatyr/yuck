@@ -76,20 +76,21 @@ AS_HELP_STRING([--with-included-yuck], [
 Use included copy of the yuck command line parser generator
 instead of the system-wide one.])], [with_included_yuck="${withval}"], [$1])
 
+	AC_REQUIRE([AX_CHECK_M4_BUFFERS])
 	if test "${with_included_yuck}" != "yes"; then
 		AC_PATH_PROG([YUCK], [yuck])
 		AC_ARG_VAR([YUCK], [full path to the yuck tool])
 		AC_MSG_CHECKING([for yuck])
 		AC_MSG_RESULT([${YUCK}])
-	fi
-	AM_CONDITIONAL([HAVE_YUCK], [test -n "${YUCK}"])
 
-	AC_REQUIRE([AX_CHECK_M4_BUFFERS])
-	if test -n "${YUCK}"; then
-		## see what m4 they used back then
-		M4=`${YUCK} config --m4 2>/dev/null`
-		M4="${M4:-m4}"
+		if test -n "${YUCK}"; then
+			## see what m4 they used back then
+			YUCK_M4=`${YUCK} config --m4 2>/dev/null`
+			M4="${YUCK_M4:-${M4}}"
+		fi
 	fi
+	AM_CONDITIONAL([HAVE_YUCK], [dnl
+		test "${with_included_yuck}" != "yes" -a -n "${YUCK}"])
 
 	## further requirement is either getline() or fgetln()
 	AC_CHECK_FUNCS([getline])
