@@ -87,10 +87,8 @@ instead of the system-wide one.])], [with_included_yuck="${withval}"], [$1])
 	AC_REQUIRE([AX_CHECK_M4_BUFFERS])
 	if test -n "${YUCK}"; then
 		## see what m4 they used back then
-		PKG_CHECK_EXISTS([yuck >= 0.1], [dnl
-			_PKG_CONFIG([yuck_m4], [variable=yuck_m4], [yuck])
-		])
-		M4="${pkg_cv_yuck_m4:-m4}"
+		M4=`${YUCK} config --m4 2>/dev/null`
+		M4="${M4:-m4}"
 	fi
 
 	## further requirement is either getline() or fgetln()
