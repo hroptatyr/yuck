@@ -1942,10 +1942,19 @@ flag -n|--use-reference requires -r|--reference parameter");
 static int
 cmd_config(const struct yuck_cmd_config_s argi[static 1U])
 {
-	if (argi->m4_flag) {
-		puts(YUCK_M4);
+	const char *const fn = argi->output_arg;
+	FILE *of = stdout;
+
+	if (fn != NULL && (of = fopen(fn, "w")) == NULL) {
+		error("cannot open file `%s'", fn);
+		return -1;
 	}
-	return 0;
+
+	if (argi->m4_flag) {
+		fputs(YUCK_M4, of);
+		fputc('\n', of);
+	}
+	return fclose(of);
 }
 
 int
