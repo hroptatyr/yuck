@@ -36,7 +36,7 @@ dnl This file is part of yuck.
 AC_DEFUN([AX_CHECK_M4_BUFFERS], [dnl
 	AC_MSG_CHECKING([for m4 with sufficient capabilities])
 
-	AC_SUBST([M4])
+	AC_ARG_VAR([M4], [full path to the m4 tool])
 	probe_M4="${M4:-m4}"
 	if ${probe_M4} >/dev/null 2>&1 \
 		-Dx='y y y y y y y y y y y y y y y y' \
@@ -66,6 +66,8 @@ EOF
 			M4="${M4:-m4}"
 		fi
 	fi
+
+	AC_DEFINE_UNQUOTED([YUCK_M4], ["${M4}"], [m4 value used for yuck build])
 ])dnl AX_CHECK_M4_BUFFERS
 
 AC_DEFUN([AX_CHECK_YUCK], [dnl

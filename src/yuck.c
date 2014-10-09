@@ -1227,7 +1227,7 @@ unmassage_fd(int tgtfd, int srcfd)
 
 
 static char *m4_cmdline[16U] = {
-	"m4",
+	YUCK_M4,
 };
 static size_t cmdln_idx;
 
