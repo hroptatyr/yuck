@@ -1,8 +1,0 @@
-prefix=@prefix@
-exec_prefix=@exec_prefix@
-yuckdir = @datarootdir@/@PACKAGE@
-yuck_m4 = @M4@
-
-Name: @PACKAGE_NAME@
-Description: Your Umbrella Command Kit
-Version: YUCK_SCMVER_VERSION
