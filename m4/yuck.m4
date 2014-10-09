@@ -80,8 +80,6 @@ instead of the system-wide one.])], [with_included_yuck="${withval}"], [$1])
 	if test "${with_included_yuck}" != "yes"; then
 		AC_PATH_PROG([YUCK], [yuck])
 		AC_ARG_VAR([YUCK], [full path to the yuck tool])
-		AC_MSG_CHECKING([for yuck])
-		AC_MSG_RESULT([${YUCK}])
 
 		if test -n "${YUCK}"; then
 			## see what m4 they used back then
