@@ -5,7 +5,7 @@
 _gl-Makefile := $(wildcard [M]akefile)
 ifneq ($(_gl-Makefile),)
 
-_dist-target_p ?= $(filter-out %clean, $(filter dist%,$(MAKECMDGOALS)))
+_dist-target_p ?= $(filter dist%,$(MAKECMDGOALS))
 
 include Makefile
 
@@ -13,7 +13,7 @@ include Makefile
 version.mk: .version version.mk.in FORCE
 	-$(AM_V_GEN) \
 	if test -w $< -a "$(MAKECMDGOALS)" != "am--refresh"; then \
-		$(MAKE) -C "$(top_builddir)/src"; \
+		$(MAKE) -C "$(top_builddir)/src" $(MAKECMDGOALS); \
 		PATH="$(top_builddir)/src:$${PATH}" \
 			yuck scmver --ignore-noscm -o $@ --reference $^; \
 		if test $$? -eq 3 -a -n "$(_dist-target_p)"; then \
