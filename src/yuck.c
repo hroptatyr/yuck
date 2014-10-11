@@ -373,10 +373,10 @@ bbuf_cat(bbuf_t b[static 1U], const char *str, size_t ssz)
 
 	if (UNLIKELY(nu > ol)) {
 		b->s = realloc(b->s, (1U << nu) * sizeof(*b->s));
-	}
-	if (UNLIKELY(b->s == NULL)) {
-		b->z = 0U;
-		return NULL;
+		if (UNLIKELY(b->s == NULL)) {
+			b->z = 0U;
+			return NULL;
+		}
 	}
 	xstrncpy(b->s + b->z, str, ssz);
 	b->z += ssz;
