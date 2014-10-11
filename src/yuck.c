@@ -366,20 +366,6 @@ typedef struct {
 }  bbuf_t;
 
 static char*
-bbuf_cpy(bbuf_t b[static 1U], const char *str, size_t ssz)
-{
-	size_t nu = max_zu(yfls(ssz + 1U) + 1U, 6U);
-	size_t ol = b->z ? max_zu(yfls(b->z) + 1U, 6U) : 0U;
-
-	if (UNLIKELY(nu > ol)) {
-		b->s = realloc(b->s, (1U << nu) * sizeof(*b->s));
-	}
-	xstrncpy(b->s, str, ssz);
-	b->z += ssz;
-	return b->s;
-}
-
-static char*
 bbuf_cat(bbuf_t b[static 1U], const char *str, size_t ssz)
 {
 	size_t nu = max_zu(yfls(b->z + ssz + 1U) + 1U, 6U);
@@ -388,9 +374,21 @@ bbuf_cat(bbuf_t b[static 1U], const char *str, size_t ssz)
 	if (UNLIKELY(nu > ol)) {
 		b->s = realloc(b->s, (1U << nu) * sizeof(*b->s));
 	}
+	if (UNLIKELY(b->s == NULL)) {
+		b->z = 0U;
+		return NULL;
+	}
 	xstrncpy(b->s + b->z, str, ssz);
 	b->z += ssz;
 	return b->s;
+}
+
+static char*
+bbuf_cpy(bbuf_t b[static 1U], const char *str, size_t ssz)
+{
+/* reduce to bbuf_cat() with zero offset */
+	b->z = 0U;
+	return bbuf_cat(b, str, ssz);
 }
 
 
