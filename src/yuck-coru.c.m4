@@ -73,8 +73,9 @@ DEFUN int yuck_parse(yuck_t tgt[[static 1U]], int argc, char *argv[[]])
 
 	/* we'll have at most this many args */
 	memset(tgt, 0, sizeof(*tgt));
-	tgt->args = args = calloc(argc, sizeof(*tgt->args));
-	tgt->nargs = 0U;
+	if ((tgt->args = args = calloc(argc, sizeof(*tgt->args))) == NULL) {
+		return -1;
+	}
 ifdef([YUCK_MAX_POSARGS], [], [define([YUCK_MAX_POSARGS], [(size_t)-1])])dnl
 	for (i = 1; i < argc && tgt->nargs < YUCK_MAX_POSARGS; i++) {
 		op = argv[[i]];
