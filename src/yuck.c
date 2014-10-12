@@ -170,6 +170,9 @@ max_zu(size_t x, size_t y)
 static size_t
 xstrncpy(char *restrict dst, const char *src, size_t ssz)
 {
+	if (UNLIKELY(dst == NULL)) {
+		return 0U;
+	}
 	memcpy(dst, src, ssz);
 	dst[ssz] = '\0';
 	return ssz;
