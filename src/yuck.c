@@ -800,14 +800,18 @@ make_opt_ident(const struct opt_s *arg)
 	if (arg->lopt != NULL) {
 		bbuf_cpy(i, arg->lopt, strlen(arg->lopt));
 	} else if (arg->sopt) {
-		bbuf_cpy(i, "dash.", 5U);
-		i->s[4U] = arg->sopt;
+		if (bbuf_cpy(i, "dash.", 5U) != NULL) {
+			i->s[4U] = arg->sopt;
+		}
 	} else {
 		static unsigned int cnt;
-		bbuf_cpy(i, "idnXXXX", 7U);
-		snprintf(i->s + 3U, 5U, "%u", cnt++);
+		if (bbuf_cpy(i, "idnXXXX", 7U) != NULL) {
+			snprintf(i->s + 3U, 5U, "%u", cnt++);
+		}
 	}
-	__identify(i->s);
+	if (LIKELY(i->s != NULL)) {
+		__identify(i->s);
+	}
 	return i->s;
 }
 
@@ -816,8 +820,9 @@ make_ident(const char *str)
 {
 	static bbuf_t buf[1U];
 
-	bbuf_cpy(buf, str, strlen(str));
-	__identify(buf->s);
+	if (LIKELY(bbuf_cpy(buf, str, strlen(str)) != NULL)) {
+		__identify(buf->s);
+	}
 	return buf->s;
 }
 
