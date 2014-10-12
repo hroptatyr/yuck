@@ -71,12 +71,11 @@ Try `--help' for a list of commands.\n", cmd);
 DEFUN int yuck_parse(yuck_t tgt[[static 1U]], int argc, char *argv[[]])
 {
 	char *op;
-	char **args;
 	int i;
 
 	/* we'll have at most this many args */
 	memset(tgt, 0, sizeof(*tgt));
-	if ((tgt->args = args = calloc(argc, sizeof(*tgt->args))) == NULL) {
+	if ((tgt->args = calloc(argc, sizeof(*tgt->args))) == NULL) {
 		return -1;
 	}
 ifdef([YUCK_MAX_POSARGS], [], [define([YUCK_MAX_POSARGS], [(size_t)-1])])dnl
@@ -126,7 +125,7 @@ ifdef([YUCK_MAX_POSARGS], [], [define([YUCK_MAX_POSARGS], [(size_t)-1])])dnl
 		 * don't check for subcommands either, this is in accordance to
 		 * the git tool which won't accept commands after -- */
 		for (; i < argc; i++) {
-			args[[tgt->nargs++]] = argv[[i]];
+			tgt->args[[tgt->nargs++]] = argv[[i]];
 		}
 	}
 	return 0;
@@ -304,7 +303,7 @@ popdef([yuck_auto_action])dnl
 	coroutine(arg)
 	{
 		if (tgt->cmd || !YUCK_NCMDS) {
-			args[[tgt->nargs++]] = argv[[i]];
+			tgt->args[[tgt->nargs++]] = argv[[i]];
 		} else {
 			/* ah, might be an arg then */
 			if ((tgt->cmd = yuck_parse_cmd(op)) > YUCK_NCMDS) {
