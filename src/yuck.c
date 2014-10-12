@@ -170,6 +170,9 @@ max_zu(size_t x, size_t y)
 static size_t
 xstrncpy(char *restrict dst, const char *src, size_t ssz)
 {
+	if (UNLIKELY(dst == NULL)) {
+		return 0U;
+	}
 	memcpy(dst, src, ssz);
 	dst[ssz] = '\0';
 	return ssz;
@@ -366,20 +369,6 @@ typedef struct {
 }  bbuf_t;
 
 static char*
-bbuf_cpy(bbuf_t b[static 1U], const char *str, size_t ssz)
-{
-	size_t nu = max_zu(yfls(ssz + 1U) + 1U, 6U);
-	size_t ol = b->z ? max_zu(yfls(b->z) + 1U, 6U) : 0U;
-
-	if (UNLIKELY(nu > ol)) {
-		b->s = realloc(b->s, (1U << nu) * sizeof(*b->s));
-	}
-	xstrncpy(b->s, str, ssz);
-	b->z += ssz;
-	return b->s;
-}
-
-static char*
 bbuf_cat(bbuf_t b[static 1U], const char *str, size_t ssz)
 {
 	size_t nu = max_zu(yfls(b->z + ssz + 1U) + 1U, 6U);
@@ -387,10 +376,22 @@ bbuf_cat(bbuf_t b[static 1U], const char *str, size_t ssz)
 
 	if (UNLIKELY(nu > ol)) {
 		b->s = realloc(b->s, (1U << nu) * sizeof(*b->s));
+		if (UNLIKELY(b->s == NULL)) {
+			b->z = 0U;
+			return NULL;
+		}
 	}
 	xstrncpy(b->s + b->z, str, ssz);
 	b->z += ssz;
 	return b->s;
+}
+
+static char*
+bbuf_cpy(bbuf_t b[static 1U], const char *str, size_t ssz)
+{
+/* reduce to bbuf_cat() with zero offset */
+	b->z = 0U;
+	return bbuf_cat(b, str, ssz);
 }
 
 
@@ -739,6 +740,9 @@ static struct {
 static void
 __identify(char *restrict idn)
 {
+	if (UNLIKELY(idn == NULL)) {
+		return;
+	}
 	for (char *restrict ip = idn; *ip; ip++) {
 		switch (*ip) {
 		case '0' ... '9':
@@ -802,14 +806,18 @@ make_opt_ident(const struct opt_s *arg)
 	if (arg->lopt != NULL) {
 		bbuf_cpy(i, arg->lopt, strlen(arg->lopt));
 	} else if (arg->sopt) {
-		bbuf_cpy(i, "dash.", 5U);
-		i->s[4U] = arg->sopt;
+		if (bbuf_cpy(i, "dash.", 5U) != NULL) {
+			i->s[4U] = arg->sopt;
+		}
 	} else {
 		static unsigned int cnt;
-		bbuf_cpy(i, "idnXXXX", 7U);
-		snprintf(i->s + 3U, 5U, "%u", cnt++);
+		if (bbuf_cpy(i, "idnXXXX", 7U) != NULL) {
+			snprintf(i->s + 3U, 5U, "%u", cnt++);
+		}
 	}
-	__identify(i->s);
+	if (LIKELY(i->s != NULL)) {
+		__identify(i->s);
+	}
 	return i->s;
 }
 
@@ -818,8 +826,9 @@ make_ident(const char *str)
 {
 	static bbuf_t buf[1U];
 
-	bbuf_cpy(buf, str, strlen(str));
-	__identify(buf->s);
+	if (LIKELY(bbuf_cpy(buf, str, strlen(str)) != NULL)) {
+		__identify(buf->s);
+	}
 	return buf->s;
 }
 

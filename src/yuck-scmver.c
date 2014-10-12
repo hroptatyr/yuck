@@ -137,9 +137,11 @@ xdirname(char *restrict fn, const char *fp)
 /* find next dir in FN from FP backwards */
 	if (fp == NULL) {
 		fp = fn + strlen(fn);
+	} else if (fp <= fn) {
+		return NULL;
 	}
 
-	while (--fp >= fn && *fp != '/');
+	for (--fp; fp >= fn && *fp != '/'; fp--);
 	while (fp >= fn && *--fp == '/');
 	if (fp >= fn) {
 		/* replace / by \nul and return pointer */
