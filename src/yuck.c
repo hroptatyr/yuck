@@ -735,7 +735,7 @@ static struct {
 } global_tweaks;
 
 static void
-__identify(char *restrict idn)
+__identify(char idn[static 1U])
 {
 	for (char *restrict ip = idn; *ip; ip++) {
 		switch (*ip) {
