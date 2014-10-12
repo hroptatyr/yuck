@@ -738,8 +738,11 @@ static struct {
 } global_tweaks;
 
 static void
-__identify(char idn[static 1U])
+__identify(char *restrict idn)
 {
+	if (UNLIKELY(idn == NULL)) {
+		return;
+	}
 	for (char *restrict ip = idn; *ip; ip++) {
 		switch (*ip) {
 		case '0' ... '9':
