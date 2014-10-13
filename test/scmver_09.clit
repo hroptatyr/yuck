@@ -1,0 +1,5 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ echo "0.1.9.git33.babacafe012345" | yuck scmver -n --reference -
+0.1.9.git33.babacaf
+$
