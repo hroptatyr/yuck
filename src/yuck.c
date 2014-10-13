@@ -368,8 +368,8 @@ typedef struct {
 	size_t z;
 }  bbuf_t;
 
-static char*
-bbuf_cat(bbuf_t b[static 1U], const char *str, size_t ssz)
+static __attribute__((nonnull(1, 2))) char*
+bbuf_cat(bbuf_t *restrict b, const char *str, size_t ssz)
 {
 	size_t nu = max_zu(yfls(b->z + ssz + 1U) + 1U, 6U);
 	size_t ol = b->z ? max_zu(yfls(b->z) + 1U, 6U) : 0U;
@@ -386,8 +386,8 @@ bbuf_cat(bbuf_t b[static 1U], const char *str, size_t ssz)
 	return b->s;
 }
 
-static char*
-bbuf_cpy(bbuf_t b[static 1U], const char *str, size_t ssz)
+static __attribute__((nonnull(1, 2))) char*
+bbuf_cpy(bbuf_t *restrict b, const char *str, size_t ssz)
 {
 /* reduce to bbuf_cat() with zero offset */
 	b->z = 0U;
