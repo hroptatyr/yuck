@@ -137,6 +137,8 @@ TESTS += scmver_06.clit
 TESTS += scmver_07.clit
 EXTRA_DIST += scmver_06.ver
 EXTRA_DIST += scmver_07.ver
+TESTS += scmver_08.clit
+TESTS += scmver_09.clit
 
 EXTRA_DIST += generic.c
 check_PROGRAMS += generic-muloptarg_01
