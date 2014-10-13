@@ -157,11 +157,17 @@ pushdef([yuck_arg_opt_action], [tgt->yuck_slot([$1], [$2]) = arg ?: YUCK_OPTARG_
 pushdef([yuck_arg_mul_action], [tgt->yuck_slot([$1], [$2]) =
 					yuck_append(
 						tgt->yuck_slot([$1], [$2]), tgt->yuck_cnt_slot([$1], [$2])++,
-						arg ?: argv[[++i]])])dnl
+						arg ?: argv[[++i]]);
+				if (tgt->yuck_slot([$1], [$2]) == NULL) {
+					return -1;
+				}])dnl
 pushdef([yuck_arg_mul_opt_action], [tgt->yuck_slot([$1], [$2]) =
 					yuck_append(
 						tgt->yuck_slot([$1], [$2]), tgt->yuck_cnt_slot([$1], [$2])++,
-						arg ?: YUCK_OPTARG_NONE)])dnl
+						arg ?: YUCK_OPTARG_NONE);
+				if (tgt->yuck_slot([$1], [$2]) == NULL) {
+					return -1;
+				}])dnl
 pushdef([yuck_auto_action], [/* invoke auto action and exit */
 				yuck_auto_[]yuck_canon([$1], [$2])(tgt);
 				resume_at(success)])dnl
@@ -231,12 +237,18 @@ pushdef([yuck_arg_mul_action], [tgt->yuck_slot([$1], [$2]) =
 					yuck_append(
 						tgt->yuck_slot([$1], [$2]),
 						tgt->yuck_cnt_slot([$1], [$2])++,
-						*arg ? (op += strlen(arg), arg) : argv[[++i]])])dnl
+						*arg ? (op += strlen(arg), arg) : argv[[++i]]);
+				if (tgt->yuck_slot([$1], [$2]) == NULL) {
+					return -1;
+				}])dnl
 pushdef([yuck_arg_mul_opt_action], [tgt->yuck_slot([$1], [$2]) =
 					yuck_append(
 						tgt->yuck_slot([$1], [$2]),
 						tgt->yuck_cnt_slot([$1], [$2])++,
-						*arg ? (op += strlen(arg), arg) : YUCK_OPTARG_NONE)])dnl
+						*arg ? (op += strlen(arg), arg) : YUCK_OPTARG_NONE);
+				if (tgt->yuck_slot([$1], [$2]) == NULL) {
+					return -1;
+				}])dnl
 pushdef([yuck_auto_action], [/* invoke auto action and exit */
 				yuck_auto_[]yuck_canon([$1], [$2])(tgt);
 				resume_at(success)])dnl
