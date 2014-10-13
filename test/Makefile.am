@@ -129,6 +129,14 @@ TESTS += scmver_01.clit
 TESTS += scmver_02.clit
 TESTS += scmver_03.clit
 EXTRA_DIST += scmver_02.tmpl
+TESTS += scmver_04.clit
+TESTS += scmver_05.clit
+EXTRA_DIST += scmver_04.ver
+EXTRA_DIST += scmver_05.ver
+TESTS += scmver_06.clit
+TESTS += scmver_07.clit
+EXTRA_DIST += scmver_06.ver
+EXTRA_DIST += scmver_07.ver
 
 EXTRA_DIST += generic.c
 check_PROGRAMS += generic-muloptarg_01

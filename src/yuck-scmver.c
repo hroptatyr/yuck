@@ -488,6 +488,11 @@ rd_version(struct yuck_version_s *restrict v, const char *buf, size_t bsz)
 	case '\0':
 		return 0;
 	case '.':
+		if (v->scm <= YUCK_SCM_TARBALL) {
+			/* huh? */
+			return -1;
+		}
+		/*@fallthrough@*/
 	case '-':
 		/* the show is going on, like it must */
 		bp = eod + 1U;
@@ -503,9 +508,12 @@ rd_version(struct yuck_version_s *restrict v, const char *buf, size_t bsz)
 		v->scm = YUCK_SCM_HG;
 		break;
 	case 'b':
-		/* bzr repo */
-		v->scm = YUCK_SCM_BZR;
-		break;
+		if (v->scm <= YUCK_SCM_TARBALL) {
+			v->scm = YUCK_SCM_BZR;
+			break;
+		}
+		/* else probably git or hg hash starting with b */
+		/*@fallthrough@*/
 	default:
 		/* could have been set already then */
 		if (v->scm > YUCK_SCM_TARBALL) {

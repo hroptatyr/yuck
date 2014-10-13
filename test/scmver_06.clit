@@ -1,0 +1,5 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ yuck scmver -n --reference "${srcdir}/scmver_06.ver"
+< "${srcdir}/scmver_06.ver"
+$
