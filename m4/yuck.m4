@@ -1,6 +1,6 @@
 dnl yuck.m4 --- yuck goodies
 dnl
-dnl Copyright (C) 2013-2014 Sebastian Freundt
+dnl Copyright (C) 2013-2015 Sebastian Freundt
 dnl
 dnl Author: Sebastian Freundt <hroptatyr@fresse.org>
 dnl
@@ -114,8 +114,9 @@ if (PRE == "v" || PRE == "V") {
 	if ([$]4) {
 		VER = VER "." [$]4;
 	}
-	print VER;
+	[$]0 = VER;
 }
+print;
 }' "${srcdir}/.version"`
 		AC_MSG_RESULT([.version -> ${VERSION}])
 	else
