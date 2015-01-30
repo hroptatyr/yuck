@@ -27,6 +27,15 @@ And getting started is as easy as *munching* cake -- let yuck do the
 actual baking for you:  Just feed it the `--help` output you'd like to
 see and yuck will happily try and generate a parser from it.
 
+To build yuck from the git sources:
+
+    $ autoreconf -fi
+    $ ./configure
+    $ make
+    $ make install
+
+For tarball builds omit the `autoreconf -fi` line.
+
 
 That all? I need more highlights
 --------------------------------
