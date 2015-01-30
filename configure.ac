@@ -30,7 +30,7 @@ AX_YUCK_SCMVER([version.mk])
 AC_CONFIG_LINKS([GNUmakefile:GNUmakefile])
 
 ## the build chain
-AC_PROG_CC([icc tcc gcc cc])
+AC_PROG_CC([icc gcc cc])
 SXE_CHECK_CC([c11 c1x gnu99 c99])
 SXE_CHECK_CFLAGS
 AC_CHECK_TOOLS([AR], [xiar ar], [false])
