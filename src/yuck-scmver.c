@@ -593,7 +593,7 @@ git_version(struct yuck_version_s v[static 1U])
 	int rc = 0;
 
 	if ((chld = run(fd, "git", "describe",
-			"--match=v[0-9]*",
+			"--tags", "--match=v[0-9]*",
 			"--abbrev=8", "--dirty", NULL)) < 0) {
 		return -1;
 	}
