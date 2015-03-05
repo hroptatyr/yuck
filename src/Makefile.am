@@ -42,7 +42,7 @@ pkgdata_DATA += yuck.am
 EXTRA_DIST += $(pkgdata_DATA)
 
 ## version rules
-version.c: .version version.c.in
+version.c: $(top_builddir)/.version version.c.in
 	$(AM_V_GEN) \
 	if test "$(MAKECMDGOALS)" != "am--refresh"; then \
 		$(MAKE) -C $(builddir) yuck-scmver$(EXEEXT); \
