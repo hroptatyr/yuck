@@ -24,9 +24,6 @@ aclocal_DATA = m4/yuck.m4
 doc_DATA = README.md
 EXTRA_DIST += $(doc_DATA)
 
-.version:
-	$(AM_V_GEN) echo "v$(VERSION)" > $@
-
 ## make sure .version is read-only in the dist
 dist-hook:
 	chmod ugo-w $(distdir)/.version
