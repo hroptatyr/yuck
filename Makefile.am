@@ -7,8 +7,7 @@ ACLOCAL_AMFLAGS = -I m4
 aclocaldir = $(datadir)/aclocal
 
 SUBDIRS =
-EXTRA_DIST = $(BUILT_SOURCES)
-BUILT_SOURCES =
+EXTRA_DIST =
 DISTCLEANFILES =
 CLEANFILES =
 
@@ -17,8 +16,10 @@ SUBDIRS += info
 SUBDIRS += test
 
 DISTCLEANFILES += version.mk
+DISTCLEANFILES += .version
 EXTRA_DIST += version.mk.in
-BUILT_SOURCES += .version
+EXTRA_DIST += version.mk
+EXTRA_DIST += .version
 
 aclocal_DATA = m4/yuck.m4
 
