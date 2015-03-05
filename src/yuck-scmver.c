@@ -1026,6 +1026,7 @@ main(int argc, char *argv[])
 		if (v->dirty) {
 			fputs(".dirty", stdout);
 		}
+		fputc('\n', stdout);
 	}
 	return -rc;
 }
