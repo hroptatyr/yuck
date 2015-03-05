@@ -74,6 +74,14 @@
 
 #define DEBUG(args...)
 
+/* globals */
+const char *const yscm_strs[] = {
+	[YUCK_SCM_TARBALL] = "tarball",
+	[YUCK_SCM_GIT] = "git",
+	[YUCK_SCM_BZR] = "bzr",
+	[YUCK_SCM_HG] = "hg",
+};
+
 
 static __attribute__((format(printf, 1, 2))) void
 error(const char *fmt, ...)
@@ -949,13 +957,6 @@ yuck_version_cmp(yuck_version_t v1, yuck_version_t v2)
 
 
 #if defined BOOTSTRAP
-static const char *yscm_strs[] = {
-	[YUCK_SCM_TARBALL] = "tarball",
-	[YUCK_SCM_GIT] = "git",
-	[YUCK_SCM_BZR] = "bzr",
-	[YUCK_SCM_HG] = "hg",
-};
-
 int
 main(int argc, char *argv[])
 {
@@ -993,5 +994,37 @@ main(int argc, char *argv[])
 	return -rc;
 }
 #endif	/* BOOTSTRAP */
+
+
+#if defined CONFIGURE
+int
+main(int argc, char *argv[])
+{
+/* usage would be yuck-scmver [REFERENCE] */
+	static struct yuck_version_s v[1U];
+	int rc = 0;
+
+	if (argc > 1) {
+		rc = yuck_version_read(v, argv[1U]);
+	} else {
+		rc = yuck_version(v, NULL);
+	}
+	/* print if successful */
+	if (rc == 0) {
+		fputs(v->vtag, stdout);
+		if (v->scm > YUCK_SCM_TARBALL && v->dist) {
+			fputc('.', stdout);
+			fputs(yscm_strs[v->scm], stdout);
+			fprintf(stdout, "%u.%0*x",
+				v->dist,
+				(int)(v->rvsn & 0x07U), v->rvsn >> 4U);
+		}
+		if (v->dirty) {
+			fputs(".dirty", stdout);
+		}
+	}
+	return -rc;
+}
+#endif	/* CONFIGURE */
 
 /* yuck-scmver.c ends here */

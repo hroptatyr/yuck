@@ -57,6 +57,8 @@ struct yuck_version_s {
 	unsigned int rvsn;
 };
 
+extern const char *const yscm_strs[];
+
 
 /* public api */
 /**

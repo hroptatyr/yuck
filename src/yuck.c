@@ -117,14 +117,7 @@ struct opt_s {
 	unsigned int marg:1U;
 };
 
-#if !defined BOOTSTRAP && defined WITH_SCMVER
-static const char *yscm_strs[] = {
-	[YUCK_SCM_TARBALL] = "tarball",
-	[YUCK_SCM_GIT] = "git",
-	[YUCK_SCM_BZR] = "bzr",
-	[YUCK_SCM_HG] = "hg",
-};
-#elif !defined BOOTSTRAP
+#if !defined BOOTSTRAP && !defined WITH_SCMVER
 /* just forward declare this type so function signatures will work */
 struct yuck_version_s;
 #endif	/* WITH_SCMVER */
