@@ -100,9 +100,10 @@ AC_DEFUN([AX_YUCK_SCMVER], [dnl
 ## because only GNU make can do this at make time
 	pushdef([vfile], [$1])
 
-	AC_MSG_CHECKING([for stipulated version files])
-	## use our yuck-scmver tool
 	AC_LANG_PUSH([C])
+	AC_PROG_CC_C99
+	## use our yuck-scmver tool
+	AC_MSG_CHECKING([for stipulated version files])
 	save_CPPFLAGS="${CPPFLAGS}"
 	CPPFLAGS="-I${srcdir}/src -I${srcdir}/build-aux ${CPPFLAGS}"
 	AC_RUN_IFELSE([AC_LANG_SOURCE([[
