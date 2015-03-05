@@ -892,7 +892,7 @@ yuck_version_read(struct yuck_version_s *restrict ref, const char *fn)
 			nrd = bp - buf;
 		} else {
 			/* finalise with \nul */
-			buf[--nrd] = '\0';
+			buf[nrd] = '\0';
 		}
 		/* otherwise just read him */
 		rc = rd_version(ref, buf, nrd);
