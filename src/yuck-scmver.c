@@ -890,9 +890,12 @@ yuck_version_read(struct yuck_version_s *restrict ref, const char *fn)
 			/* just go with the first line */
 			*bp = '\0';
 			nrd = bp - buf;
-		} else {
+		} else if ((size_t)nrd < sizeof(buf)) {
 			/* finalise with \nul */
 			buf[nrd] = '\0';
+		} else {
+			/* finalise with \nul, cutting off the last byte */
+			buf[--nrd] = '\0';
 		}
 		/* otherwise just read him */
 		rc = rd_version(ref, buf, nrd);
