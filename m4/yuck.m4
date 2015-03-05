@@ -101,26 +101,20 @@ AC_DEFUN([AX_YUCK_SCMVER], [dnl
 	pushdef([vfile], [$1])
 
 	AC_MSG_CHECKING([for stipulated version files])
-	if test -f "${srcdir}/.version"; then
-		## transform reference version
-		VERSION=`"${AWK}" -F'-' 'NR == 1 {
-PRE = substr([$]1, 1, 1);
-VER = substr([$]1, 2);
-if (PRE == "v" || PRE == "V") {
-	SCM = substr([$]3, 1, 1);
-	if (SCM == "g") {
-		VER = VER ".git" [$]2 "." substr([$]3, 2);
-	}
-	if ([$]4) {
-		VER = VER "." [$]4;
-	}
-	[$]0 = VER;
-}
-print;
-}' "${srcdir}/.version"`
-		AC_MSG_RESULT([.version -> ${VERSION}])
-	else
-		AC_MSG_RESULT([none])
+	## use our yuck-scmver tool
+	AC_LANG_PUSH([C])
+	save_CPPFLAGS="${CPPFLAGS}"
+	CPPFLAGS="-I${srcdir}/src -I${srcdir}/build-aux ${CPPFLAGS}"
+	AC_RUN_IFELSE([AC_LANG_SOURCE([[
+#define CONFIGURE
+#define VERSION_FILE	"${srcdir}/.version"
+#include "yuck-scmver.c"
+]])], [STIP_VERSION=`./conftest$EXEEXT`], [AC_MSG_RESULT([none])])
+	CPPFLAGS="${save_CPPFLAGS}"
+	AC_LANG_POP([C])
+
+	if test -n "${STIP_VERSION}"; then
+		VERSION="${STIP_VERSION}"
 	fi
 	## also massage version.mk file
 	if test -f "${srcdir}/[]vfile[]"; then
