@@ -119,7 +119,7 @@ AC_DEFUN([AX_YUCK_SCMVER], [dnl
 	## also massage version.mk file
 	if test -f "${srcdir}/[]vfile[]"; then
 		## make sure it's in the builddir as well
-		cp "${srcdir}/[]vfile[]" "[]vfile[]" 2>/dev/null
+		cp -p "${srcdir}/[]vfile[]" "[]vfile[]" 2>/dev/null
 	elif test -f "${srcdir}/[]vfile[].in"; then
 		${M4:-m4} -DYUCK_SCMVER_VERSION="${VERSION}" \
 			"${srcdir}/[]vfile[].in" > "[]vfile[]"
@@ -129,7 +129,7 @@ AC_DEFUN([AX_YUCK_SCMVER], [dnl
 	## just to be on the safe side
 	if test -f "${srcdir}/.version"; then
 		## make sure it's in the builddir as well
-		cp "${srcdir}/.version" ".version" 2>/dev/null
+		cp -p "${srcdir}/.version" ".version" 2>/dev/null
 	fi
 
 	popdef([vfile])
