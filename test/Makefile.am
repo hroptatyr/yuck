@@ -15,21 +15,13 @@ check_PROGRAMS =
 TESTS =
 TEST_EXTENSIONS =
 BUILT_SOURCES =
-CLEANFILES =
+CLEANFILES = $(BUILT_SOURCES)
 
-TEST_EXTENSIONS += .clit
-TESTS_ENVIRONMENT = root=$(top_srcdir) YUCK_TEMPLATE_PATH="$(abs_top_srcdir)/src"
-CLIT_LOG_COMPILER = $(builddir)/clitoris
+## summon our helper
+include clitoris.am
 AM_CLIT_LOG_FLAGS = -v --builddir $(top_builddir)/src
-AM_LOG_COMPILER = false
+TESTS_ENVIRONMENT = root=$(top_srcdir) YUCK_TEMPLATE_PATH="$(abs_top_srcdir)/src"
 
-## our friendly helpers
-check_PROGRAMS += clitoris
-clitoris_SOURCES = clitoris.c clitoris.yuck
-clitoris_CPPFLAGS = $(AM_CPPFLAGS)
-clitoris_CPPFLAGS += -D_GNU_SOURCE
-BUILT_SOURCES += clitoris.yucc
-CLEANFILES += $(BUILT_SOURCES)
 
 TESTS += plain_01.clit
 TESTS += plain_02.clit
