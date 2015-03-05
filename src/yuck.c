@@ -1881,13 +1881,22 @@ flag -n|--use-reference requires -r|--reference parameter");
 		/* must populate v then */
 		*v = *ref;
 	} else if (reffn && yuck_version_cmp(v, ref)) {
+		/* version stamps differ */
 		if (argi->verbose_flag) {
 			errno = 0, error("scm version differs from reference");
 		}
-		/* version stamps differ */
-		yuck_version_write(argi->reference_arg, v);
-		/* reserve exit code 3 for `updated reference file' */
-		rc = 3;
+		/* try to update the reference file then */
+		if (yuck_version_write(argi->reference_arg, v) < 0) {
+			if (argi->verbose_flag) {
+				error("cannot write reference file");
+			}
+			/* degrade to using the reference file */
+			*v = *ref;
+			rc = 0;
+		} else {
+			/* reserve exit code 3 for `updated reference file' */
+			rc = 3;
+		}
 	} else if (reffn && !argi->force_flag) {
 		/* make sure the output file exists */
 		const char *const outfn = argi->output_arg;
@@ -1920,7 +1929,7 @@ flag -n|--use-reference requires -r|--reference parameter");
 			/* and we're finished with the intermediary */
 			fclose(outf);
 			/* macro massage, vtmpfn is the template file */
-			rc = run_m4(outfn, scmvfn, tmplfn, infn, NULL);
+			rc += run_m4(outfn, scmvfn, tmplfn, infn, NULL);
 
 			rm_intermediary(scmvfn, argi->keep_flag);
 		}
