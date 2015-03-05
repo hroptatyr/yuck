@@ -48,7 +48,7 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
-#include <yuck-scmver.h>
+#include "yuck-scmver.h"
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect((_x), 1)
@@ -964,18 +964,14 @@ main(int argc, char *argv[])
 	static struct yuck_version_s v[1U];
 	int rc = 0;
 
-	switch ((rc = yuck_version(v, argv[1U]))) {
-	default:
-		/* one more chance there is */
-		if (argc <= 2) {
-			/* no reference file given */
-			break;
-		} else if ((rc = yuck_version_read(v, argv[2U])) < 0) {
-			/* ok, can't help it then */
-			break;
-		}
-		/* yay, fallthrough to success */
-	case 0:
+	/* prefer reference file */
+	if (argc > 2 && (rc = yuck_version_read(v, argv[2U])) == 0) {
+		/* just use this one */
+		;
+	} else {
+		rc = yuck_version(v, argv[1U]);
+	}
+	if (rc == 0) {
 		fputs("define(YUCK_SCMVER_VERSION, ", stdout);
 		fputs(v->vtag, stdout);
 		if (v->scm > YUCK_SCM_TARBALL && v->dist) {
@@ -989,7 +985,6 @@ main(int argc, char *argv[])
 			fputs(".dirty", stdout);
 		}
 		fputs(")\n", stdout);
-		break;
 	}
 	return -rc;
 }
@@ -1006,6 +1001,10 @@ main(int argc, char *argv[])
 
 	if (argc > 1) {
 		rc = yuck_version_read(v, argv[1U]);
+#if defined VERSION_FILE
+	} else if ((rc = yuck_version_read(v, VERSION_FILE)) == 0) {
+		;
+#endif	/* VERSION_FILE */
 	} else {
 		rc = yuck_version(v, NULL);
 	}
@@ -1022,6 +1021,7 @@ main(int argc, char *argv[])
 		if (v->dirty) {
 			fputs(".dirty", stdout);
 		}
+		fputc('\n', stdout);
 	}
 	return -rc;
 }
