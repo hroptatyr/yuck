@@ -136,6 +136,8 @@ AC_DEFUN([AX_YUCK_SCMVER], [dnl
 	if test -f "${srcdir}/.version"; then
 		## make sure it's in the builddir as well
 		cp -p "${srcdir}/.version" ".version" 2>/dev/null
+	else
+		echo "v${VERSION}" > ".version" 2>/dev/null
 	fi
 
 	popdef([vfile])
