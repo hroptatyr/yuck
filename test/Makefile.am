@@ -452,6 +452,14 @@ EXTRA_DIST += rudi_05.version
 EXTRA_DIST += rudi_06.version
 EXTRA_DIST += rudi_07.version
 EXTRA_DIST += rudi_08.version
+EXTRA_DIST += rudi_09.version
+EXTRA_DIST += rudi_10.version
+EXTRA_DIST += rudi_11.version
+EXTRA_DIST += rudi_12.version
+EXTRA_DIST += rudi_13.version
+EXTRA_DIST += rudi_14.version
+EXTRA_DIST += rudi_15.version
+EXTRA_DIST += rudi_16.version
 
 
 ## just to get the tests and yucc files rebuilt
