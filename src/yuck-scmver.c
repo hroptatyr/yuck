@@ -74,6 +74,14 @@
 
 #define DEBUG(args...)
 
+/* globals */
+const char *const yscm_strs[] = {
+	[YUCK_SCM_TARBALL] = "tarball",
+	[YUCK_SCM_GIT] = "git",
+	[YUCK_SCM_BZR] = "bzr",
+	[YUCK_SCM_HG] = "hg",
+};
+
 
 static __attribute__((format(printf, 1, 2))) void
 error(const char *fmt, ...)
@@ -949,13 +957,6 @@ yuck_version_cmp(yuck_version_t v1, yuck_version_t v2)
 
 
 #if defined BOOTSTRAP
-static const char *yscm_strs[] = {
-	[YUCK_SCM_TARBALL] = "tarball",
-	[YUCK_SCM_GIT] = "git",
-	[YUCK_SCM_BZR] = "bzr",
-	[YUCK_SCM_HG] = "hg",
-};
-
 int
 main(int argc, char *argv[])
 {
@@ -996,13 +997,6 @@ main(int argc, char *argv[])
 
 
 #if defined CONFIGURE
-static const char *yscm_strs[] = {
-	[YUCK_SCM_TARBALL] = "tarball",
-	[YUCK_SCM_GIT] = "git",
-	[YUCK_SCM_BZR] = "bzr",
-	[YUCK_SCM_HG] = "hg",
-};
-
 int
 main(int argc, char *argv[])
 {
