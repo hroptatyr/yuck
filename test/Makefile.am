@@ -428,6 +428,32 @@ BUILT_SOURCES += dashdesc_01.yucc
 TESTS += dashdesc_01.clit
 
 
+TESTS += scmver_11.clit
+TESTS += scmver_12.clit
+TESTS += scmver_13.clit
+TESTS += scmver_14.clit
+TESTS += scmver_15.clit
+TESTS += scmver_16.clit
+TESTS += scmver_17.clit
+TESTS += scmver_18.clit
+TESTS += scmver_21.clit
+TESTS += scmver_22.clit
+TESTS += scmver_23.clit
+TESTS += scmver_24.clit
+TESTS += scmver_25.clit
+TESTS += scmver_26.clit
+TESTS += scmver_27.clit
+TESTS += scmver_28.clit
+EXTRA_DIST += rudi_01.version
+EXTRA_DIST += rudi_02.version
+EXTRA_DIST += rudi_03.version
+EXTRA_DIST += rudi_04.version
+EXTRA_DIST += rudi_05.version
+EXTRA_DIST += rudi_06.version
+EXTRA_DIST += rudi_07.version
+EXTRA_DIST += rudi_08.version
+
+
 ## just to get the tests and yucc files rebuilt
 $(BUILT_SOURCES): $(top_builddir)/src/yuck$(EXEEXT)
 

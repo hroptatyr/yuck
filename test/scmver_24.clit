@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ yuck scmver -n --reference "${srcdir}/rudi_12.version"
+0.3.2.git1.0
+$
+
+## scmver_24.clit ends here
