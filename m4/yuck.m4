@@ -119,7 +119,7 @@ AC_DEFUN([AX_YUCK_SCMVER], [dnl
 		VERSION="${STIP_VERSION}"
 	fi
 	## also massage version.mk file
-	if ! test -w "${srcdir}/[]vfile[]"; then
+	if test -f "[]vfile[]" -a ! -w "${srcdir}/[]vfile[]"; then
 		:
 	elif test -f "${srcdir}/[]vfile[].in"; then
 		${M4:-m4} -DYUCK_SCMVER_VERSION="${VERSION}" \
