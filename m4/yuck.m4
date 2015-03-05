@@ -109,6 +109,7 @@ AC_DEFUN([AX_YUCK_SCMVER], [dnl
 	CPPFLAGS="-I${srcdir}/src -I${ac_aux_dir} ${CPPFLAGS}"
 	AC_RUN_IFELSE([AC_LANG_SOURCE([[
 #define CONFIGURE
+#define _XOPEN_SOURCE	600
 #define VERSION_FILE	"${srcdir}/.version"
 #include "yuck-scmver.c"
 ]])], [STIP_VERSION=`./conftest$EXEEXT`], [AC_MSG_RESULT([none])])
