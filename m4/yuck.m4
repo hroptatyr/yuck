@@ -100,13 +100,16 @@ AC_DEFUN([AX_YUCK_SCMVER], [dnl
 ## because only GNU make can do this at make time
 	pushdef([vfile], [$1])
 
-	AC_MSG_CHECKING([for stipulated version files])
-	## use our yuck-scmver tool
+	AC_REQUIRE([AC_CONFIG_AUX_DIR_DEFAULT])
 	AC_LANG_PUSH([C])
+	AC_PROG_CC_C99
+	## use our yuck-scmver tool
+	AC_MSG_CHECKING([for stipulated version files])
 	save_CPPFLAGS="${CPPFLAGS}"
-	CPPFLAGS="-I${srcdir}/src -I${srcdir}/build-aux ${CPPFLAGS}"
+	CPPFLAGS="-I${srcdir}/src -I${ac_aux_dir} ${CPPFLAGS}"
 	AC_RUN_IFELSE([AC_LANG_SOURCE([[
 #define CONFIGURE
+#define _XOPEN_SOURCE	600
 #define VERSION_FILE	"${srcdir}/.version"
 #include "yuck-scmver.c"
 ]])], [STIP_VERSION=`./conftest$EXEEXT`], [AC_MSG_RESULT([none])])
@@ -117,9 +120,8 @@ AC_DEFUN([AX_YUCK_SCMVER], [dnl
 		VERSION="${STIP_VERSION}"
 	fi
 	## also massage version.mk file
-	if test -f "${srcdir}/[]vfile[]"; then
-		## make sure it's in the builddir as well
-		cp -p "${srcdir}/[]vfile[]" "[]vfile[]" 2>/dev/null
+	if test -f "[]vfile[]" -a ! -w "${srcdir}/[]vfile[]"; then
+		:
 	elif test -f "${srcdir}/[]vfile[].in"; then
 		${M4:-m4} -DYUCK_SCMVER_VERSION="${VERSION}" \
 			"${srcdir}/[]vfile[].in" > "[]vfile[]"
@@ -127,6 +129,10 @@ AC_DEFUN([AX_YUCK_SCMVER], [dnl
 		echo "VERSION = ${VERSION}" > "[]vfile[]"
 	fi
 	## just to be on the safe side
+	if test -f "${srcdir}/[]vfile[]"; then
+		## make sure it's in the builddir as well
+		cp -p "${srcdir}/[]vfile[]" "[]vfile[]" 2>/dev/null
+	fi
 	if test -f "${srcdir}/.version"; then
 		## make sure it's in the builddir as well
 		cp -p "${srcdir}/.version" ".version" 2>/dev/null
