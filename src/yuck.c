@@ -1920,7 +1920,7 @@ flag -n|--use-reference requires -r|--reference parameter");
 			/* and we're finished with the intermediary */
 			fclose(outf);
 			/* macro massage, vtmpfn is the template file */
-			rc = run_m4(outfn, scmvfn, tmplfn, infn, NULL);
+			rc += run_m4(outfn, scmvfn, tmplfn, infn, NULL);
 
 			rm_intermediary(scmvfn, argi->keep_flag);
 		}
