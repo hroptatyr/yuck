@@ -1006,6 +1006,10 @@ main(int argc, char *argv[])
 
 	if (argc > 1) {
 		rc = yuck_version_read(v, argv[1U]);
+#if defined VERSION_FILE
+	} else if ((rc = yuck_version_read(v, VERSION_FILE)) == 0) {
+		;
+#endif	/* VERSION_FILE */
 	} else {
 		rc = yuck_version(v, NULL);
 	}
