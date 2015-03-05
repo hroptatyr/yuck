@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ yuck scmver -n --reference "${srcdir}/rudi_08.version"
+0.3.2.git1.c5b7abc
+$
+
+## scmver_18.clit ends here
