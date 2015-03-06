@@ -120,7 +120,7 @@ AC_DEFUN([AX_YUCK_SCMVER], [dnl
 		VERSION="${STIP_VERSION}"
 	fi
 	## also massage version.mk file
-	if test -f "[]vfile[]" -a ! -w "${srcdir}/[]vfile[]"; then
+	if test -f "[]vfile[]" -a ! -w "[]vfile[]"; then
 		:
 	elif test -f "${srcdir}/[]vfile[]"; then
 		## make sure it's in the builddir as well
