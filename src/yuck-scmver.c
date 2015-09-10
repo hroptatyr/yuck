@@ -805,7 +805,6 @@ bzr_version(struct yuck_version_s v[static 1U])
 			break;
 		}
 		/* read over all the whitespace to find the tag's revno */
-		while (*++bp == ' ');
 		with (unsigned int rno = strtoul(bp, NULL, 10)) {
 			v->dist = v->rvsn - rno;
 		}
