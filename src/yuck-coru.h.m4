@@ -108,7 +108,7 @@ foreachq([cmd], yuck_cmds(), [dnl
 
 pushdef([DECLF], ifdef([YUCK_HEADER], [extern], [static]))[]dnl
 DECLF __attribute__((nonnull(1))) int
-yuck_parse(yuck_t*, int argc, char *argv[[]]);
+yuck_parse(yuck_t[[]], int argc, char *argv[[]]);
 DECLF __attribute__((nonnull(1))) void yuck_free(yuck_t*);
 
 DECLF __attribute__((nonnull(1))) void yuck_auto_help(const yuck_t*);
