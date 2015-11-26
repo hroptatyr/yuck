@@ -21,6 +21,7 @@ changecom([#])dnl
 #if defined __INTEL_COMPILER
 # pragma warning (disable:177)
 # pragma warning (disable:111)
+# pragma warning (disable:3280)
 #elif defined __GNUC__
 # if __GNUC__ > 4 || __GNUC__ == 4 &&  __GNUC_MINOR__ >= 6
 #  pragma GCC diagnostic push
@@ -28,6 +29,7 @@ changecom([#])dnl
 # pragma GCC diagnostic ignored "-Wunused-label"
 # pragma GCC diagnostic ignored "-Wunused-variable"
 # pragma GCC diagnostic ignored "-Wunused-function"
+# pragma GCC diagnostic ignored "-Wshadow"
 #endif	/* __INTEL_COMPILER */
 pushdef([DEFUN], ifdef([YUCK_HEADER], [], [static]))[]dnl
 
@@ -510,6 +512,7 @@ popdef([DEFUN])dnl
 #if defined __INTEL_COMPILER
 # pragma warning (default:177)
 # pragma warning (default:111)
+# pragma warning (default:3280)
 #elif defined __GNUC__
 # if __GNUC__ > 4 || __GNUC__ == 4 &&  __GNUC_MINOR__ >= 6
 #  pragma GCC diagnostic pop
