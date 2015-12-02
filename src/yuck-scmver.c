@@ -286,6 +286,7 @@ run(int *fd, ...)
 	     i < countof(cmdline) &&
 		     (cmdline[i] = va_arg(vap, char*)) != NULL; i++);
 	va_end(vap);
+	assert(*cmdline);
 
 	if (pipe(intfd) < 0) {
 		error("pipe setup to/from %s failed", cmdline[0U]);
