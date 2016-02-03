@@ -571,7 +571,7 @@ yield:
 			sp++;
 		}
 		if (!isspace(*sp)) {
-			/* dont know -x.SOMETHING? */
+			/* don't know -x.SOMETHING? */
 			return 0;
 		}
 		/* start over with the new option */
@@ -616,7 +616,7 @@ yield:
 		/* --option */
 		;
 	} else {
-		/* dont know what this is */
+		/* don't know what this is */
 		return 0;
 	}
 
@@ -660,7 +660,7 @@ yield:
 	;
 	/* space eater */
 	for (; sp < ep && isspace(*sp); sp++);
-	/* dont free but reset the old guy */
+	/* don't free but reset the old guy */
 	desc->n = 0U;
 desc:
 	with (size_t sz = llen - (sp - line)) {
