@@ -181,7 +181,7 @@ of the command line for integrity.
 
 In a similar fashion, yuck's only types are options with arguments
 (which are mapped to const char* or const char** in case of multi-args)
-and flags (mapped to unsigned int, representing the number of occurences
+and flags (mapped to unsigned int, representing the number of occurrences
 on the command line).  Again, it is up to the postprocessing code to
 interpret arguments suitably, e.g. convert integer strings to integers,
 or constrain a HOSTNAME argument to its legal characters, etc.
