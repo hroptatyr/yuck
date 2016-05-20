@@ -12,5 +12,5 @@ BUILT_SOURCES += clitoris.yucc
 
 ## yuck rule
 clitoris.yucc: clitoris.yuck
-	$(AM_V_GEN) PATH=$(top_builddir)/build-aux:"$${PATH}" \
+	$(AM_V_GEN) PATH=$(top_builddir)/src:"$${PATH}" \
 		yuck$(EXEEXT) gen -o $@ $<
