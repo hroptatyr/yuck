@@ -1,6 +1,6 @@
 /*** clitoris.c -- command-line-interface tester or is it?
  *
- * Copyright (C) 2013-2015 Sebastian Freundt
+ * Copyright (C) 2013-2016 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -86,16 +86,19 @@
 # define PATH_MAX	256U
 #endif	/* !PATH_MAX */
 
-#if defined HAVE_SPLICE
-# ifdef __INTEL_COMPILER
+#if defined HAVE_SPLICE && !defined SPLICE_F_MOVE && !defined _AIX
+/* just so we don't have to use _GNU_SOURCE declare prototype of splice() */
+# if defined __INTEL_COMPILER
 #  pragma warning(disable:1419)
 # endif	/* __INTEL_COMPILER */
-extern ssize_t splice(int fd_in, loff_t *off_in, int fd_out, loff_t *off_out,
-		      size_t len, unsigned int flags);
-# ifdef __INTEL_COMPILER
+extern ssize_t splice(int, loff_t*, int, loff_t*, size_t, unsigned int);
+# define SPLICE_F_MOVE	(0U)
+# if defined __INTEL_COMPILER
 #  pragma warning(default:1419)
 # endif	/* __INTEL_COMPILER */
-#endif	/* HAVE_SPLICE */
+#elif !defined SPLICE_F_MOVE
+# define SPLICE_F_MOVE	(0)
+#endif	/* !SPLICE_F_MOVE */
 
 typedef struct clitf_s clitf_t;
 typedef struct clit_buf_s clit_buf_t;
@@ -151,7 +154,7 @@ struct clit_chld_s {
 	char **huskv;
 };
 
-/* a test is the command (inlcuding stdin), stdout result, and stderr result */
+/* a test is the command (including stdin), stdout result, and stderr result */
 struct clit_tst_s {
 	clit_bit_t cmd;
 	clit_bit_t out;
@@ -318,9 +321,11 @@ xmemmem(const char *hay, const size_t hayz, const char *ndl, const size_t ndlz)
 static char*
 xstrndup(const char *s, size_t z)
 {
-	char *res = malloc(z + 1U);
-	memcpy(res, s, z);
-	res[z] = '\0';
+	char *res;
+	if ((res = malloc(z + 1U))) {
+		memcpy(res, s, z);
+		res[z] = '\0';
+	}
 	return res;
 }
 
@@ -353,6 +358,7 @@ get_argv0dir(const char *argv0)
 
 	if (0) {
 #if 0
+
 #elif defined __linux__
 /* don't rely on argv0 at all */
 	} else if (1) {
@@ -360,26 +366,79 @@ get_argv0dir(const char *argv0)
 			/* we've got a plan B */
 			goto planb;
 		}
-#elif defined __APPLE__
+#elif defined __APPLE__ && defined __MACH__
 	} else if (1) {
 		char buf[PATH_MAX];
 		uint32_t bsz = strlenof(buf);
 
+		buf[bsz] = '\0';
 		if (_NSGetExecutablePath(buf, &bsz) < 0) {
 			/* plan B again */
 			goto planb;
 		}
 		/* strdup BUF quickly */
 		res = strdup(buf);
+#elif defined __NetBSD__
+	} else if (1) {
+		static const char myself[] = "/proc/curproc/exe";
+		char buf[PATH_MAX];
+		ssize_t z;
+
+		if (UNLIKELY((z = readlink(myself, buf, bsz)) < 0)) {
+			/* plan B */
+			goto planb;
+		}
+		/* strndup him */
+		res = xstrndup(buf, z);
+#elif defined __DragonFly__
+	} else if (1) {
+		static const char myself[] = "/proc/curproc/file";
+		char buf[PATH_MAX];
+		ssize_t z;
+
+		if (UNLIKELY((z = readlink(myself, buf, bsz)) < 0)) {
+			/* blimey, proceed with plan B */
+			goto planb;
+		}
+		/* strndup him */
+		res = xstrndup(buf, z);
+#elif defined __FreeBSD__
+	} else if (1) {
+		int mib[] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
+		char buf[PATH_MAX];
+		size_t z = strlenof(buf);
+
+		/* make sure that \0 terminator fits */
+		buf[z] = '\0';
+		if (UNLIKELY(sysctl(mib, countof(mib), buf, &z, NULL, 0) < 0)) {
+			/* no luck today */
+			goto planb;
+		}
+		/* make the result our own */
+		res = strdup(buf);
+#elif defined __sun || defined sun
+	} else if (1) {
+		char buf[PATH_MAX];
+		ssize_t z;
+
+		snprintf(buf, sizeof(buf), "/proc/%d/path/a.out", getpid());
+		if (UNLIKELY((z = readlink(buf, buf, sizeof(buf))) < 0)) {
+			/* nope, plan A failed */
+			goto planb;
+		}
+		res = xstrndup(buf, z);
 #endif	/* OS */
 	} else {
+		size_t argz0;
+
 	planb:
 		/* backup plan, massage argv0 */
 		if (argv0 == NULL) {
 			return NULL;
 		}
-		/* otherwise simply copy ARGV0 */
-		res = strdup(argv0);
+		/* otherwise copy ARGV0, or rather the first PATH_MAX chars */
+		for (argz0 = 0U; argz0 < PATH_MAX && argv0[argz0]; argz0++);
+		res = xstrndup(argv0, argz0);
 	}
 
 	/* path extraction aka dirname'ing, absolute or otherwise */
@@ -549,6 +608,32 @@ pfork(int *pty)
 }
 #endif	/* HAVE_PTY_H */
 
+static inline int
+xsplice(int tgtfd, int srcfd, unsigned int flags)
+{
+#if defined HAVE_SPLICE && defined __linux__
+	for (ssize_t nsp;
+	     (nsp = splice(
+		      srcfd, NULL, tgtfd, NULL,
+		      4096U, flags)) == 4096U;);
+#else  /* !HAVE_SPLICE || !__linux__ */
+/* in particular, AIX's splice works on tcp sockets only */
+	with (char *buf[16U * 4096U]) {
+		ssize_t nrd;
+
+		while ((nrd = read(srcfd, buf, sizeof(buf))) > 0) {
+			for (ssize_t nwr, totw = 0;
+			     totw < nrd &&
+				     (nwr = write(
+					      tgtfd,
+					      buf + totw, nrd - totw)) >= 0;
+			     totw += nwr);
+		}
+	}
+#endif	/* HAVE_SPLICE && __linux__ */
+	return 0;
+}
+
 
 static const char *
 find_shtok(const char *bp, size_t bz)
@@ -688,11 +773,12 @@ find_negexp(struct clit_tst_s tst[static 1])
 		case '?'/*EXP*/:;
 			char *p;
 			exp = strtoul(cmd + 1U, &p, 10);
-			cmd = cmd + (p - cmd);
+			cmd = p;
 			if (isspace(*cmd)) {
 				break;
 			}
 		default:
+			tst->exp_ret = 0U;
 			return -1;
 		}
 
@@ -780,20 +866,14 @@ find_tst(struct clit_tst_s tst[static 1], const char *bp, size_t bz)
 		}
 	}
 
-	while (
-		/* oh let's see if we should ignore things */
-		!find_ignore(tst) ||
-
-		/* check for suppress diff */
-		!find_suppdiff(tst) ||
-
-		/* check for expect and negate operators */
-		!find_negexp(tst) ||
-
-		/* check for proto-output expander */
-		!find_xpnd_proto(tst) ||
-
-		0);
+	/* oh let's see if we should ignore things */
+	(void)find_ignore(tst);
+	/* check for suppress diff */
+	(void)find_suppdiff(tst);
+	/* check for expect and negate operators */
+	(void)find_negexp(tst);
+	/* check for proto-output expander */
+	(void)find_xpnd_proto(tst);
 
 	tst->err = (clit_bit_t){0U};
 	return 0;
@@ -1387,15 +1467,7 @@ wait:
 
 	/* also connect per's out end with stderr */
 	if (UNLIKELY(ctx->options.ptyp)) {
-# if defined HAVE_SPLICE
-#  if !defined SPLICE_F_MOVE
-#   define SPLICE_F_MOVE		(0)
-#  endif  /* SPLICE_F_MOVE */
-		for (ssize_t nsp;
-		     (nsp = splice(
-			      ctx->per, NULL, STDERR_FILENO, NULL,
-			      4096U, SPLICE_F_MOVE)) == 4096U;);
-# endif	/* HAVE_SPLICE */
+		xsplice(ctx->per, STDERR_FILENO, SPLICE_F_MOVE);
 		close(ctx->per);
 	}
 #endif	/* HAVE_PTY_H */
