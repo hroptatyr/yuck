@@ -496,8 +496,9 @@ overread:
 	if (cur_usg.cmd && !strncasecmp(cur_usg.cmd, cp, sp - cp)) {
 		/* nothing new and fresh */
 		;
-	} else if ((*cp != '<' || (cp++, *--sp == '>')) &&
-		   !strncasecmp(cp, "command", sp - cp)) {
+	} else if (!strncasecmp(cp, "command", sp - cp) ||
+		   (cp[0] == '<' && sp[-1] == '>' &&
+		    !strncasecmp(cp + 1U, "command", sp - cp - 2))) {
 		/* special command COMMAND or <command> */
 		cur_usg.cmd = NULL;
 	} else if (*cp >= 'a' && *cp <= 'z' && umb_yldd_p) {
