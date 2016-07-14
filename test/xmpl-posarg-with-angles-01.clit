@@ -1,0 +1,13 @@
+#!/usr/bin/clitoris
+
+$ xmpl-posarg-with-angles --help
+Usage: xmpl [OPTION]... < ANGLE_FILE > OUTPUT
+
+Shows off yuck.
+
+  -h, --help            display this help and exit
+  -V, --version         output version information and exit
+
+$
+
+## xmpl-posarg-with-angles-01.clit ends here
