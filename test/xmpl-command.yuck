@@ -1,0 +1,10 @@
+Usage: xmpl <command>
+Shows off yuck.
+
+  -x, --extra        Produce some extra bling.
+  -o, --output=FILE  Output bling to file.
+
+Usage: xmpl turbo [FILE]...
+Run xmpl in turbo mode
+
+  -x, --extra-turbo  Use more turbos than normal.

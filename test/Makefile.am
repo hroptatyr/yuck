@@ -118,6 +118,16 @@ TESTS += xmpl-subcommands-02.clit
 TESTS += xmpl-subcommands-03.clit
 TESTS += xmpl-subcommands-04.clit
 
+BUILT_SOURCES += xmpl-command.yucc
+check_PROGRAMS += xmpl-command
+EXTRA_DIST += xmpl-command.c xmpl-command.yuck
+TESTS += xmpl-command-01.clit
+
+BUILT_SOURCES += xmpl-posarg-with-angles.yucc
+check_PROGRAMS += xmpl-posarg-with-angles
+EXTRA_DIST += xmpl-posarg-with-angles.c xmpl-posarg-with-angles.yuck
+TESTS += xmpl-posarg-with-angles-01.clit
+
 TESTS += scmver_01.clit
 TESTS += scmver_02.clit
 TESTS += scmver_03.clit
