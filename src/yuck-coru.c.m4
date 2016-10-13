@@ -47,10 +47,13 @@ yuck_append(char **array, size_t n, char *val)
 {
 	if (!(n % 16U)) {
 		/* resize */
-		array = realloc(array, (n + 16U) * sizeof(*array));
-		if (array == NULL) {
+		void *tmp = realloc(array, (n + 16U) * sizeof(*array));
+		if (tmp == NULL) {
+			free(array);
 			return NULL;
 		}
+		/* otherwise make it persistent */
+		array = tmp;
 	}
 	array[[n]] = val;
 	return array;
