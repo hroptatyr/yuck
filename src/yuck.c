@@ -79,6 +79,9 @@
 #if !defined countof
 # define countof(x)	(sizeof(x) / sizeof(*x))
 #endif	/* !countof */
+#if !defined strlenof
+# define strlenof(x)	(sizeof(x) - 1ULL)
+#endif	/* !strlenof */
 
 #define _paste(x, y)	x ## y
 #define paste(x, y)	_paste(x, y)
@@ -1242,8 +1245,8 @@ find_aux(char *restrict buf, size_t bsz, const char *aux)
 	}
 #if defined YUCK_TEMPLATE_PATH
 	path = YUCK_TEMPLATE_PATH;
-	plen = sizeof(YUCK_TEMPLATE_PATH);
-	if (plen-- > 0U && aux_in_path_p(aux, path, plen)) {
+	plen = strlenof(YUCK_TEMPLATE_PATH);
+	if (aux_in_path_p(aux, path, plen)) {
 		goto bang;
 	}
 #endif	/* YUCK_TEMPLATE_PATH */
