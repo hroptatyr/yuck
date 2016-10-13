@@ -368,16 +368,21 @@ bbuf_cat(bbuf_t *restrict b, const char *str, size_t ssz)
 {
 	if (UNLIKELY(b->n + ssz + 1U/*\nul*/ > b->z)) {
 		const size_t nu = max_zu(yfls(b->n + ssz + 1U) + 1U, 6U);
+		char *tmp;
 
-		b->s = realloc(b->s, (b->z = (1ULL << nu) * sizeof(*b->s)));
-		if (UNLIKELY(b->s == NULL)) {
+		tmp = realloc(b->s, (b->z = (1ULL << nu) * sizeof(*b->s)));
+		if (UNLIKELY(tmp == NULL)) {
 			goto free;
 		}
+		/* all's good then? */
+		b->s = tmp;
 	}
 	xstrncpy(b->s + b->n, str, ssz);
 	b->n += ssz;
 	return b->s;
 free:
+	free(b->s);
+	b->s = NULL;
 	b->n = 0U;
 	b->z = 0U;
 	return NULL;
