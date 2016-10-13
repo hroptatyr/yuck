@@ -320,7 +320,7 @@ popdef([yuck_auto_action])dnl
 
 	coroutine(arg)
 	{
-		if (tgt->cmd || !YUCK_NCMDS) {
+		if (tgt->cmd || YUCK_NCMDS == 0U) {
 			tgt->args[[tgt->nargs++]] = argv[[i]];
 		} else {
 			/* ah, might be an arg then */
@@ -380,7 +380,6 @@ popdef([yuck_arg_opt_action])dnl
 popdef([yuck_arg_mul_action])dnl
 popdef([yuck_arg_mul_opt_action])dnl
 popdef([yuck_auto_opt_action])dnl
-		break;
 	}
 	return;
 }
