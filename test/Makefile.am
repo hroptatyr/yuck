@@ -471,6 +471,9 @@ EXTRA_DIST += rudi_14.version
 EXTRA_DIST += rudi_15.version
 EXTRA_DIST += rudi_16.version
 
+TESTS += man-01.clit
+EXTRA_DIST += man-01.yuck
+
 
 ## just to get the tests and yucc files rebuilt
 $(BUILT_SOURCES): $(top_builddir)/src/yuck$(EXEEXT)
