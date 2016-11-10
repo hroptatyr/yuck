@@ -437,6 +437,14 @@ EXTRA_DIST += dashdesc_01.yuck
 BUILT_SOURCES += dashdesc_01.yucc
 TESTS += dashdesc_01.clit
 
+check_PROGRAMS += xtraarg_01
+xtraarg_01_SOURCES = generic.c
+xtraarg_01_CPPFLAGS = $(AM_CPPFLAGS)
+xtraarg_01_CPPFLAGS += -DYUCC_FILE='"xtraarg_01.yucc"'
+EXTRA_DIST += xtraarg_01.yuck
+BUILT_SOURCES += xtraarg_01.yucc
+TESTS += xtraarg_01.clit
+
 
 TESTS += scmver_11.clit
 TESTS += scmver_12.clit

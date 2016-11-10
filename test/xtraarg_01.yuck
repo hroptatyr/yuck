@@ -1,0 +1,3 @@
+Usage: foo
+
+  -n, --no-extra        An option that take no argument.
