@@ -157,7 +157,7 @@ ifdef([YUCK_MAX_POSARGS], [], [define([YUCK_MAX_POSARGS], [(size_t)-1])])dnl
 		resume;
 
 dnl TYPE actions
-pushdef([yuck_flag_action], [tgt->yuck_slot([$1], [$2])++])dnl
+pushdef([yuck_flag_action], [tgt->yuck_slot([$1], [$2])++; goto xtra_chk])dnl
 pushdef([yuck_arg_action], [tgt->yuck_slot([$1], [$2]) = arg ?: argv[[++i]]])dnl
 pushdef([yuck_arg_opt_action], [tgt->yuck_slot([$1], [$2]) = arg ?: YUCK_OPTARG_NONE])dnl
 pushdef([yuck_arg_mul_action], [tgt->yuck_slot([$1], [$2]) =
@@ -201,6 +201,11 @@ ifdef([YOPT_ALLOW_UNKNOWN_DASHDASH], [dnl
 				/* grml */
 				fprintf(stderr, "YUCK_UMB_STR: unrecognized option `--%s'\n", op);
 				resume_at(failure);
+			xtra_chk:
+				if (arg != NULL) {
+					fprintf(stderr, "YUCK_UMB_STR: option `--%s' doesn't allow an argument\n", op);
+					resume_at(failure);
+				}
 ])dnl
 ], [dnl
 				resume_at(yuck_cmd()[_longopt]);

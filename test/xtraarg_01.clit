@@ -1,6 +1,5 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
-$ ! xtraarg_01 -n8
 $ ! xtraarg_01 --no-extra=8
 $
 
