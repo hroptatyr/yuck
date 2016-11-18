@@ -38,6 +38,10 @@ TESTS += plain_06.clit
 EXTRA_DIST += plain_05.yuck
 EXTRA_DIST += plain_06.yuck
 
+TESTS += outfn_01.clit
+TESTS += outfn_02.clit
+TESTS += outfn_03.clit
+
 TESTS += subcmd_01.clit
 EXTRA_DIST += subcmd_01.yuck
 TESTS += subcmd_02.clit

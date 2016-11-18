@@ -1,0 +1,8 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+## see if header output goes into outfn_03.h and beef into outfn_03.c
+$ yuck gen -H "outfn_03.h" -o "outfn_03.c" "${srcdir}/plain_01.yuck"
+$ test -s "outfn_03.h"
+$ test -s "outfn_03.c"
+$ rm -f "outfn_03.h" "outfn_03.c"
+$
