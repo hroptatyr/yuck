@@ -1,0 +1,8 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+## see if output goes into outfn_02.h
+$ yuck gen -H "outfn_02.h" "${srcdir}/plain_01.yuck" > "outfn_02.c"
+$ test -s "outfn_02.h"
+$ test -s "outfn_02.c"
+$ rm -f "outfn_02.h" "outfn_02.c"
+$

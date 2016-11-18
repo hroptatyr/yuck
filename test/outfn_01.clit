@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+## see if all the output goes into outfn_01.x
+$ yuck gen -o "outfn_01.x" "${srcdir}/plain_01.yuck"
+$ test -s "outfn_01.x"
+$ rm -f "outfn_01.x"
+$
