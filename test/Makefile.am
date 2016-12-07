@@ -449,6 +449,22 @@ EXTRA_DIST += xtraarg_01.yuck
 BUILT_SOURCES += xtraarg_01.yucc
 TESTS += xtraarg_01.clit
 
+check_PROGRAMS += lastarg_01
+lastarg_01_SOURCES = generic.c
+lastarg_01_CPPFLAGS = $(AM_CPPFLAGS)
+lastarg_01_CPPFLAGS += -DYUCC_FILE='"lastarg_01.yucc"'
+EXTRA_DIST += lastarg_01.yuck
+BUILT_SOURCES += lastarg_01.yucc
+TESTS += lastarg_01.clit
+
+check_PROGRAMS += lastarg_02
+lastarg_02_SOURCES = generic.c
+lastarg_02_CPPFLAGS = $(AM_CPPFLAGS)
+lastarg_02_CPPFLAGS += -DYUCC_FILE='"lastarg_02.yucc"'
+EXTRA_DIST += lastarg_02.yuck
+BUILT_SOURCES += lastarg_02.yucc
+TESTS += lastarg_02.clit
+
 
 TESTS += scmver_11.clit
 TESTS += scmver_12.clit

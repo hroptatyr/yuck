@@ -1,0 +1,9 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ lastarg_01 -x 3
+$ lastarg_01 --extra 3
+$ ! lastarg_01 -x
+$ ! lastarg_01 --extra
+$
+
+## lastarg_01.clit ends here
