@@ -211,6 +211,10 @@ ifdef([YOPT_ALLOW_UNKNOWN_DASHDASH], [dnl
 				resume_at(yuck_cmd()[_longopt]);
 ])dnl
 			}
+			if (i >= argc) {
+				fprintf(stderr, "YUCK_UMB_STR: option `--%s' requires an argument\n", op);
+				resume_at(failure);
+			}
 			resume;
 		}
 		])
@@ -314,6 +318,10 @@ dnl now simply expand yuck_foo_action:
 				break;
 divert[]dnl
 ])dnl
+			}
+			if (i >= argc) {
+				fprintf(stderr, "YUCK_UMB_STR: option `--%s' requires an argument\n", op);
+				resume_at(failure);
 			}
 			resume;
 		}
