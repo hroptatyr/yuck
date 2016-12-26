@@ -271,22 +271,27 @@ pushdef([yuck_auto_action], [/* invoke auto action and exit */
 		foreachq([__CMD], yuck_umbcmds(), [coroutine(yuck_cmd(defn([__CMD]))[_shortopt])
 		{
 			switch (*op) {
-			case '0':
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-			case '5':
-			case '6':
-			case '7':
-			case '8':
-			case '9':
-				if (op[[-1]] == '-') {
-					/* literal treatment of numeral */
-					resume_at(arg);
-				}
-				/*@fallthrough@*/
 			default:
+				/* again for clarity */
+				switch (*op) {
+				case '0':
+				case '1':
+				case '2':
+				case '3':
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+				case '8':
+				case '9':
+					if (op[[-1]] == '-') {
+						/* literal treatment of numeral */
+						resume_at(arg);
+					}
+					/* fallthrough */
+				default:
+					break;
+				}
 				divert(1);
 ifdef([YOPT_ALLOW_UNKNOWN_DASH], [dnl
 				resume_at(arg);
