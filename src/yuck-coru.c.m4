@@ -296,7 +296,7 @@ pushdef([yuck_auto_action], [/* invoke auto action and exit */
 ifdef([YOPT_ALLOW_UNKNOWN_DASH], [dnl
 				resume_at(arg);
 ], [dnl
-				fprintf(stderr, "YUCK_UMB_STR: invalid option -%c\n", *op);
+				fprintf(stderr, "YUCK_UMB_STR: unrecognized option -%c\n", *op);
 				resume_at(failure);
 ])dnl
 
