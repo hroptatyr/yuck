@@ -1,0 +1,23 @@
+name: yuck
+version: '0.2.4-GIT'
+summary: Command line option parser for C.
+description: |
+    A command line option parser generator for C that works with
+    only household ingredients (a C compiler and the m4 macro
+    processor) and supports:
+    + GNU-style long options (--blah)
+    + condensable short options (-xab for -x -a -b)
+    + optional arguments to long and short options (--foo[=BAR])
+    + multiple occurrence of options (-vvv)
+    + does not depend on libc's getopt() nor getopt_long()
+grade: stable
+confinement: strict
+
+apps:
+    yuck:
+        command: bin/yuck
+
+parts:
+    yuck:
+        plugin: autotools
+        source: https://github.com/hroptatyr/yuck.git
