@@ -816,12 +816,16 @@ make_opt_ident(const struct opt_s *arg)
 		bbuf_cpy(i, arg->lopt, strlen(arg->lopt));
 	} else if (arg->sopt) {
 		if (bbuf_cpy(i, "dash.", 5U) != NULL) {
-			i->s[4U] = arg->sopt;
+                        if (i->s) {
+                            i->s[4U] = arg->sopt;
+                        }
 		}
 	} else {
 		static unsigned int cnt;
 		if (bbuf_cpy(i, "idnXXXX", 7U) != NULL) {
-			snprintf(i->s + 3U, 5U, "%u", cnt++);
+                        if (i->s) {
+                            snprintf(i->s + 3U, 5U, "%u", cnt++);
+                        }
 		}
 	}
 	if (LIKELY(i->s != NULL)) {
