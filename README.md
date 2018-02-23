@@ -20,7 +20,7 @@ comes with all the knickknackery and whatnots:
 + optional arguments to long and short options (--foo[=BAR])
 + multiple occurrence of options (-vvv)
 + does *not* depend on libc's getopt() nor getopt_long()
-+ [BSD 3-clause licence][4]
++ licensed under [BSD 3-clause licence][4]
 
 And getting started is as easy as *munching* cake -- let yuck do the
 actual baking for you:  Just feed it the `--help` output you'd like to
