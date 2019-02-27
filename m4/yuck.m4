@@ -74,7 +74,7 @@ AC_DEFUN([AX_CHECK_YUCK], [dnl
 	AC_ARG_WITH([included-yuck], [dnl
 AS_HELP_STRING([--with-included-yuck], [
 Use included copy of the yuck command line parser generator
-instead of the system-wide one.])], [with_included_yuck="${withval}"], [$1])
+instead of the system-wide one.])], [with_included_yuck="${withval}"], [with_included_yuck="$1"])
 
 	AC_REQUIRE([AX_CHECK_M4_BUFFERS])
 	if test "${with_included_yuck}" != "yes"; then
