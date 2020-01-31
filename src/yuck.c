@@ -67,6 +67,9 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #include <time.h>
+#if defined __APPLE__
+# include <mach-o/dyld.h>
+#endif	/* __APPLE__ */
 #if defined WITH_SCMVER
 # include <yuck-scmver.h>
 #endif	/* WITH_SCMVER */
