@@ -21,7 +21,7 @@ EXTRA_DIST += version.mk.in
 
 aclocal_DATA = m4/yuck.m4
 
-doc_DATA = README.md
+doc_DATA = README.md LICENCE
 EXTRA_DIST += $(doc_DATA)
 
 ## make sure .version is read-only in the dist
