@@ -75,6 +75,9 @@
 #if defined WITH_SCMVER
 # include <yuck-scmver.h>
 #endif	/* WITH_SCMVER */
+#ifdef __APPLE__
+# include <mach-o/dyld.h>
+#endif
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect((_x), 1)

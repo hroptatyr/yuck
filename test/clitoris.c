@@ -62,6 +62,9 @@
 #endif	/* HAVE_PTY_H */
 /* check for me */
 #include <wordexp.h>
+#ifdef __APPLE__
+# include <mach-o/dyld.h>
+#endif
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect((_x), 1)
